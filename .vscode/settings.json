@@ -1,0 +1,11 @@
+{
+    "terminal.integrated.allowChords": false,
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#7d1fe9b5",
+        "titleBar.activeBackground": "#7d1fe9b5",
+        "titleBar.activeForeground": "#F9FBF1"
+    },
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "always",
+    }
+}

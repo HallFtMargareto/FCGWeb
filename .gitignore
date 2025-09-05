@@ -1,0 +1,6 @@
+node_modules
+node_modules_BAK
+package-lock.json
+pnpm-lock.yaml
+dist/
+.vscode/sftp.json

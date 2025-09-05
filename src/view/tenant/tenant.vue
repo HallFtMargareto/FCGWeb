@@ -1,0 +1,512 @@
+<template>
+  <div>
+    <div class="search-term">
+      <!-- 条件搜索 -->
+      <el-form
+        :inline="true"
+        class="demo-form-inline"
+        size="mini"
+        label-width="120px"
+        label-position="right"
+        :model="searchInfo"
+      >
+        <el-row :gutter="24">
+          <el-col :span="24">
+            <el-form-item label="企业名称">
+              <el-input
+                placeholder="企业名称"
+                v-model="searchInfo.enterprise_name"
+              ></el-input>
+            </el-form-item>
+
+            <el-form-item label="平台名称">
+              <el-input
+                placeholder="平台名称"
+                v-model="searchInfo.platform_name"
+              ></el-input>
+            </el-form-item>
+
+            <el-form-item label="组织标识-编码">
+              <el-input
+                placeholder="组织标识-租户编码"
+                v-model="searchInfo.organization"
+              ></el-input>
+            </el-form-item>
+
+            <el-form-item label="APP标识">
+              <el-input
+                placeholder="APP标识"
+                v-model="searchInfo.application"
+              ></el-input>
+            </el-form-item>
+
+            <el-form-item label="到期时间">
+              <datepicker v-model="searchInfo.expires" type="datetime" />
+            </el-form-item>
+
+            <el-form-item label="状态" prop="enabled">
+              <el-select v-model="searchInfo.enabled" placeholder="请选择">
+                <el-option key="true" label="是" value="true"></el-option>
+                <el-option key="false" label="否" value="false"></el-option>
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="开始时间">
+              <datepicker v-model="searchInfo.startTime" type="datetime" />
+            </el-form-item>
+            <el-form-item label="结束时间">
+              <datepicker v-model="searchInfo.endTime" type="datetime" />
+            </el-form-item>
+
+            <el-form-item label=" ">
+              <el-button @click="onQuery" type="primary">查询</el-button>
+              <el-button @click="$bus.$emit('reload')">重置</el-button>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+
+      <el-form size="mini" :inline="true" class="btn-form-inline">
+        <el-button
+          v-if="userInfo.perm['system.create']"
+          @click="createRow"
+          icon="el-icon-plus"
+          type="primary"
+          >新增</el-button
+        >
+        <el-button
+          v-if="
+            userInfo.perm['system.batch_delete'] && multipleSelection.length > 0
+          "
+          @click="handleCommand('remove')"
+          icon="el-icon-delete"
+          type="danger"
+          plain
+          >批量删除</el-button
+        >
+        <el-button
+          v-if="userInfo.perm['system.import']"
+          @click="importExcel"
+          icon="el-icon-sell"
+          >导入</el-button
+        >
+        <el-button
+          v-if="userInfo.perm['system.export']"
+          @click="exportExcel"
+          icon="el-icon-sold-out"
+          >导出</el-button
+        >
+      </el-form>
+    </div>
+
+    <el-table
+      :data="tableData"
+      @selection-change="handleSelectionChange"
+      @sort-change="sortChange"
+      ref="multipleTable"
+      :show-summary="showSummary"
+      :summary-method="getSummaries"
+      border
+    >
+      <el-table-column type="selection"></el-table-column>
+      <el-table-column label="ID" prop="ID" sortable></el-table-column>
+
+      <el-table-column label="企业名称" prop="enterprise_name">
+      </el-table-column>
+
+      <el-table-column label="平台名称" prop="platform_name"> </el-table-column>
+
+      <el-table-column label="APP标识" prop="application"> </el-table-column>
+
+      <!-- <el-table-column label="企业ID" prop="enterprise_id"> </el-table-column> -->
+
+      <!-- <el-table-column label="组织标识-租户编码" prop="organization">
+      </el-table-column> -->
+
+      <!--
+      <el-table-column label="租户管理员主键" prop="admin_id">
+      </el-table-column>
+
+      <el-table-column label="联系人" prop="contact"> </el-table-column>
+
+      <el-table-column label="账号" prop="account"> </el-table-column>
+
+      <el-table-column label="手机" prop="phone"> </el-table-column>
+
+      <el-table-column label="域名" prop="domain"> </el-table-column>
+
+      <el-table-column label="邮箱" prop="email"> </el-table-column> 
+      <el-table-column label="租户套餐" prop="package_id"> </el-table-column>
+      -->
+      <el-table-column label="联系人" prop="contact"> </el-table-column>
+
+      <el-table-column label="手机" prop="phone"> </el-table-column>
+
+      <el-table-column label="到期时间" prop="expires"> </el-table-column>
+
+      <el-table-column label="备注" prop="remark"> </el-table-column>
+
+      <!-- <el-table-column label="创建人" prop="create_by"> </el-table-column>
+
+      <el-table-column label="更新人" prop="update_by"> </el-table-column> -->
+      <el-table-column prop="created_at" label="时间" sortable="custom">
+        <template slot-scope="scope">{{ scope.row.created_at }}</template>
+      </el-table-column>
+
+      <el-table-column label="操作" fixed="right">
+        <template slot-scope="scope">
+          <el-button
+            v-if="userInfo.perm['system.update']"
+            @click="editRow(scope.row)"
+            type="text"
+            size="small"
+            icon="el-icon-edit"
+            >编辑</el-button
+          >
+          <el-button
+            v-if="userInfo.perm['system.delete']"
+            @click="deleteRow(scope.row)"
+            type="text"
+            size="small"
+            icon="el-icon-delete"
+            >删除</el-button
+          >
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <!-- class="pagination-container" -->
+    <div>
+      <!-- 数据合计,按需求启用 -->
+      <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
+      <el-pagination
+        :current-page="page"
+        :page-size="pageSize"
+        :page-sizes="[10, 30, 50, 100]"
+        :style="{ float: 'right', padding: '20px' }"
+        :total="total"
+        @current-change="handleCurrentChange"
+        @size-change="handleSizeChange"
+        layout="total, sizes, prev, pager, next, jumper"
+        background
+      ></el-pagination>
+    </div>
+
+    <el-dialog
+      @close="closeDialog"
+      :visible.sync="dialogFormVisible"
+      :title="dialogTitle"
+      width="25%"
+    >
+      <el-form
+        :model="formData"
+        :rules="formDataRules"
+        ref="ruleForm"
+        size="mini"
+        label-position="right"
+        label-width="80px"
+      >
+        <el-form-item label="企业名称" prop="enterprise_name">
+          <el-input
+            v-model="formData.enterprise_name"
+            clearable
+            placeholder="请输入"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="平台名称" prop="platform_name">
+          <el-input
+            v-model="formData.platform_name"
+            clearable
+            placeholder="请输入"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="APP标识" prop="application">
+          <el-input
+            v-model="formData.application"
+            clearable
+            placeholder="请输入"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="联系人" prop="contact">
+          <el-input
+            v-model="formData.contact"
+            clearable
+            placeholder="请输入"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="手机" prop="phone">
+          <el-input
+            v-model="formData.phone"
+            clearable
+            placeholder="请输入"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="到期时间" prop="expires">
+          <datepicker v-model="formData.expires" type="datetime" />
+        </el-form-item>
+        <el-form-item label="用户数量" prop="user_quantity">
+          <el-input
+            v-model.number="formData.user_quantity"
+            clearable
+            placeholder="请输入"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="状态" prop="enabled">
+          <el-switch
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            active-text="启用"
+            inactive-text="禁用"
+            v-model="formData.enabled"
+            clearable
+          ></el-switch>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input
+            v-model="formData.remark"
+            clearable
+            placeholder="请输入"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div class="dialog-footer" slot="footer">
+        <el-button @click="dialogFormVisible = !dialogFormVisible"
+          >取 消</el-button
+        >
+        <el-button @click="enterDialog" type="primary">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <uploadexcel ref="uploadexcel" action="SysTenant"></uploadexcel>
+  </div>
+</template>
+
+<script>
+import infoList from "@/mixins/infoList";
+import datepicker from "@/components/datepicker";
+import uploadexcel from "@/components/uploadexcel";
+import { mapGetters } from "vuex";
+export default {
+  name: "SysTenant",
+  mixins: [infoList],
+  components: {
+    datepicker,
+    uploadexcel,
+  },
+  computed: {
+    ...mapGetters("user", ["userInfo"]),
+  },
+  data() {
+    return {
+      listApi: this.$api.getSysTenantList,
+      dialogFormVisible: false,
+      dialogTitle: "",
+      type: "",
+      multipleSelection: [],
+      formData: {
+        organization: "",
+        application: "",
+        enterprise_id: undefined,
+        enterprise_name: "",
+        platform_name: "",
+        admin_id: undefined,
+        contact: "",
+        account: "",
+        phone: "",
+        domain: "",
+        email: "",
+        package_id: undefined,
+        user_quantity: 10,
+        enabled: true,
+        remark: "",
+        create_by: "",
+        update_by: "",
+      },
+      formDataRules: {
+        application: [
+          { required: true, message: "请填写数据", trigger: "blur" },
+        ],
+        enterprise_name: [
+          { required: true, message: "请填写数据", trigger: "blur" },
+        ],
+        platform_name: [
+          { required: true, message: "请填写数据", trigger: "blur" },
+        ],
+        contact: [{ required: true, message: "请填写数据", trigger: "blur" }],
+        phone: [{ required: true, message: "请填写数据", trigger: "blur" }],
+        expires: [{ required: true, message: "请选择项目", trigger: "change" }],
+        user_quantity: [
+          { required: true, message: "请填写数据", trigger: "change" },
+        ],
+      },
+      miniDataList: [],
+    };
+  },
+  methods: {
+    onQuery() {
+      this.summary = {};
+      this.showSummary = false;
+
+      this.page = 1;
+      this.pageSize = 10;
+      this.getTableData();
+    },
+    createRow() {
+      this.type = "create";
+      this.dialogTitle = "创建";
+      this.dialogFormVisible = true;
+    },
+    async editRow(row) {
+      this.type = "update";
+      this.dialogTitle = "编辑";
+      const res = await this.$api.findSysTenant({ ID: row.ID });
+      if (res.code == 0) {
+        this.formData = res.data.retenant;
+        this.dialogFormVisible = true;
+      }
+    },
+    deleteRow(row) {
+      this.$confirm("确定要删除吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then(() => {
+        this.deleteSysTenant(row);
+      });
+    },
+    async deleteSysTenant(row) {
+      const res = await this.$api.deleteSysTenant({ ID: row.ID });
+      if (res.code == 0) {
+        this.$message({
+          type: "success",
+          message: "删除成功",
+        });
+        if (this.tableData.length == 1) {
+          this.page--;
+        }
+        this.getTableData();
+      }
+    },
+    closeDialog() {
+      this.$refs["ruleForm"].resetFields();
+      this.formData = {};
+      this.dialogFormVisible = false;
+    },
+    async enterDialog() {
+      //数据校验
+      const valid = await new Promise((resolve) => {
+        this.$refs["ruleForm"].validate((valid) => {
+          resolve(valid);
+        });
+      });
+      if (!valid) {
+        this.$message({
+          type: "error",
+          message: "请填写正确数据",
+        });
+        return false;
+      }
+
+      let res;
+      switch (this.type) {
+        case "create":
+          res = await this.$api.createSysTenant(this.formData);
+          break;
+        case "update":
+          res = await this.$api.updateSysTenant(this.formData);
+          break;
+        default:
+          this.$message({
+            type: "error",
+            message: "操作类型错误",
+          });
+          return false;
+      }
+      if (res.code == 0) {
+        this.$message({
+          type: "success",
+          message: "操作成功",
+        });
+        this.closeDialog();
+        this.getTableData();
+      }
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
+    handleCommand(command) {
+      this.$confirm("是否要执行批量操作?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then(async () => {
+        const ids = [];
+        if (this.multipleSelection.length == 0) {
+          this.$message({
+            type: "warning",
+            message: "请选择需要操作的数据",
+          });
+          return;
+        }
+        this.multipleSelection &&
+          this.multipleSelection.map((item) => {
+            ids.push(item.ID);
+          });
+
+        const res = await this.$api.batchSysTenantOperation({
+          ids,
+          command: command,
+        });
+        if (res.code == 0) {
+          this.$message({
+            type: "success",
+            message: "操作成功",
+          });
+          this.getTableData();
+        }
+      });
+    },
+    sortChange(row) {
+      //自定义排序要设置两个属性prop="field-name" sortable="custom"
+      this.orderField = row.prop;
+      this.orderType = this.directionMap[row.order] || "";
+      this.getTableData();
+    },
+    async getSummaryList() {
+      const res = await this.$api.getSysTenantSummary(this.searchInfo);
+      let keys = Object.keys(res.data.summary);
+      for (let key of keys) {
+        this.summary[key] = res.data.summary[key];
+      }
+      this.showSummary = true;
+    },
+    getSummaries(param) {
+      const sums = [];
+      const { columns } = param;
+      let that = this;
+      columns.forEach((column, index) => {
+        sums[index] =
+          that.summary[column.property] != null
+            ? that.summary[column.property]
+            : null;
+      });
+      // sums[0] = "合计";
+      return sums;
+    },
+    importExcel() {
+      //触发upLoad组件内部点击事件，弹出文件选择框
+      this.$refs.uploadexcel.chooseFile();
+    },
+    async exportExcel() {
+      this.searchInfo.action = "SysTenant";
+      await this.$api.getExcel(this.searchInfo);
+    },
+  },
+  async created() {
+    await this.getTableData();
+  },
+};
+</script>
+
+<style>
+</style>
