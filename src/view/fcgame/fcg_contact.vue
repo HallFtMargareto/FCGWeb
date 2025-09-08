@@ -1,55 +1,44 @@
 <template>
   <div>
     <div class="search-term">
-      <searchform size="mini" :maxShow="3" @search="onQuery">
-        <el-form-item label="租户ID">
-          <el-input v-model.number="searchInfo.tenant_id" placeholder="请输入" clearable></el-input>
-        </el-form-item>
+      <searchform size="mini" :maxShow="4" @search="onQuery">
+        <!-- <el-form-item label="租户ID">
+          <el-input v-model.number="searchInfo.tenant_id" placeholder="请输入租户ID" clearable></el-input>
+        </el-form-item> -->
 
         <el-form-item label="用户标识">
-          <el-input v-model="searchInfo.username" placeholder="用户唯一标识" clearable></el-input>
-
+          <el-input v-model="searchInfo.username" placeholder="用户标识" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="昵称">
-          <el-input v-model="searchInfo.nick_name" placeholder="昵称" clearable></el-input>
+          <el-input v-model="searchInfo.nick_name" placeholder="用户昵称" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="别名">
-          <el-input v-model="searchInfo.alias" placeholder="别名" clearable></el-input>
+          <el-input v-model="searchInfo.alias" placeholder="用户别名" clearable></el-input>
         </el-form-item>
 
-        <el-form-item label="本地类型">
-          <el-input v-model.number="searchInfo.local_type" placeholder="请输入" clearable></el-input>
-        </el-form-item>
-
-
-
-        <el-form-item label="备注">
-          <el-input v-model="searchInfo.remark" placeholder="备注" clearable></el-input>
-
-        </el-form-item>
-
-
-        <el-form-item label="描述">
-          <el-input v-model="searchInfo.description" placeholder="描述" clearable></el-input>
-
-        </el-form-item>
-
-
-
-        <!-- <el-form-item label="msg_hash">
-          <el-input v-model="searchInfo.hash" placeholder="msg_hash" clearable></el-input>
+        <!-- <el-form-item label="本地类型">
+          <el-input v-model.number="searchInfo.local_type" placeholder="本地类型" clearable></el-input>
         </el-form-item> -->
 
+        <el-form-item label="备注">
+          <el-input v-model="searchInfo.remark" placeholder="备注信息" clearable></el-input>
+        </el-form-item>
 
+        <el-form-item label="描述">
+          <el-input v-model="searchInfo.description" placeholder="描述信息" clearable></el-input>
+        </el-form-item>
 
+        <el-form-item label="msg_hash">
+          <el-input v-model="searchInfo.hash" placeholder="消息哈希值" clearable></el-input>
+        </el-form-item>
 
         <el-form-item label="添加时间">
-          <datepicker v-model="searchInfo.startTime" type="datetime" />
+          <datepicker v-model="searchInfo.startTime" type="datetime" placeholder="开始时间" />
         </el-form-item>
         <el-form-item label="结束时间">
-          <datepicker v-model="searchInfo.endTime" type="datetime" />
+          <datepicker v-model="searchInfo.endTime" type="datetime" placeholder="结束时间" />
         </el-form-item>
       </searchform>
 
@@ -73,7 +62,7 @@
       </el-table-column> -->
 
 
-      <el-table-column label="用户标识" prop="username" show-overflow-tooltip>
+      <el-table-column label="用户标识" prop="user_name" width="300">
       </el-table-column>
 
 
@@ -117,9 +106,10 @@
       </el-table-column>
 
 
-
       <el-table-column label="添加时间" width="160" prop="created_at" sortable="custom">
-        <template slot-scope="scope">{{ scope.row.created_at }}</template>
+        <template slot-scope="scope">
+          {{ formatTimestamp(scope.row.created_at) }}
+        </template>
       </el-table-column>
 
       <el-table-column label="操作" fixed="right" width="200">
@@ -144,46 +134,6 @@
         @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
     </div>
 
-    <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
-      @confirm="enterDialog" ref="dialog">
-      <el-form-item label="租户ID" prop="tenant_id">
-        <el-input v-model.number="formData.tenant_id" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="用户唯一标识" prop="username">
-        <el-input v-model="formData.username" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="昵称" prop="nick_name">
-        <el-input v-model="formData.nick_name" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="别名" prop="alias">
-        <el-input v-model="formData.alias" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="本地类型" prop="local_type">
-        <el-input v-model.number="formData.local_type" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="拼音首字母" prop="pin_yin_initial">
-        <el-input v-model="formData.pin_yin_initial" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="全拼" prop="quan_pin">
-        <el-input v-model="formData.quan_pin" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="大头像" prop="big_head_url">
-        <el-input v-model="formData.big_head_url" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="小头像" prop="small_head_url">
-        <el-input v-model="formData.small_head_url" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="备注" prop="remark">
-        <el-input v-model="formData.remark" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="描述" prop="description">
-        <el-input v-model="formData.description" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="msg_hash" prop="hash">
-        <el-input v-model="formData.hash" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-    </dialogform>
-
     <uploadexcel ref="uploadexcel" action="FcgContact"></uploadexcel>
   </div>
 </template>
@@ -200,6 +150,7 @@ import {
 } from "@/api/fcgame/fcg_contact";
 import infoList from "@/mixins/infoList";
 import { mapGetters } from "vuex";
+import { formatTimeToStr } from "@/utils/date";
 export default {
   name: "fcg_contact",
   mixins: [infoList],
@@ -234,6 +185,13 @@ export default {
     };
   },
   methods: {
+    // 格式化时间戳为标准时间格式
+    formatTimestamp(timestamp) {
+      if (!timestamp) return '';
+      // 如果是时间戳（数字），转换为毫秒
+      const time = typeof timestamp === 'number' ? timestamp * 1000 : timestamp;
+      return formatTimeToStr(time, "yyyy-MM-dd hh:mm:ss");
+    },
     onQuery() {
       this.summary = {};
       this.showSummary = false;
@@ -372,4 +330,49 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.search-term {
+  padding: 20px;
+  background-color: #f5f7fa;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+.btn-form-inline {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e4e7ed;
+}
+
+.el-table {
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.el-pagination {
+  margin-top: 20px;
+}
+
+/* 搜索表单样式优化 */
+.search-term .el-form-item {
+  margin-bottom: 15px;
+}
+
+.search-term .el-form-item__label {
+  font-weight: 600;
+  color: #606266;
+}
+
+/* 表格头部样式 */
+.el-table th {
+  background-color: #fafafa;
+  color: #606266;
+  font-weight: 600;
+}
+
+/* 操作按钮样式 */
+.el-table .el-button--text {
+  padding: 0;
+  margin: 0 5px;
+}
+</style>
