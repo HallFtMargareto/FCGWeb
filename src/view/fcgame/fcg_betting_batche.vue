@@ -2,125 +2,108 @@
   <div>
     <div class="search-term">
       <searchform size="mini" :maxShow="3" @search="onQuery">
-              <el-form-item label="玩家ID">
-              <el-input v-model="searchInfo.user_id" placeholder="玩家ID" clearable></el-input>
-          
-              </el-form-item> 
-          
-          
-      
-              <el-form-item label="投注的奖期号">
-              <el-input v-model="searchInfo.issue_number" placeholder="投注的奖期号" clearable></el-input>
-          
-              </el-form-item> 
-          
-          
-      
-              <el-form-item label="玩家发送的原始聊天记录">
-              <el-input v-model="searchInfo.original_message" placeholder="玩家发送的原始聊天记录" clearable></el-input>
-          
-              </el-form-item> 
-          
-          
-      
-              <el-form-item label="该批次下所有订单的总金额">
-              <el-input v-model="searchInfo.total_amount" placeholder="该批次下所有订单的总金额" clearable></el-input>
-          
-              </el-form-item> 
-          
-          
-      
-              <el-form-item label="该批次生成的订单总数">
-              <el-input v-model.number="searchInfo.orders_count" placeholder="请输入" clearable></el-input>
-              </el-form-item> 
-          
-          
-      
-              <el-form-item label="玩家投注时的IP地址">
-              <el-input v-model="searchInfo.ip_address" placeholder="玩家投注时的IP地址" clearable></el-input>
-          
-              </el-form-item> 
-          
-          
-      
+        <el-form-item label="玩家ID">
+          <el-input v-model="searchInfo.user_id" placeholder="玩家ID" clearable></el-input>
 
-      <el-form-item label="添加时间">
+        </el-form-item>
+
+
+
+        <el-form-item label="投注的奖期号">
+          <el-input v-model="searchInfo.issue_number" placeholder="投注的奖期号" clearable></el-input>
+        </el-form-item>
+
+
+
+        <el-form-item label="玩家发送的原始聊天记录">
+          <el-input v-model="searchInfo.original_message" placeholder="玩家发送的原始聊天记录" clearable></el-input>
+
+        </el-form-item>
+
+
+
+        <el-form-item label="该批次下所有订单的总金额">
+          <el-input v-model="searchInfo.total_amount" placeholder="该批次下所有订单的总金额" clearable></el-input>
+
+        </el-form-item>
+
+
+
+        <el-form-item label="该批次生成的订单总数">
+          <el-input v-model.number="searchInfo.orders_count" placeholder="请输入" clearable></el-input>
+        </el-form-item>
+
+
+
+        <el-form-item label="玩家投注时的IP地址">
+          <el-input v-model="searchInfo.ip_address" placeholder="玩家投注时的IP地址" clearable></el-input>
+
+        </el-form-item>
+
+
+
+
+        <el-form-item label="添加时间">
           <datepicker v-model="searchInfo.startTime" type="datetime" />
-      </el-form-item>
-      <el-form-item label="结束时间">
+        </el-form-item>
+        <el-form-item label="结束时间">
           <datepicker v-model="searchInfo.endTime" type="datetime" />
-      </el-form-item>
+        </el-form-item>
       </searchform>
 
       <el-form size="mini" :inline="true" class="btn-form-inline">
-        <el-button v-if="userInfo.perm['system.create']" @click="createRow" icon="el-icon-plus" type="primary">新增</el-button>
-        <el-button v-if="userInfo.perm['system.batch_delete'] && multipleSelection.length > 0" @click="handleCommand('remove')" icon="el-icon-delete" type="danger" plain>批量删除</el-button>
+        <el-button v-if="userInfo.perm['system.create']" @click="createRow" icon="el-icon-plus"
+          type="primary">新增</el-button>
+        <el-button v-if="userInfo.perm['system.batch_delete'] && multipleSelection.length > 0"
+          @click="handleCommand('remove')" icon="el-icon-delete" type="danger" plain>批量删除</el-button>
         <el-button v-if="userInfo.perm['system.import']" @click="importExcel" icon="el-icon-sell">导入</el-button>
         <el-button v-if="userInfo.perm['system.export']" @click="exportExcel" icon="el-icon-sold-out">导出</el-button>
       </el-form>
     </div>
 
-    <el-table
-      :data="tableData"
-      @selection-change="handleSelectionChange"
-      @sort-change="sortChange"
-      ref="multipleTable"
-      :show-summary="showSummary"
-      :summary-method="getSummaries"
-    >
-    <el-table-column type="selection" width="50"></el-table-column>
-    <el-table-column label="ID" prop="ID" sortable></el-table-column>
-    
-      
-          <el-table-column label="玩家ID" prop="user_id">
-          </el-table-column> 
-        
-      
-          <el-table-column label="投注的奖期号" prop="issue_number" show-overflow-tooltip>
-          </el-table-column> 
-        
-      
-          <el-table-column label="玩家发送的原始聊天记录" prop="original_message" show-overflow-tooltip>
-          </el-table-column> 
-        
-      
-          <el-table-column label="该批次下所有订单的总金额" prop="total_amount">
-          </el-table-column> 
-        
-      
-          <el-table-column label="该批次生成的订单总数" prop="orders_count">
-          </el-table-column> 
-        
-      
-          <el-table-column label="玩家投注时的IP地址" prop="ip_address" show-overflow-tooltip>
-          </el-table-column> 
-        
-      
+    <el-table :data="tableData" @selection-change="handleSelectionChange" @sort-change="sortChange" ref="multipleTable"
+      :show-summary="showSummary" :summary-method="getSummaries">
+      <el-table-column type="selection" width="50"></el-table-column>
+      <el-table-column label="ID" prop="ID" sortable></el-table-column>
+
+
+      <el-table-column label="玩家ID" prop="user_id">
+      </el-table-column>
+
+
+      <el-table-column label="投注的奖期号" prop="issue_number" show-overflow-tooltip>
+      </el-table-column>
+
+
+      <el-table-column label="玩家发送的原始聊天记录" prop="original_message" show-overflow-tooltip>
+      </el-table-column>
+
+
+      <el-table-column label="该批次下所有订单的总金额" prop="total_amount">
+      </el-table-column>
+
+
+      <el-table-column label="该批次生成的订单总数" prop="orders_count">
+      </el-table-column>
+
+
+      <el-table-column label="玩家投注时的IP地址" prop="ip_address" show-overflow-tooltip>
+      </el-table-column>
+
+
 
       <el-table-column label="添加时间" width="160" prop="created_at" sortable="custom">
-        <template slot-scope="scope">{{scope.row.created_at}}</template>
+        <template slot-scope="scope">{{ scope.row.created_at }}</template>
       </el-table-column>
 
       <el-table-column label="操作" fixed="right" width="200">
         <template slot-scope="scope">
-          <el-button v-if="userInfo.perm['system.update']" @click="editRow(scope.row)" type="text" size="small" icon="el-icon-edit">编辑</el-button>
-          
-          <el-popconfirm
-            confirm-button-text="确定"
-            cancel-button-text="取消"
-            icon="el-icon-info"
-            icon-color="red"
-            title="确定要删除吗？"
-            @confirm="deleteRow(scope.row)"
-            v-if="userInfo.perm['system.delete']"
-          >
-            <el-button
-              type="text"
-              size="small"
-              icon="el-icon-delete"
-              slot="reference"
-              >删除</el-button
-            >
+          <el-button v-if="userInfo.perm['system.update']" @click="editRow(scope.row)" type="text" size="small"
+            icon="el-icon-edit">编辑</el-button>
+
+          <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
+            title="确定要删除吗？" @confirm="deleteRow(scope.row)" v-if="userInfo.perm['system.delete']">
+            <el-button type="text" size="small" icon="el-icon-delete" slot="reference">删除</el-button>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -128,47 +111,33 @@
 
     <!-- class="pagination-container" -->
     <div>
-       <!-- 数据合计,按需求启用 -->
+      <!-- 数据合计,按需求启用 -->
       <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
-      <el-pagination
-        :current-page="page"
-        :page-size="pageSize"
-        :page-sizes="[10, 30, 50, 100]"
-        :style="{float:'right',padding:'20px'}"
-        :total="total"
-        @current-change="handleCurrentChange"
-        @size-change="handleSizeChange"
-        layout="total, sizes, prev, pager, next, jumper"
-        background
-      ></el-pagination>
+      <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
+        :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
+        @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
     </div>
 
-    <dialogform
-      :visible.sync="openDialog"
-      :dialogTitle="dialogTitle"
-      :formDatas="formData"
-      :formRule="formRules"
-      @confirm="enterDialog"
-      ref="dialog"
-    >
-        <el-form-item label="玩家ID" prop="user_id">
-                    <el-input v-model="formData.user_id" clearable placeholder="请输入" ></el-input>
-        </el-form-item>
-        <el-form-item label="投注的奖期号" prop="issue_number">
-                  <el-input v-model="formData.issue_number" placeholder="请输入" clearable></el-input>
-        </el-form-item>
-        <el-form-item label="玩家发送的原始聊天记录" prop="original_message">
-                  <el-input v-model="formData.original_message" placeholder="请输入" clearable></el-input>
-        </el-form-item>
-        <el-form-item label="该批次下所有订单的总金额" prop="total_amount">
-                    <el-input v-model="formData.total_amount" clearable placeholder="请输入" ></el-input>
-        </el-form-item>
-        <el-form-item label="该批次生成的订单总数" prop="orders_count">
-                  <el-input v-model.number="formData.orders_count" placeholder="请输入" clearable></el-input>
-        </el-form-item>
-        <el-form-item label="玩家投注时的IP地址" prop="ip_address">
-                  <el-input v-model="formData.ip_address" placeholder="请输入" clearable></el-input>
-        </el-form-item>
+    <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
+      @confirm="enterDialog" ref="dialog">
+      <el-form-item label="玩家ID" prop="user_id">
+        <el-input v-model="formData.user_id" clearable placeholder="请输入"></el-input>
+      </el-form-item>
+      <el-form-item label="投注的奖期号" prop="issue_number">
+        <el-input v-model="formData.issue_number" placeholder="请输入" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="玩家发送的原始聊天记录" prop="original_message">
+        <el-input v-model="formData.original_message" placeholder="请输入" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="该批次下所有订单的总金额" prop="total_amount">
+        <el-input v-model="formData.total_amount" clearable placeholder="请输入"></el-input>
+      </el-form-item>
+      <el-form-item label="该批次生成的订单总数" prop="orders_count">
+        <el-input v-model.number="formData.orders_count" placeholder="请输入" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="玩家投注时的IP地址" prop="ip_address">
+        <el-input v-model="formData.ip_address" placeholder="请输入" clearable></el-input>
+      </el-form-item>
     </dialogform>
 
     <uploadexcel ref="uploadexcel" action="FcgBettingBatche"></uploadexcel>
@@ -177,13 +146,13 @@
 
 <script>
 import {
-    createFcgBettingBatche,
-    deleteFcgBettingBatche,
-    updateFcgBettingBatche,
-    findFcgBettingBatche,
-    getFcgBettingBatcheList,
-    batchFcgBettingBatcheOperation,
-    getFcgBettingBatcheSummary,
+  createFcgBettingBatche,
+  deleteFcgBettingBatche,
+  updateFcgBettingBatche,
+  findFcgBettingBatche,
+  getFcgBettingBatcheList,
+  batchFcgBettingBatcheOperation,
+  getFcgBettingBatcheSummary,
 } from "@/api/fcgame/fcg_betting_batche";
 import infoList from "@/mixins/infoList";
 import { mapGetters } from "vuex";
@@ -201,31 +170,31 @@ export default {
       type: "",
       multipleSelection: [],
       formData: {
-            user_id:undefined,
-            issue_number:"",
-            original_message:"",
-            total_amount:undefined,
-            orders_count:undefined,
-            ip_address:"",
-            
+        user_id: undefined,
+        issue_number: "",
+        original_message: "",
+        total_amount: undefined,
+        orders_count: undefined,
+        ip_address: "",
+
       },
       formRules: {
-        
-            user_id: [{ required: true, message: "请选择项目", trigger: "change" }],
-          issue_number: [{ required: true, message: "请填写数据", trigger: "blur" }],original_message: [{ required: true, message: "请填写数据", trigger: "blur" }],
-            total_amount: [{ required: true, message: "请选择项目", trigger: "change" }],
-          orders_count: [{ required: true, message: "请填写数据", trigger: "blur" }],ip_address: [{ required: true, message: "请填写数据", trigger: "blur" }],
+
+        user_id: [{ required: true, message: "请选择项目", trigger: "change" }],
+        issue_number: [{ required: true, message: "请填写数据", trigger: "blur" }], original_message: [{ required: true, message: "请填写数据", trigger: "blur" }],
+        total_amount: [{ required: true, message: "请选择项目", trigger: "change" }],
+        orders_count: [{ required: true, message: "请填写数据", trigger: "blur" }], ip_address: [{ required: true, message: "请填写数据", trigger: "blur" }],
       },
     };
   },
   methods: {
     onQuery() {
-        this.summary = {};
-        this.showSummary = false;
+      this.summary = {};
+      this.showSummary = false;
 
-        this.page = 1
-        this.pageSize = 10
-        this.getTableData()
+      this.page = 1
+      this.pageSize = 10
+      this.getTableData()
     },
     createRow() {
       this.formData = {};
@@ -243,14 +212,14 @@ export default {
       }
     },
     async deleteRow(row) {
-     const res = await deleteFcgBettingBatche({ ID: row.ID });
+      const res = await deleteFcgBettingBatche({ ID: row.ID });
       if (res.code == 0) {
         this.$message({
           type: "success",
           message: "删除成功"
         });
         if (this.tableData.length == 1) {
-            this.page--;
+          this.page--;
         }
         this.getTableData();
       }
@@ -273,8 +242,8 @@ export default {
       }
       if (res.code == 0) {
         this.$message({
-          type:"success",
-          message:"操作成功"
+          type: "success",
+          message: "操作成功"
         })
         this.$refs.dialog.handleClose();
         this.openDialog = false;
@@ -282,38 +251,38 @@ export default {
       }
     },
     handleSelectionChange(val) {
-        this.multipleSelection = val
+      this.multipleSelection = val
     },
-    handleCommand(command){
-        this.$confirm('是否要执行批量操作?', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-        }).then(async () => {
-            const ids = [];
-            if (this.multipleSelection.length == 0) {
-                this.$message({
-                    type: "warning",
-                    message: "请选择需要操作的数据",
-                });
-                return;
-            }
-            this.multipleSelection && this.multipleSelection.map((item) => {
-                ids.push(item.ID);
-            });
+    handleCommand(command) {
+      this.$confirm('是否要执行批量操作?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        const ids = [];
+        if (this.multipleSelection.length == 0) {
+          this.$message({
+            type: "warning",
+            message: "请选择需要操作的数据",
+          });
+          return;
+        }
+        this.multipleSelection && this.multipleSelection.map((item) => {
+          ids.push(item.ID);
+        });
 
-            const res = await batchFcgBettingBatcheOperation({
-                 ids,
-                 'command':command
-            });
-            if (res.code == 0) {
-                this.$message({
-                  type: "success",
-                  message: "操作成功",
-                });
-                this.getTableData();
-            }
-        })
+        const res = await batchFcgBettingBatcheOperation({
+          ids,
+          'command': command
+        });
+        if (res.code == 0) {
+          this.$message({
+            type: "success",
+            message: "操作成功",
+          });
+          this.getTableData();
+        }
+      })
     },
     sortChange(row) {
       //自定义排序要设置两个属性prop="field-name" sortable="custom"
@@ -357,5 +326,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
