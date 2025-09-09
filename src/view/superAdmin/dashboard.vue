@@ -17,7 +17,7 @@
         </el-col>
         <el-col :span="16">
           <h2>{{ getGreeting() }}，欢迎使用{{ siteInfo.site_name }}</h2>
-          <p>公司深耕通讯行业数字化转型，专业渠道赋能平台，助力企业实现从销售到服务的一站式通讯业务管理。</p>
+          <p>福彩游戏管理平台，提供专业的福彩投注服务，实现从投注下单到开奖派奖的一站式福彩业务管理。</p>
         </el-col>
         <el-col :span="6">
           <div style="text-align: right">
@@ -27,7 +27,7 @@
         </el-col>
       </el-row>
 
-      <!-- 待处理订单 -->
+      <!-- 待处理投注 -->
       <el-row :gutter="20">
         <el-col :span="24" style="
             display: flex;
@@ -35,7 +35,7 @@
             align-items: center;
             margin-bottom: 10px;
           ">
-          <h3 style="margin: 0">待处理订单</h3>
+          <h3 style="margin: 0">待处理投注</h3>
           <el-date-picker v-model="selectedDate" type="date" placeholder="选择日期" size="small" style="width: 150px">
           </el-date-picker>
         </el-col>
@@ -46,7 +46,7 @@
             <div style="font-size: 24px; font-weight: bold">
               {{ total.RechargingTotalOrder }}
             </div>
-            <div style="font-size: 12px; color: #909399">充值中</div>
+            <div style="font-size: 12px; color: #909399">待开奖</div>
           </el-card>
         </el-col>
         <el-col :span="4">
@@ -55,7 +55,7 @@
             <div style="font-size: 24px; font-weight: bold">
               {{ total.AwaitTotalOrder }}
             </div>
-            <div style="font-size: 12px; color: #909399">待充值</div>
+            <div style="font-size: 12px; color: #909399">待支付</div>
           </el-card>
         </el-col>
         <el-col :span="4">
@@ -64,7 +64,7 @@
             <div style="font-size: 24px; font-weight: bold">
               {{ total.DelaySubmitTotalOrder }}
             </div>
-            <div style="font-size: 12px; color: #909399">延迟提交</div>
+            <div style="font-size: 12px; color: #909399">支付失败</div>
           </el-card>
         </el-col>
         <el-col :span="4">
@@ -73,7 +73,7 @@
             <div style="font-size: 24px; font-weight: bold">
               {{ total.HoldTotalOrder }}
             </div>
-            <div style="font-size: 12px; color: #909399">挂起</div>
+            <div style="font-size: 12px; color: #909399">已撤单</div>
           </el-card>
         </el-col>
         <el-col :span="4">
@@ -82,7 +82,7 @@
             <div style="font-size: 24px; font-weight: bold">
               {{ total.FailHoldTotalOrder }}
             </div>
-            <div style="font-size: 12px; color: #909399">失败挂起</div>
+            <div style="font-size: 12px; color: #909399">退款中</div>
           </el-card>
         </el-col>
         <el-col :span="4">
@@ -91,12 +91,12 @@
             <div style="font-size: 24px; font-weight: bold">
               {{ total.UnknownTotalOrder }}
             </div>
-            <div style="font-size: 12px; color: #909399">未知</div>
+            <div style="font-size: 12px; color: #909399">异常订单</div>
           </el-card>
         </el-col>
       </el-row>
 
-      <!-- 今日订单信息 -->
+      <!-- 今日投注信息 -->
       <el-row :gutter="20">
         <el-col :span="24" style="
             display: flex;
@@ -104,30 +104,30 @@
             align-items: center;
             margin-bottom: 10px;
           ">
-          <h3 style="margin: 0">今日订单信息</h3>
+          <h3 style="margin: 0">今日投注信息</h3>
         </el-col>
 
         <el-col :span="8">
           <el-card shadow="hover">
             <div slot="header" class="clearfix">
-              <span>全部订单</span>
+              <span>全部投注</span>
             </div>
             <div class="odcard" style="color: rgb(64, 158, 255)">
               <div>
                 <div class="odfont">¥{{ formattedVal(day.TotalAmount) }}</div>
-                <div class="odesc">交易金额</div>
+                <div class="odesc">投注金额</div>
               </div>
               <div>
                 <div class="odfont">
                   {{ day.SuccTotalDenomination }}
                 </div>
-                <div class="odesc">交易面值</div>
+                <div class="odesc">投注注数</div>
               </div>
               <div>
                 <div class="odfont">
                   {{ day.TotalOrder }}
                 </div>
-                <div class="odesc">订单数量</div>
+                <div class="odesc">投注笔数</div>
               </div>
             </div>
           </el-card>
@@ -136,26 +136,26 @@
         <el-col :span="8">
           <el-card shadow="hover">
             <div slot="header" class="clearfix">
-              <span>成功订单</span>
+              <span>已开奖</span>
             </div>
             <div class="odcard" style="color: #67c23a">
               <div>
                 <div class="odfont">
                   ¥{{ formattedVal(day.SuccTotalAmount) }}
                 </div>
-                <div class="odesc">交易金额</div>
+                <div class="odesc">投注金额</div>
               </div>
               <div>
                 <div class="odfont">
                   {{ day.SuccTotalDenomination }}
                 </div>
-                <div class="odesc">交易面值</div>
+                <div class="odesc">投注注数</div>
               </div>
               <div>
                 <div class="odfont">
                   {{ day.SuccTotalOrder }}
                 </div>
-                <div class="odesc">订单数量</div>
+                <div class="odesc">投注笔数</div>
               </div>
             </div>
           </el-card>
@@ -164,33 +164,33 @@
         <el-col :span="8">
           <el-card shadow="hover">
             <div slot="header" class="clearfix">
-              <span>失败订单</span>
+              <span>中奖投注</span>
             </div>
             <div class="odcard" style="color: #f56c6c">
               <div>
                 <div class="odfont">
                   ¥{{ formattedVal(day.FailTotalAmount) }}
                 </div>
-                <div class="odesc">交易金额</div>
+                <div class="odesc">中奖金额</div>
               </div>
               <div>
                 <div class="odfont">
                   {{ day.FailTotalDenomination }}
                 </div>
-                <div class="odesc">交易面值</div>
+                <div class="odesc">中奖注数</div>
               </div>
               <div>
                 <div class="odfont">
                   {{ day.FailTotalOrder }}
                 </div>
-                <div class="odesc">订单数量</div>
+                <div class="odesc">中奖笔数</div>
               </div>
             </div>
           </el-card>
         </el-col>
       </el-row>
 
-      <!-- 全部订单信息 -->
+      <!-- 全部投注信息 -->
       <el-row :gutter="20">
         <el-col :span="24" style="
             display: flex;
@@ -198,30 +198,30 @@
             align-items: center;
             margin-bottom: 10px;
           ">
-          <h3 style="margin: 0">全部订单信息</h3>
+          <h3 style="margin: 0">全部投注信息</h3>
         </el-col>
 
         <el-col :span="8">
           <el-card shadow="hover">
             <div slot="header" class="clearfix">
-              <span>全部订单</span>
+              <span>全部投注</span>
             </div>
             <div class="odcard" style="color: rgb(64, 158, 255)">
               <div>
                 <div class="odfont">¥{{ formattedVal(total.TotalAmount) }}</div>
-                <div class="odesc">交易金额</div>
+                <div class="odesc">投注金额</div>
               </div>
               <div>
                 <div class="odfont">
                   {{ total.SuccTotalDenomination }}
                 </div>
-                <div class="odesc">交易面值</div>
+                <div class="odesc">投注注数</div>
               </div>
               <div>
                 <div class="odfont">
                   {{ total.TotalOrder }}
                 </div>
-                <div class="odesc">订单数量</div>
+                <div class="odesc">投注笔数</div>
               </div>
             </div>
           </el-card>
@@ -230,26 +230,26 @@
         <el-col :span="8">
           <el-card shadow="hover">
             <div slot="header" class="clearfix">
-              <span>成功订单</span>
+              <span>已开奖</span>
             </div>
             <div class="odcard" style="color: #67c23a">
               <div>
                 <div class="odfont">
                   ¥{{ formattedVal(total.SuccTotalAmount) }}
                 </div>
-                <div class="odesc">交易金额</div>
+                <div class="odesc">投注金额</div>
               </div>
               <div>
                 <div class="odfont">
                   {{ total.SuccTotalDenomination }}
                 </div>
-                <div class="odesc">交易面值</div>
+                <div class="odesc">投注注数</div>
               </div>
               <div>
                 <div class="odfont">
                   {{ total.SuccTotalOrder }}
                 </div>
-                <div class="odesc">订单数量</div>
+                <div class="odesc">投注笔数</div>
               </div>
             </div>
           </el-card>
@@ -258,26 +258,26 @@
         <el-col :span="8">
           <el-card shadow="hover">
             <div slot="header" class="clearfix">
-              <span>失败订单</span>
+              <span>中奖投注</span>
             </div>
             <div class="odcard" style="color: #f56c6c">
               <div>
                 <div class="odfont">
                   ¥{{ formattedVal(total.FailTotalAmount) }}
                 </div>
-                <div class="odesc">交易金额</div>
+                <div class="odesc">中奖金额</div>
               </div>
               <div>
                 <div class="odfont">
                   {{ total.FailTotalDenomination }}
                 </div>
-                <div class="odesc">交易面值</div>
+                <div class="odesc">中奖注数</div>
               </div>
               <div>
                 <div class="odfont">
                   {{ total.FailTotalOrder }}
                 </div>
-                <div class="odesc">订单数量</div>
+                <div class="odesc">中奖笔数</div>
               </div>
             </div>
           </el-card>
@@ -310,9 +310,9 @@
         </el-col> -->
       </el-row>
 
-      <!-- 成本利润 -->
+      <!-- 中奖派奖 -->
       <el-row :gutter="20" style="margin-bottom: 20px">
-        <el-col :span="12">
+        <el-col :span="6">
           <el-card shadow="hover">
             <div style="
                 display: flex;
@@ -320,16 +320,16 @@
                 justify-content: space-between;
               ">
               <div>
-                <div style="font-size: 20px; font-weight: bold; color: gold">
-                  {{ formattedVal(total.TotalCost) }}
+                <div style="font-size: 20px; font-weight: bold; color: #67c23a">
+                  {{ formattedVal(total.TotalWinAmount || 0) }}
                 </div>
-                <div style="font-size: 12px; color: #909399">总成本</div>
+                <div style="font-size: 12px; color: #909399">总中奖金额</div>
               </div>
             </div>
           </el-card>
         </el-col>
 
-        <el-col :span="12">
+        <el-col :span="6">
           <el-card shadow="hover">
             <div style="
                 display: flex;
@@ -337,10 +337,44 @@
                 justify-content: space-between;
               ">
               <div>
-                <div style="font-size: 20px; font-weight: bold; color: gold">
-                  {{ formattedVal(total.TotalProFit) }}
+                <div style="font-size: 20px; font-weight: bold; color: #e6a23c">
+                  {{ total.TotalUsers || 0 }}
                 </div>
-                <div style="font-size: 12px; color: #909399">总利润</div>
+                <div style="font-size: 12px; color: #909399">总用户数</div>
+              </div>
+            </div>
+          </el-card>
+        </el-col>
+
+        <el-col :span="6">
+          <el-card shadow="hover">
+            <div style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              ">
+              <div>
+                <div style="font-size: 20px; font-weight: bold; color: #409eff">
+                  {{ total.ActiveUsers || 0 }}
+                </div>
+                <div style="font-size: 12px; color: #909399">活跃用户</div>
+              </div>
+            </div>
+          </el-card>
+        </el-col>
+
+        <el-col :span="6">
+          <el-card shadow="hover">
+            <div style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              ">
+              <div>
+                <div style="font-size: 20px; font-weight: bold; color: #f56c6c">
+                  {{ total.PendingAwardCount || 0 }}
+                </div>
+                <div style="font-size: 12px; color: #909399">待派奖笔数</div>
               </div>
             </div>
           </el-card>
