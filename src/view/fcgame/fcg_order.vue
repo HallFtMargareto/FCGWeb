@@ -161,7 +161,7 @@
           <el-input v-model="searchInfo.ext" placeholder="扩展字段（备用）" clearable></el-input>
         </el-form-item> -->
 
-        <el-form-item label="添加时间">
+        <el-form-item label="创建时间">
           <datepicker v-model="searchInfo.startTime" type="datetime" />
         </el-form-item>
         <el-form-item label="结束时间">
@@ -214,20 +214,20 @@
                   }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">期号：</span>
-                  <span class="value">{{ order.issue_no_display || order.issue_no }}</span>
-                </div>
-                <div class="info-item">
                   <span class="label">投注内容：</span>
                   <span class="value">{{ order.bet_content }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">期号：</span>
+                  <span class="value">{{ order.issue_no_display || order.issue_no }}</span>
                 </div>
                 <div class="info-item">
                   <span class="label">投注数量：</span>
                   <span class="value">{{ order.bet_count }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">倍数：</span>
-                  <span class="value">{{ order.multiple }}</span>
+                  <span class="label">总投金额：</span>
+                  <span class="value">¥{{ (order.bet_amount / 100).toFixed(2) }}</span>
                 </div>
               </div>
             </el-col>
