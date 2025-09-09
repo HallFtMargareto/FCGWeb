@@ -59,10 +59,6 @@
       <el-table-column label="上级代理" prop="agent_id">
       </el-table-column>
 
-
-      <el-table-column label="注册渠道" prop="channel_code" show-overflow-tooltip>
-      </el-table-column>
-
       <!-- <el-table-column label="加密后的密码 (禁止明文存储)" prop="password_hash" show-overflow-tooltip>
       </el-table-column>
 
@@ -101,26 +97,29 @@
       <el-table-column label="累计盈亏" prop="profit_loss">
       </el-table-column>
 
-
-      <el-table-column label="账户状态" prop="status" show-overflow-tooltip>
+      <el-table-column label="注册渠道" prop="channel_code" show-overflow-tooltip>
       </el-table-column>
 
 
-      <el-table-column label="风控等级" prop="risk_level" show-overflow-tooltip>
+      <!-- <el-table-column label="账户状态" prop="status" show-overflow-tooltip>
+      </el-table-column> -->
+
+
+      <!-- <el-table-column label="风控等级" prop="risk_level" show-overflow-tooltip>
       </el-table-column>
 
       <el-table-column label="两步验证" prop="is_two_factor_enabled">
         <template slot-scope="scope">
           <booltag :tagState="scope.row.is_two_factor_enabled" true-text="启用" false-text="禁用"></booltag>
         </template>
-      </el-table-column>
+</el-table-column>
 
 
-      <el-table-column label="VIP账号" prop="user_level">
-        <template slot-scope="scope">
+<el-table-column label="VIP账号" prop="user_level">
+  <template slot-scope="scope">
           <booltag :tagState="scope.row.user_level" true-text="是" false-text="否"></booltag>
         </template>
-      </el-table-column>
+</el-table-column> -->
 
       <el-table-column label="备注" prop="remarks" show-overflow-tooltip>
       </el-table-column>

@@ -1,5 +1,16 @@
 <template>
   <div>
+    <div>
+      <el-button-group>
+        <el-button class="btg">全部</el-button>
+        <el-button class="btg">待开奖</el-button>
+        <el-button class="btg">已开奖</el-button>
+        <el-button class="btg">已中奖</el-button>
+        <el-button class="btg">未中奖</el-button>
+        <el-button class="btg">已撤单</el-button>
+      </el-button-group>
+    </div>
+
     <div class="search-term">
       <searchform size="mini" :maxShow="3" @search="onQuery">
         <el-form-item label="业务单号">
@@ -167,6 +178,11 @@
         <el-form-item label="结束时间">
           <datepicker v-model="searchInfo.endTime" type="datetime" />
         </el-form-item>
+
+        <el-form-item label="导出">
+          <el-button v-if="userInfo.perm['system.export']" @click="exportExcel"
+            icon="el-icon-sold-out">导出EXCEL</el-button>
+        </el-form-item>
       </searchform>
 
       <el-form size="mini" :inline="true" class="btn-form-inline">
@@ -175,8 +191,15 @@
         <el-button v-if="userInfo.perm['system.batch_delete'] && multipleSelection.length > 0"
           @click="handleCommand('remove')" icon="el-icon-delete" type="danger" plain>批量删除</el-button> -->
         <!-- <el-button v-if="userInfo.perm['system.import']" @click="importExcel" icon="el-icon-sell">导入</el-button> -->
-        <el-button v-if="userInfo.perm['system.export']" @click="exportExcel" icon="el-icon-sold-out">导出</el-button>
       </el-form>
+    </div>
+
+
+    <div>
+      <el-tabs v-model="tabState" @tab-click="handleClick">
+        <el-tab-pane v-for="item in gameTypes" :key="item.value" :label="item.label"
+          :name="String(item.value)"></el-tab-pane>
+      </el-tabs>
     </div>
 
     <!-- 订单卡片列表 -->
@@ -222,7 +245,7 @@
                   <span class="value">{{ order.issue_no_display || order.issue_no }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">投注数量：</span>
+                  <span class="label">总投注：</span>
                   <span class="value">{{ order.bet_count }}</span>
                 </div>
                 <div class="info-item">
@@ -407,39 +430,28 @@ export default {
         ext: "",
 
       },
-      formRules: {
-        order_no: [{ required: true, message: "请填写数据", trigger: "blur" }],
-        user_id: [{ required: true, message: "请选择项目", trigger: "change" }],
-
-        issue_id: [{ required: true, message: "请选择项目", trigger: "change" }],
-        issue_no: [{ required: true, message: "请填写数据", trigger: "blur" }],
-        trace_id: [{ required: true, message: "请选择项目", trigger: "change" }],
-
-        parent_order_id: [{ required: true, message: "请选择项目", trigger: "change" }],
-        bet_content: [{ required: true, message: "请填写数据", trigger: "blur" }], bet_count: [{ required: true, message: "请填写数据", trigger: "blur" }],
-        bet_amount: [{ required: true, message: "请选择项目", trigger: "change" }],
-        multiple: [{ required: true, message: "请填写数据", trigger: "blur" }],
-        order_status: [{ required: true, message: "请选择项目", trigger: "change" }],
-
-        pay_status: [{ required: true, message: "请选择项目", trigger: "change" }],
-        pay_channel: [{ required: true, message: "请填写数据", trigger: "blur" }], transaction_id: [{ required: true, message: "请填写数据", trigger: "blur" }],
-        payment_time: [{ required: true, message: "请选择项目", trigger: "change" }],
-
-        win_amount: [{ required: true, message: "请选择项目", trigger: "change" }],
-
-        award_status: [{ required: true, message: "请选择项目", trigger: "change" }],
-
-        award_time: [{ required: true, message: "请选择项目", trigger: "change" }],
-
-        cancel_type: [{ required: true, message: "请选择项目", trigger: "change" }],
-
-        refund_amount: [{ required: true, message: "请选择项目", trigger: "change" }],
-
-        refund_status: [{ required: true, message: "请选择项目", trigger: "change" }],
-        source: [{ required: true, message: "请填写数据", trigger: "blur" }], client_ip: [{ required: true, message: "请填写数据", trigger: "blur" }], device_id: [{ required: true, message: "请填写数据", trigger: "blur" }], risk_score: [{ required: true, message: "请填写数据", trigger: "blur" }],
-        is_locked: [{ required: true, message: "请选择项目", trigger: "change" }],
-        version: [{ required: true, message: "请填写数据", trigger: "blur" }], ext: [{ required: true, message: "请填写数据", trigger: "blur" }],
-      },
+      tabState: '0', // 默认选中的tab
+      gameTypes: [
+        { value: 0, label: '全部' },
+        { value: 1, label: '单选(直选)' },
+        { value: 2, label: '组三(对子)' },
+        { value: 3, label: '组六(无重复)' },
+        { value: 4, label: '组六四码' },
+        { value: 5, label: '组六五码' },
+        { value: 6, label: '组六六码' },
+        { value: 7, label: '组六七码' },
+        { value: 8, label: '组六八码' },
+        { value: 9, label: '组三四码' },
+        { value: 10, label: '组三五码' },
+        { value: 11, label: '组三六码' },
+        { value: 12, label: '组三七码' },
+        { value: 13, label: '组三八码' },
+        { value: 14, label: '独胆' },
+        { value: 15, label: '一码不定位' },
+        { value: 16, label: '一码定位' },
+        { value: 17, label: '两码不定位(双飞)' },
+        { value: 18, label: '两码定位' }
+      ]
     };
   },
   methods: {
@@ -627,10 +639,17 @@ export default {
 </script>
 
 <style scoped>
+.btg {
+  width: 80px;
+  height: 35px;
+  border-bottom: none;
+  margin-right: 3px !important;
+}
+
 /* 搜索区域样式 */
 .search-term {
-  padding: 20px;
-  background-color: #f5f7fa;
+  padding: 20px 20px 0 20px;
+  /* background-color: #f5f7fa; */
   margin-bottom: 20px;
   border-radius: 8px;
 }
