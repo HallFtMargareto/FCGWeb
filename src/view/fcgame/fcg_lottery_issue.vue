@@ -2,179 +2,97 @@
   <div>
     <div class="search-term">
       <searchform size="mini" :maxShow="3" @search="onQuery">
-              <el-form-item label="奖期号, 如: 2025245">
-              <el-input v-model="searchInfo.issue_number" placeholder="奖期号, 如: 2025245" clearable></el-input>
-          
-              </el-form-item> 
-          
-          
-      
-              <el-form-item label="本期开始销售时间">
-              <datepicker v-model="searchInfo.start_time" type="datetime" placeholder="选择日期" style="width: 100%" clearable/>
-              </el-form-item> 
-          
-          
-      
-              <el-form-item label="本期截止销售时间">
-              <datepicker v-model="searchInfo.end_time" type="datetime" placeholder="选择日期" style="width: 100%" clearable/>
-              </el-form-item> 
-          
-          
-      
-              <el-form-item label="官方开奖时间">
-              <datepicker v-model="searchInfo.draw_time" type="datetime" placeholder="选择日期" style="width: 100%" clearable/>
-              </el-form-item> 
-          
-          
-      
-              <el-form-item label="开奖号码, 如: 3,1,8">
-              <el-input v-model="searchInfo.winning_numbers" placeholder="开奖号码, 如: 3,1,8" clearable></el-input>
-          
-              </el-form-item> 
-          
-          
-      
-              <el-form-item label="奖期状态 (1:销售中, 2:已截止, 3:开奖中, 4:已开奖, 5:已派奖)" prop="status">
-                <el-select v-model="searchInfo.status" placeholder="请选择">
-                  <el-option key="true" label="是" value="true"></el-option>
-                  <el-option key="false" label="否" value="false"></el-option>
-                </el-select>
-              </el-form-item>
-          
-      
 
-      <el-form-item label="添加时间">
+        <el-form-item label="彩票类型">
+          <el-input v-model.number="searchInfo.game_category" placeholder="请输入" clearable></el-input>
+        </el-form-item>
+
+        <el-form-item label="玩法类型">
+          <el-input v-model="searchInfo.issue_no" placeholder="玩法分类" clearable></el-input>
+        </el-form-item>
+
+        <el-form-item label="开奖日期">
+          <datepicker v-model="searchInfo.lottery_date" type="datetime" placeholder="选择日期" style="width: 100%"
+            clearable />
+        </el-form-item>
+
+        <el-form-item label="状态" prop="status">
+          <!-- @change="handleStatusChange(scope.row)" -->
+          <el-select v-model="searchInfo.status" placeholder="请选择" size="mini">
+            <el-option label="未开售" :value="0"></el-option>
+            <el-option label="售卖中" :value="1"></el-option>
+            <el-option label="封盘" :value="2"></el-option>
+            <el-option label="已开奖" :value="3"></el-option>
+            <el-option label="作废" :value="4"></el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="开奖结果">
+          <el-input v-model="searchInfo.draw_number" placeholder="开奖结果" clearable></el-input>
+        </el-form-item>
+
+        <el-form-item label="开奖来源">
+          <el-input v-model="searchInfo.source" placeholder="开奖来源" clearable></el-input>
+        </el-form-item>
+
+        <el-form-item label="创建时间">
           <datepicker v-model="searchInfo.startTime" type="datetime" />
-      </el-form-item>
-      <el-form-item label="结束时间">
+        </el-form-item>
+        <el-form-item label="结束时间">
           <datepicker v-model="searchInfo.endTime" type="datetime" />
-      </el-form-item>
+        </el-form-item>
       </searchform>
 
-      <el-form size="mini" :inline="true" class="btn-form-inline">
-        <el-button v-if="userInfo.perm['system.create']" @click="createRow" icon="el-icon-plus" type="primary">新增</el-button>
-        <el-button v-if="userInfo.perm['system.batch_delete'] && multipleSelection.length > 0" @click="handleCommand('remove')" icon="el-icon-delete" type="danger" plain>批量删除</el-button>
-        <el-button v-if="userInfo.perm['system.import']" @click="importExcel" icon="el-icon-sell">导入</el-button>
-        <el-button v-if="userInfo.perm['system.export']" @click="exportExcel" icon="el-icon-sold-out">导出</el-button>
-      </el-form>
     </div>
 
-    <el-table
-      :data="tableData"
-      @selection-change="handleSelectionChange"
-      @sort-change="sortChange"
-      ref="multipleTable"
-      :show-summary="showSummary"
-      :summary-method="getSummaries"
-    >
-    <el-table-column type="selection" width="50"></el-table-column>
-    <el-table-column label="ID" prop="ID" sortable></el-table-column>
-    
-      
-          <el-table-column label="奖期号, 如: 2025245" prop="issue_number" show-overflow-tooltip>
-          </el-table-column> 
-        
-      
-          <el-table-column label="本期开始销售时间" prop="start_time">
-          </el-table-column> 
-        
-      
-          <el-table-column label="本期截止销售时间" prop="end_time">
-          </el-table-column> 
-        
-      
-          <el-table-column label="官方开奖时间" prop="draw_time">
-          </el-table-column> 
-        
-      
-          <el-table-column label="开奖号码, 如: 3,1,8" prop="winning_numbers" show-overflow-tooltip>
-          </el-table-column> 
-        
-      
-            <el-table-column label="奖期状态 (1:销售中, 2:已截止, 3:开奖中, 4:已开奖, 5:已派奖)" prop="status">
-              <template slot-scope="scope">
-                <booltag
-                  :tagState="scope.row.status"
-                  true-text="启用"
-                  false-text="禁用"
-                ></booltag>
-              </template>
-            </el-table-column>
-      
+    <el-table :data="tableData" @selection-change="handleSelectionChange" @sort-change="sortChange" ref="multipleTable"
+      :show-summary="showSummary" :summary-method="getSummaries">
+      <el-table-column type="selection" width="50"></el-table-column>
+      <el-table-column label="ID" prop="ID" sortable></el-table-column>
 
-      <el-table-column label="添加时间" width="160" prop="created_at" sortable="custom">
-        <template slot-scope="scope">{{scope.row.created_at}}</template>
+      <el-table-column label="彩票类型" prop="game_category_name">
+      </el-table-column>
+      <!-- <el-table-column label="玩法类型" prop="game_type_name">
+      </el-table-column> -->
+
+      <el-table-column label="期号" prop="issue_no" show-overflow-tooltip>
       </el-table-column>
 
-      <el-table-column label="操作" fixed="right" width="200">
+      <!-- <el-table-column label="开奖日期" prop="lottery_date">
+      </el-table-column> -->
+
+      <el-table-column label="状态" prop="status">
         <template slot-scope="scope">
-          <el-button v-if="userInfo.perm['system.update']" @click="editRow(scope.row)" type="text" size="small" icon="el-icon-edit">编辑</el-button>
-          
-          <el-popconfirm
-            confirm-button-text="确定"
-            cancel-button-text="取消"
-            icon="el-icon-info"
-            icon-color="red"
-            title="确定要删除吗？"
-            @confirm="deleteRow(scope.row)"
-            v-if="userInfo.perm['system.delete']"
-          >
-            <el-button
-              type="text"
-              size="small"
-              icon="el-icon-delete"
-              slot="reference"
-              >删除</el-button
-            >
-          </el-popconfirm>
+          {{ statusMap[scope.row.status] }}
         </template>
       </el-table-column>
+
+      <el-table-column label="开奖结果" prop="draw_number" show-overflow-tooltip>
+      </el-table-column>
+
+      <el-table-column label="总下注" prop="total_bets">
+      </el-table-column>
+
+      <el-table-column label="总投金额" prop="total_amount">
+      </el-table-column>
+
+      <el-table-column label="开奖来源" prop="source" show-overflow-tooltip>
+      </el-table-column>
+
+      <el-table-column label="添加时间" width="160" prop="created_at" sortable="custom">
+        <template slot-scope="scope">{{ scope.row.created_at }}</template>
+      </el-table-column>
+
     </el-table>
 
     <!-- class="pagination-container" -->
     <div>
-       <!-- 数据合计,按需求启用 -->
+      <!-- 数据合计,按需求启用 -->
       <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
-      <el-pagination
-        :current-page="page"
-        :page-size="pageSize"
-        :page-sizes="[10, 30, 50, 100]"
-        :style="{float:'right',padding:'20px'}"
-        :total="total"
-        @current-change="handleCurrentChange"
-        @size-change="handleSizeChange"
-        layout="total, sizes, prev, pager, next, jumper"
-        background
-      ></el-pagination>
+      <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
+        :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
+        @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
     </div>
-
-    <dialogform
-      :visible.sync="openDialog"
-      :dialogTitle="dialogTitle"
-      :formDatas="formData"
-      :formRule="formRules"
-      @confirm="enterDialog"
-      ref="dialog"
-    >
-        <el-form-item label="奖期号, 如: 2025245" prop="issue_number">
-                  <el-input v-model="formData.issue_number" placeholder="请输入" clearable></el-input>
-        </el-form-item>
-        <el-form-item label="本期开始销售时间" prop="start_time">
-                    <datepicker placeholder="选择日期" v-model="formData.start_time" type="datetime" style="width: 100%" clearable/>
-        </el-form-item>
-        <el-form-item label="本期截止销售时间" prop="end_time">
-                    <datepicker placeholder="选择日期" v-model="formData.end_time" type="datetime" style="width: 100%" clearable/>
-        </el-form-item>
-        <el-form-item label="官方开奖时间" prop="draw_time">
-                    <datepicker placeholder="选择日期" v-model="formData.draw_time" type="datetime" style="width: 100%" clearable/>
-        </el-form-item>
-        <el-form-item label="开奖号码, 如: 3,1,8" prop="winning_numbers">
-                  <el-input v-model="formData.winning_numbers" placeholder="请输入" clearable></el-input>
-        </el-form-item>
-        <el-form-item label="奖期状态 (1:销售中, 2:已截止, 3:开奖中, 4:已开奖, 5:已派奖)" prop="status">
-                  <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="是" inactive-text="否" v-model="formData.status"></el-switch>
-        </el-form-item>
-    </dialogform>
 
     <uploadexcel ref="uploadexcel" action="FcgLotteryIssue"></uploadexcel>
   </div>
@@ -182,13 +100,13 @@
 
 <script>
 import {
-    createFcgLotteryIssue,
-    deleteFcgLotteryIssue,
-    updateFcgLotteryIssue,
-    findFcgLotteryIssue,
-    getFcgLotteryIssueList,
-    batchFcgLotteryIssueOperation,
-    getFcgLotteryIssueSummary,
+  createFcgLotteryIssue,
+  deleteFcgLotteryIssue,
+  updateFcgLotteryIssue,
+  findFcgLotteryIssue,
+  getFcgLotteryIssueList,
+  batchFcgLotteryIssueOperation,
+  getFcgLotteryIssueSummary,
 } from "@/api/fcgame/fcg_lottery_issue";
 import infoList from "@/mixins/infoList";
 import { mapGetters } from "vuex";
@@ -200,38 +118,39 @@ export default {
   },
   data() {
     return {
+      statusMap: {
+        0: "未开售",
+        1: "售卖中",
+        2: "封盘",
+        3: "已开奖",
+        4: "作废"
+      },
       listApi: getFcgLotteryIssueList,
       openDialog: false,
       dialogTitle: "",
       type: "",
       multipleSelection: [],
       formData: {
-            issue_number:"",
-            winning_numbers:"",
-            status:true,
-            
-      },
-      formRules: {
-        issue_number: [{ required: true, message: "请填写数据", trigger: "blur" }],
-            start_time: [{ required: true, message: "请选择项目", trigger: "change" }],
-          
-            end_time: [{ required: true, message: "请选择项目", trigger: "change" }],
-          
-            draw_time: [{ required: true, message: "请选择项目", trigger: "change" }],
-          winning_numbers: [{ required: true, message: "请填写数据", trigger: "blur" }],
-            status: [{ required: true, message: "请选择项目", trigger: "change" }],
-          
-      },
+        game_category: undefined,
+        issue_no: "",
+        lottery_date: "",
+        status: true,
+        draw_number: "",
+        total_bets: undefined,
+        total_amount: undefined,
+        source: "",
+
+      }
     };
   },
   methods: {
     onQuery() {
-        this.summary = {};
-        this.showSummary = false;
+      this.summary = {};
+      this.showSummary = false;
 
-        this.page = 1
-        this.pageSize = 10
-        this.getTableData()
+      this.page = 1
+      this.pageSize = 10
+      this.getTableData()
     },
     createRow() {
       this.formData = {};
@@ -249,14 +168,14 @@ export default {
       }
     },
     async deleteRow(row) {
-     const res = await deleteFcgLotteryIssue({ ID: row.ID });
+      const res = await deleteFcgLotteryIssue({ ID: row.ID });
       if (res.code == 0) {
         this.$message({
           type: "success",
           message: "删除成功"
         });
         if (this.tableData.length == 1) {
-            this.page--;
+          this.page--;
         }
         this.getTableData();
       }
@@ -279,8 +198,8 @@ export default {
       }
       if (res.code == 0) {
         this.$message({
-          type:"success",
-          message:"操作成功"
+          type: "success",
+          message: "操作成功"
         })
         this.$refs.dialog.handleClose();
         this.openDialog = false;
@@ -288,38 +207,38 @@ export default {
       }
     },
     handleSelectionChange(val) {
-        this.multipleSelection = val
+      this.multipleSelection = val
     },
-    handleCommand(command){
-        this.$confirm('是否要执行批量操作?', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-        }).then(async () => {
-            const ids = [];
-            if (this.multipleSelection.length == 0) {
-                this.$message({
-                    type: "warning",
-                    message: "请选择需要操作的数据",
-                });
-                return;
-            }
-            this.multipleSelection && this.multipleSelection.map((item) => {
-                ids.push(item.ID);
-            });
+    handleCommand(command) {
+      this.$confirm('是否要执行批量操作?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        const ids = [];
+        if (this.multipleSelection.length == 0) {
+          this.$message({
+            type: "warning",
+            message: "请选择需要操作的数据",
+          });
+          return;
+        }
+        this.multipleSelection && this.multipleSelection.map((item) => {
+          ids.push(item.ID);
+        });
 
-            const res = await batchFcgLotteryIssueOperation({
-                 ids,
-                 'command':command
-            });
-            if (res.code == 0) {
-                this.$message({
-                  type: "success",
-                  message: "操作成功",
-                });
-                this.getTableData();
-            }
-        })
+        const res = await batchFcgLotteryIssueOperation({
+          ids,
+          'command': command
+        });
+        if (res.code == 0) {
+          this.$message({
+            type: "success",
+            message: "操作成功",
+          });
+          this.getTableData();
+        }
+      })
     },
     sortChange(row) {
       //自定义排序要设置两个属性prop="field-name" sortable="custom"
@@ -363,5 +282,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

@@ -12,21 +12,15 @@
 
         <el-form-item label="账户状态">
           <el-input v-model="searchInfo.status" placeholder="账户状态" clearable></el-input>
-
         </el-form-item>
-
-
 
         <el-form-item label="风控等级">
           <el-input v-model="searchInfo.risk_level" placeholder="风控等级" clearable></el-input>
         </el-form-item>
 
-
         <el-form-item label="备注">
           <el-input v-model="searchInfo.remarks" placeholder="备注" clearable></el-input>
         </el-form-item>
-
-
 
         <el-form-item label="上级代理">
           <el-input v-model="searchInfo.agent_id" placeholder="上级代理" clearable></el-input>
@@ -35,7 +29,6 @@
         <el-form-item label="注册渠道">
           <el-input v-model="searchInfo.channel_code" placeholder="注册渠道" clearable></el-input>
         </el-form-item>
-
 
         <el-form-item label="添加时间">
           <datepicker v-model="searchInfo.startTime" type="datetime" />
@@ -55,61 +48,47 @@
       <el-table-column type="selection" width="50"></el-table-column>
       <el-table-column label="ID" prop="ID" sortable></el-table-column>
 
-
       <el-table-column label="账号" prop="username" show-overflow-tooltip>
       </el-table-column>
       <!-- <el-table-column label="玩家头像URL" prop="avatar_url" show-overflow-tooltip>
       </el-table-column> -->
 
-
       <el-table-column label="昵称" prop="nickname" show-overflow-tooltip>
       </el-table-column>
 
+      <el-table-column label="上级代理" prop="agent_id">
+      </el-table-column>
 
 
-
+      <el-table-column label="注册渠道" prop="channel_code" show-overflow-tooltip>
+      </el-table-column>
 
       <!-- <el-table-column label="加密后的密码 (禁止明文存储)" prop="password_hash" show-overflow-tooltip>
       </el-table-column>
 
-
       <el-table-column label="加密后的资金密码 (用于提现等操作)" prop="fund_password_hash" show-overflow-tooltip>
       </el-table-column> -->
-
-
-      <el-table-column label="两步验证" prop="is_two_factor_enabled">
-        <template slot-scope="scope">
-          <booltag :tagState="scope.row.is_two_factor_enabled" true-text="启用" false-text="禁用"></booltag>
-        </template>
-      </el-table-column>
 
       <!-- <el-table-column label="两步验证密钥" prop="two_factor_secret" show-overflow-tooltip>
       </el-table-column> -->
 
-
       <el-table-column label="余额" prop="balance">
       </el-table-column>
-
 
       <el-table-column label="冻结金额" prop="frozen_balance">
       </el-table-column>
 
-
-      <!-- <el-table-column label="货币单位 (默认为CNY)" prop="currency" show-overflow-tooltip>
-      </el-table-column> -->
-
+      <el-table-column label="货币单位" prop="currency" show-overflow-tooltip>
+      </el-table-column>
 
       <el-table-column label="累计充值" prop="total_deposit_amount">
       </el-table-column>
 
-
       <el-table-column label="累计提现" prop="total_withdrawal_amount">
       </el-table-column>
 
-
       <el-table-column label="累计投注" prop="total_bet_count">
       </el-table-column>
-
 
       <el-table-column label="投注总金额" prop="total_bet_amount">
       </el-table-column>
@@ -130,10 +109,16 @@
       <el-table-column label="风控等级" prop="risk_level" show-overflow-tooltip>
       </el-table-column>
 
+      <el-table-column label="两步验证" prop="is_two_factor_enabled">
+        <template slot-scope="scope">
+          <booltag :tagState="scope.row.is_two_factor_enabled" true-text="启用" false-text="禁用"></booltag>
+        </template>
+      </el-table-column>
+
 
       <el-table-column label="VIP账号" prop="user_level">
         <template slot-scope="scope">
-          <booltag :tagState="scope.row.user_level" true-text="启用" false-text="禁用"></booltag>
+          <booltag :tagState="scope.row.user_level" true-text="是" false-text="否"></booltag>
         </template>
       </el-table-column>
 
@@ -141,12 +126,7 @@
       </el-table-column>
 
 
-      <el-table-column label="上级代理" prop="agent_id">
-      </el-table-column>
 
-
-      <el-table-column label="注册渠道" prop="channel_code" show-overflow-tooltip>
-      </el-table-column>
 
 
       <!-- <el-table-column label="注册时IP地址" prop="registration_ip" show-overflow-tooltip>

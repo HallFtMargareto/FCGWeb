@@ -66,8 +66,8 @@
       </el-table-column>
 
 
-      <el-table-column label="昵称" prop="nick_name" show-overflow-tooltip>
-      </el-table-column>
+      <!-- <el-table-column label="昵称" prop="nick_name" show-overflow-tooltip>
+      </el-table-column> -->
 
 
       <el-table-column label="别名" prop="alias" show-overflow-tooltip>
@@ -112,7 +112,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="操作" fixed="right" width="200">
+      <!-- <el-table-column label="操作" fixed="right" width="200">
         <template slot-scope="scope">
           <el-button v-if="userInfo.perm['system.update']" @click="editRow(scope.row)" type="text" size="small"
             icon="el-icon-edit">编辑</el-button>
@@ -122,7 +122,7 @@
             <el-button type="text" size="small" icon="el-icon-delete" slot="reference">删除</el-button>
           </el-popconfirm>
         </template>
-      </el-table-column>
+      </el-table-column> -->
     </el-table>
 
     <!-- class="pagination-container" -->
