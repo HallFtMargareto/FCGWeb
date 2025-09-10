@@ -13,13 +13,7 @@
 
     <div class="search-term">
       <searchform size="mini" :maxShow="3" @search="onQuery">
-        <el-form-item label="业务单号">
-          <el-input v-model="searchInfo.order_no" placeholder="业务单号" clearable></el-input>
-        </el-form-item>
 
-        <el-form-item label="用户账号">
-          <el-input v-model="searchInfo.user_name" placeholder="用户账号" clearable></el-input>
-        </el-form-item>
         <el-form-item label="用户名称">
           <el-input v-model="searchInfo.nick_name" placeholder="用户名称" clearable></el-input>
         </el-form-item>
@@ -48,6 +42,14 @@
 
         <el-form-item label="投注数量">
           <el-input v-model.number="searchInfo.bet_count" placeholder="请输入" clearable></el-input>
+        </el-form-item>
+
+        <el-form-item label="业务单号">
+          <el-input v-model="searchInfo.order_no" placeholder="业务单号" clearable></el-input>
+        </el-form-item>
+
+        <el-form-item label="用户账号">
+          <el-input v-model="searchInfo.user_name" placeholder="用户账号" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="投注金额">
@@ -207,42 +209,44 @@
       <el-card v-for="order in tableData" :key="order.ID" class="order-card" shadow="hover">
         <!-- 订单头部信息 -->
         <div class="order-header">
+          <div>
+            <span class="order-time">所属会话：[{{ order.message ? order.message.session_name : "未知" }}] {{ order.user ?
+              order.user.nickname || order.user.username : order.username
+            }}</span>
+          </div>
           <div class="order-title">
-            <span class="order-no">订单号：{{ order.order_no }}</span>
-            <div class="order-status-group">
-              <el-tag :type="getOrderStatusType(order.order_status)" size="mini">
-                {{ getOrderStatusText(order.order_status) }}
-              </el-tag>
-              <el-tag :type="getPayStatusType(order.pay_status)" size="mini">
-                {{ getPayStatusText(order.pay_status) }}
-              </el-tag>
-            </div>
+            <span class="order-no">
+              {{ order.bet_content }}
+            </span>
           </div>
           <div class="order-meta">
-            <span class="order-time">{{ formatTimestamp(order.created_at) }}</span>
-            <span class="order-amount">¥{{ (order.bet_amount / 100).toFixed(2) }}</span>
+            <el-button v-if="userInfo.perm['system.update']" @click="editRow(order)" type="text" size="small"
+              icon="el-icon-edit">
+              编辑
+            </el-button>
+            <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
+              title="确定要撤销这个订单吗？" @confirm="deleteRow(order)" v-if="userInfo.perm['system.delete']">
+              <el-button type="text" size="small" icon="el-icon-delete" slot="reference" class="danger-btn">
+                撤单
+              </el-button>
+            </el-popconfirm>
           </div>
         </div>
 
         <!-- 订单内容 -->
         <div class="order-content">
           <el-row :gutter="20">
-            <!-- 左侧：基础信息 -->
-            <el-col :xs="24" :sm="12" :md="8">
+            <!-- 左侧：投注信息 -->
+            <el-col :xs="24" :sm="12" :md="6">
               <div class="info-section">
-                <h4 class="section-title">基础信息</h4>
-                <div class="info-item">
-                  <span class="label">用户：</span>
-                  <span class="value">{{ order.user ? order.user.nickname || order.user.username : order.username
-                  }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">投注内容：</span>
-                  <span class="value">{{ order.bet_content }}</span>
-                </div>
+                <h4 class="section-title">投注信息</h4>
                 <div class="info-item">
                   <span class="label">期号：</span>
                   <span class="value">{{ order.issue_no_display || order.issue_no }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">倍率：</span>
+                  <span class="value">{{ order.multiple }}</span>
                 </div>
                 <div class="info-item">
                   <span class="label">总投注：</span>
@@ -255,10 +259,39 @@
               </div>
             </el-col>
 
+            <!-- 中间：基础信息 -->
+            <el-col :xs="24" :sm="12" :md="6">
+              <div class="info-section">
+                <h4 class="section-title">基础信息</h4>
+                <div class="info-item">
+                  <span class="label">订单号：</span>
+                  <span class="value" :class="{ 'win-amount': order.win_amount > 0 }">
+                    {{ order.order_no }}
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="label">订单状态：</span>
+                  {{ getOrderStatusText(order.order_status) }}
+                </div>
+                <div class="info-item">
+                  <span class="label">创建时间：</span>
+                  <span class="value">{{ formatTimestamp(order.created_at) }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">订单来源：</span>
+                  <span class="value">{{ order.source }}</span>
+                </div>
+              </div>
+            </el-col>
+
             <!-- 中间：支付信息 -->
-            <el-col :xs="24" :sm="12" :md="8">
+            <el-col :xs="24" :sm="12" :md="6">
               <div class="info-section">
                 <h4 class="section-title">支付信息</h4>
+                <div class="info-item">
+                  <span class="label">支付状态：</span>
+                  <span class="value"> {{ getPayStatusText(order.pay_status) }}</span>
+                </div>
                 <div class="info-item">
                   <span class="label">支付渠道：</span>
                   <span class="value">{{ order.pay_channel }}</span>
@@ -271,19 +304,15 @@
                   <span class="label">交易流水：</span>
                   <span class="value">{{ order.transaction_id }}</span>
                 </div>
-                <div class="info-item">
-                  <span class="label">来源：</span>
-                  <span class="value">{{ order.source }}</span>
-                </div>
               </div>
             </el-col>
 
             <!-- 右侧：奖金信息 -->
-            <el-col :xs="24" :sm="12" :md="8">
+            <el-col :xs="24" :sm="12" :md="6">
               <div class="info-section">
                 <h4 class="section-title">奖金信息</h4>
                 <div class="info-item">
-                  <span class="label">中奖金额：</span>
+                  <span class="label">已中奖金：</span>
                   <span class="value" :class="{ 'win-amount': order.win_amount > 0 }">
                     ¥{{ (order.win_amount / 100).toFixed(2) }}
                   </span>
@@ -295,13 +324,10 @@
                   </el-tag>
                 </div>
                 <div class="info-item">
-                  <span class="label">派奖时间：</span>
+                  <span class="label">开奖时间：</span>
                   <span class="value">{{ formatTimestamp(order.award_time) }}</span>
                 </div>
-                <div class="info-item" v-if="order.refund_amount > 0">
-                  <span class="label">退款金额：</span>
-                  <span class="value">¥{{ (order.refund_amount / 100).toFixed(2) }}</span>
-                </div>
+
               </div>
             </el-col>
           </el-row>
@@ -338,27 +364,14 @@
             </el-table>
           </div>
         </div>
-
-        <!-- 订单操作按钮 -->
-        <div class="order-actions">
-          <el-button v-if="userInfo.perm['system.update']" @click="editRow(order)" type="text" size="small"
-            icon="el-icon-edit">
-            编辑
-          </el-button>
-          <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
-            title="确定要删除这个订单吗？" @confirm="deleteRow(order)" v-if="userInfo.perm['system.delete']">
-            <el-button type="text" size="small" icon="el-icon-delete" slot="reference" class="danger-btn">
-              删除
-            </el-button>
-          </el-popconfirm>
-        </div>
       </el-card>
 
       <!-- 无数据状态 -->
       <div v-if="!tableData || tableData.length === 0" class="empty-state">
-        <el-empty description="暂无订单数据">
+        <!-- <el-empty description="暂无订单数据">
           <el-button type="primary" @click="getTableData">刷新数据</el-button>
-        </el-empty>
+        </el-empty> -->
+        暂无订单数据
       </div>
     </div>
 
@@ -455,6 +468,11 @@ export default {
     };
   },
   methods: {
+
+    handleClick(tab) {
+      this.searchInfo.game_type = tab.name;
+      this.getTableData();
+    },
     // 格式化时间戳为标准时间格式
     formatTimestamp(timestamp) {
       if (!timestamp || timestamp === "0001-01-01 00:00:00") return '';
@@ -480,7 +498,7 @@ export default {
         2: '已开奖',
         3: '已取消'
       };
-      return statusMap[status] || '未知';
+      return statusMap[status] || '待开奖';
     },
     // 获取支付状态类型
     getPayStatusType(status) {
@@ -498,7 +516,7 @@ export default {
         1: '已支付',
         2: '支付失败'
       };
-      return statusMap[status] || '未知';
+      return statusMap[status] || '已支付';
     },
     onQuery() {
       this.summary = {};
@@ -683,7 +701,7 @@ export default {
   align-items: center;
   padding-bottom: 15px;
   border-bottom: 1px solid #f0f0f0;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
 }
 
 .order-title {
@@ -734,7 +752,7 @@ export default {
   color: #409eff;
   margin: 0 0 15px 0;
   padding-bottom: 8px;
-  border-bottom: 2px solid #409eff;
+  /* border-bottom: 2px solid #409eff; */
 }
 
 .info-item {
@@ -794,8 +812,8 @@ export default {
 
 /* 操作按钮 */
 .order-actions {
-  margin-top: 20px;
-  padding-top: 15px;
+  margin-top: 10px;
+  padding-top: 0px;
   border-top: 1px solid #f0f0f0;
   text-align: right;
 }
@@ -875,6 +893,6 @@ export default {
 }
 
 .el-card__body {
-  padding: 20px;
+  padding: 10px 20px;
 }
 </style>

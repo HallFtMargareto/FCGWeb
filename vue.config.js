@@ -2,9 +2,9 @@
 
 module.exports = {
     // 基础配置 详情看文档
-    publicPath: process.env.NODE_ENV === 'development' ? './' : '//cdn.ifanlm.com/rtp/',
+    // publicPath: process.env.NODE_ENV === 'development' ? './' : '//cdn.ifanlm.com/rtp/',
     // publicPath: '//cdn.ifanlm.com/rtp/',        //使用CDN路径
-    // publicPath: './',        //使用本地
+    publicPath: './',        //使用本地
     outputDir: 'dist/admin',
     assetsDir: 'static',
     lintOnSave: process.env.NODE_ENV === 'development',
