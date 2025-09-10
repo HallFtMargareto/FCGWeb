@@ -200,7 +200,8 @@
 
     <!-- Excel风格表格 -->
     <div class="excel-table-container">
-      <el-table :data="processedTableData" border class="excel-table" size="mini" :span-method="mergeRows">
+      <el-table :data="processedTableData" border class="excel-table" size="mini" :span-method="mergeRows"
+        style="width: 100% !important; table-layout: fixed;">
         <!-- 群名 -->
         <el-table-column prop="group_name" label="群名" width="120" align="center">
           <template slot-scope="scope">
@@ -235,15 +236,15 @@
         <el-table-column prop="seq" label="序号" width="60" align="center"></el-table-column>
 
         <!-- 游戏类型 -->
-        <el-table-column prop="game_category_name" label="游戏类型" width="80" align="center"></el-table-column>
+        <el-table-column prop="game_category_name" label="游戏类型" width="120" align="center"></el-table-column>
 
         <!-- 玩法 -->
-        <el-table-column prop="game_type_name" label="玩法" width="120" align="center"></el-table-column>
+        <el-table-column prop="game_type_name" label="玩法" width="150" align="center"></el-table-column>
 
         <!-- 投注号码 -->
-        <el-table-column prop="bet_number" label="投注号码" width="100" align="center">
+        <el-table-column prop="bet_number" label="投注号码" width="120" align="center">
           <template slot-scope="scope">
-            <div class="bet-number">{{ scope.row.bet_number }}</div>
+            <div class="bet-number-clear">{{ scope.row.bet_number }}</div>
           </template>
         </el-table-column>
 
@@ -251,7 +252,7 @@
         <el-table-column prop="bet_count" label="注数" width="60" align="center"></el-table-column>
 
         <!-- 投注金额 -->
-        <el-table-column prop="bet_amount" label="投注金额" width="80" align="center">
+        <el-table-column prop="bet_amount" label="投注金额" width="100" align="center">
           <template slot-scope="scope">
             {{ scope.row.single_bet_amount }}
           </template>
@@ -261,14 +262,14 @@
         <el-table-column prop="multiple" label="倍数" width="60" align="center"></el-table-column>
 
         <!-- 订单金额 -->
-        <el-table-column prop="order_amount" label="订单金额" width="80" align="center">
+        <el-table-column prop="order_amount" label="订单金额" width="100" align="center">
           <template slot-scope="scope">
             {{ scope.row.order_amount }}
           </template>
         </el-table-column>
 
         <!-- 中奖金额 -->
-        <el-table-column prop="win_amount" label="中奖金额" width="80" align="center">
+        <el-table-column prop="win_amount" label="中奖金额" width="100" align="center">
           <template slot-scope="scope">
             <span :class="{ 'win-amount': scope.row.detail_win_amount > 0 }">
               {{ scope.row.detail_win_amount }}
@@ -307,24 +308,26 @@
         <el-table-column prop="order_win_status" label="中奖状态" width="100" align="center">
           <template slot-scope="scope">
             <el-tag :type="scope.row.order_win_amount > 0 ? 'success' : 'info'" size="mini">
-              {{ scope.row.order_win_amount > 0 ? '部分中奖' : '未中奖' }}
+              {{ scope.row.order_win_amount > 0 ? '有中奖' : '未中奖' }}
             </el-tag>
           </template>
         </el-table-column>
 
         <!-- 操作 -->
-        <el-table-column label="操作" width="120" align="center" fixed="right">
+        <el-table-column label="操作" width="150" align="center">
           <template slot-scope="scope">
-            <el-button v-if="userInfo.perm['system.update']" @click="editRow(scope.row)" type="text" size="mini"
-              icon="el-icon-edit">
-              编辑
-            </el-button>
-            <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
-              title="确定要撤销这个订单吗？" @confirm="deleteRow(scope.row)" v-if="userInfo.perm['system.delete']">
-              <el-button type="text" size="mini" icon="el-icon-delete" slot="reference" class="danger-btn">
-                撤单
+            <div v-if="scope.row._rowSpan > 0" class="operation-buttons">
+              <el-button v-if="userInfo.perm['system.update']" @click="editRow(scope.row)" type="text" size="mini"
+                icon="el-icon-edit">
+                编辑
               </el-button>
-            </el-popconfirm>
+              <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
+                title="确定要撤销这个订单吗？" @confirm="deleteRow(scope.row)" v-if="userInfo.perm['system.delete']">
+                <el-button type="text" size="mini" icon="el-icon-delete" slot="reference" class="danger-btn">
+                  撤单
+                </el-button>
+              </el-popconfirm>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -487,7 +490,8 @@ export default {
       // 需要合并的列：群名、用户、聊天记录、期号、订单状态、中奖总金额、订单中奖状态
       const mergeColumns = ['group_name', 'user_info', 'chat_content', 'issue_no', 'order_status', 'total_win_amount', 'order_win_status'];
 
-      if (mergeColumns.includes(column.property)) {
+      // 操作列也需要合并
+      if (mergeColumns.includes(column.property) || column.label === '操作') {
         if (row._rowSpan > 0) {
           return {
             rowspan: row._rowSpan,
@@ -741,12 +745,18 @@ export default {
 /* Excel风格表格样式 */
 .excel-table-container {
   margin: 20px 0;
+  width: 100%;
+  overflow-x: auto;
 }
 
 .excel-table {
   border-collapse: collapse !important;
   width: 100%;
   font-size: 12px;
+  min-width: 100%;
+  /* 防止表格太小 */
+  max-width: 100%;
+  /* 防止表格过宽 */
 }
 
 .excel-table .el-table__header th {
@@ -765,6 +775,17 @@ export default {
   border: 1px solid #e4e7ed;
   font-size: 12px;
   vertical-align: middle;
+}
+
+/* 确保所有列都有边框 */
+.excel-table .el-table th,
+.excel-table .el-table td {
+  border-right: 1px solid #e4e7ed !important;
+}
+
+.excel-table .el-table th:last-child,
+.excel-table .el-table td:last-child {
+  border-right: 1px solid #e4e7ed !important;
 }
 
 /* 群信息区域样式 */
@@ -787,14 +808,32 @@ export default {
   color: #303133;
 }
 
-/* 投注号码样式 */
-.bet-number {
-  font-family: 'Courier New', monospace;
+/* 投注号码样式 - 更清晰的显示 */
+.bet-number-clear {
+  font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+  font-weight: 600;
   background-color: #f0f9ff;
-  padding: 2px 4px;
-  border-radius: 3px;
-  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #1f2937;
+  border: 1px solid #e1f5fe;
   word-break: break-all;
+  line-height: 1.4;
+}
+
+/* 操作按钮区域 */
+.operation-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.operation-buttons .el-button {
+  margin: 0;
+  padding: 4px 8px;
+  font-size: 12px;
 }
 
 /* 中奖金额样式 */
