@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="search-term">
-      <searchform size="mini" :maxShow="3" @search="onQuery">
+      <searchform size="mini" :maxShow="4" @search="onQuery">
         <el-form-item label="账号">
           <el-input v-model="searchInfo.username" placeholder="账号" clearable></el-input>
         </el-form-item>

@@ -6,16 +6,23 @@
           <el-input v-model.number="searchInfo.tenant_id" placeholder="请输入租户ID" clearable></el-input>
         </el-form-item> -->
 
-        <el-form-item label="用户标识">
-          <el-input v-model="searchInfo.username" placeholder="用户标识" clearable></el-input>
-        </el-form-item>
-
-        <el-form-item label="昵称">
+        <el-form-item label="会话名称">
           <el-input v-model="searchInfo.nick_name" placeholder="用户昵称" clearable></el-input>
         </el-form-item>
 
+        <!-- <el-form-item label="会话标识">
+          <el-input v-model="searchInfo.username" placeholder="用户标识" clearable></el-input>
+        </el-form-item> -->
+
         <el-form-item label="别名">
           <el-input v-model="searchInfo.alias" placeholder="用户别名" clearable></el-input>
+        </el-form-item>
+
+        <el-form-item label="状态" prop="state">
+          <el-select v-model="searchInfo.state" placeholder="请选择">
+            <el-option key="true" label="已激活" value="true"></el-option>
+            <el-option key="false" label="未激活" value="false"></el-option>
+          </el-select>
         </el-form-item>
 
         <!-- <el-form-item label="本地类型">
@@ -30,7 +37,7 @@
           <el-input v-model="searchInfo.description" placeholder="描述信息" clearable></el-input>
         </el-form-item>
 
-        <el-form-item label="msg_hash">
+        <el-form-item label="消息哈希">
           <el-input v-model="searchInfo.hash" placeholder="消息哈希值" clearable></el-input>
         </el-form-item>
 
@@ -42,14 +49,14 @@
         </el-form-item>
       </searchform>
 
-      <el-form size="mini" :inline="true" class="btn-form-inline">
+      <!-- <el-form size="mini" :inline="true" class="btn-form-inline">
         <el-button v-if="userInfo.perm['system.create']" @click="createRow" icon="el-icon-plus"
           type="primary">新增</el-button>
         <el-button v-if="userInfo.perm['system.batch_delete'] && multipleSelection.length > 0"
           @click="handleCommand('remove')" icon="el-icon-delete" type="danger" plain>批量删除</el-button>
         <el-button v-if="userInfo.perm['system.import']" @click="importExcel" icon="el-icon-sell">导入</el-button>
         <el-button v-if="userInfo.perm['system.export']" @click="exportExcel" icon="el-icon-sold-out">导出</el-button>
-      </el-form>
+      </el-form> -->
     </div>
 
     <el-table :data="tableData" @selection-change="handleSelectionChange" @sort-change="sortChange" ref="multipleTable"
@@ -61,21 +68,27 @@
       <!-- <el-table-column label="租户ID" prop="tenant_id">
       </el-table-column> -->
 
+      <el-table-column label="会话名称" prop="nick_name" show-overflow-tooltip>
+      </el-table-column>
 
-      <el-table-column label="用户标识" prop="user_name" width="300">
+      <el-table-column label="会话标识" prop="user_name" width="300">
       </el-table-column>
 
 
-      <!-- <el-table-column label="昵称" prop="nick_name" show-overflow-tooltip>
-      </el-table-column> -->
-
-
-      <el-table-column label="别名" prop="alias" show-overflow-tooltip>
+      <el-table-column label="会话状态" prop="state">
+        <template slot-scope="scope">
+          <booltag :tagState="scope.row.state" true-text="已激活" false-text="未激活"></booltag>
+        </template>
       </el-table-column>
 
 
-      <!-- <el-table-column label="本地类型" prop="local_type">
-      </el-table-column> -->
+
+      <!-- <el-table-column label="别名" prop="alias" show-overflow-tooltip>
+      </el-table-column>
+
+
+      <el-table-column label="本地类型" prop="local_type">
+      </el-table-column>
 
 
       <el-table-column label="拼音" prop="pin_yin_initial" show-overflow-tooltip>
@@ -86,24 +99,24 @@
       </el-table-column>
 
 
-      <!-- <el-table-column label="大头像" prop="big_head_url" show-overflow-tooltip>
-      </el-table-column> -->
+      <el-table-column label="大头像" prop="big_head_url" show-overflow-tooltip>
+      </el-table-column>
 
 
       <el-table-column label="小头像" prop="small_head_url" show-overflow-tooltip>
-      </el-table-column>
+      </el-table-column> -->
 
 
-      <el-table-column label="备注" prop="remark" show-overflow-tooltip>
-      </el-table-column>
+      <!-- <el-table-column label="备注" prop="remark" show-overflow-tooltip>
+      </el-table-column> -->
 
 
-      <el-table-column label="描述" prop="description" show-overflow-tooltip>
-      </el-table-column>
+      <!-- <el-table-column label="描述" prop="description" show-overflow-tooltip>
+      </el-table-column> -->
 
 
-      <el-table-column label="msg_hash" prop="hash" show-overflow-tooltip>
-      </el-table-column>
+      <!-- <el-table-column label="msg_hash" prop="hash" show-overflow-tooltip>
+      </el-table-column> -->
 
 
       <el-table-column label="添加时间" width="160" prop="created_at" sortable="custom">
@@ -112,18 +125,68 @@
         </template>
       </el-table-column>
 
-      <!-- <el-table-column label="操作" fixed="right" width="200">
+      <el-table-column label="操作" fixed="right" width="200">
         <template slot-scope="scope">
           <el-button v-if="userInfo.perm['system.update']" @click="editRow(scope.row)" type="text" size="small"
             icon="el-icon-edit">编辑</el-button>
 
-          <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
+          <!-- <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
             title="确定要删除吗？" @confirm="deleteRow(scope.row)" v-if="userInfo.perm['system.delete']">
             <el-button type="text" size="small" icon="el-icon-delete" slot="reference">删除</el-button>
-          </el-popconfirm>
+          </el-popconfirm> -->
         </template>
-      </el-table-column> -->
+      </el-table-column>
     </el-table>
+
+    <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
+      @confirm="enterDialog" ref="dialog">
+      <!-- <el-form-item label="租户ID" prop="tenant_id">
+        <el-input v-model.number="formData.tenant_id" placeholder="请输入" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="用户唯一标识" prop="user_name">
+        <el-input v-model="formData.user_name" placeholder="请输入" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="昵称" prop="nick_name">
+        <el-input v-model="formData.nick_name" placeholder="请输入" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="别名" prop="alias">
+        <el-input v-model="formData.alias" placeholder="请输入" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="本地类型" prop="local_type">
+        <el-input v-model.number="formData.local_type" placeholder="请输入" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="拼音首字母" prop="pin_yin_initial">
+        <el-input v-model="formData.pin_yin_initial" placeholder="请输入" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="全拼" prop="quan_pin">
+        <el-input v-model="formData.quan_pin" placeholder="请输入" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="大头像" prop="big_head_url">
+        <el-input v-model="formData.big_head_url" placeholder="请输入" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="小头像" prop="small_head_url">
+        <el-input v-model="formData.small_head_url" placeholder="请输入" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="备注" prop="remark">
+        <el-input v-model="formData.remark" placeholder="请输入" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="描述" prop="description">
+        <el-input v-model="formData.description" placeholder="请输入" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="msg_hash" prop="hash">
+        <el-input v-model="formData.hash" placeholder="请输入" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="所属微信账号" prop="owner">
+        <el-input v-model="formData.owner" placeholder="请输入" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="ownerId" prop="owner_id">
+        <el-input v-model.number="formData.owner_id" placeholder="请输入" clearable></el-input>
+      </el-form-item> -->
+      <el-form-item label="状态" prop="state">
+        <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="已激活" inactive-text="未激活"
+          v-model="formData.state"></el-switch>
+      </el-form-item>
+    </dialogform>
 
     <!-- class="pagination-container" -->
     <div>

@@ -59,7 +59,7 @@
           <el-input v-model="searchInfo.state" placeholder="状态" clearable></el-input>
         </el-form-item>
 
-        <el-form-item label="是否删除（0:=未删除;null:=已删除）" prop="deleted">
+        <el-form-item label="是否删除" prop="deleted">
           <el-select v-model="searchInfo.deleted" placeholder="请选择">
             <el-option key="true" label="是" value="true"></el-option>
             <el-option key="false" label="否" value="false"></el-option>

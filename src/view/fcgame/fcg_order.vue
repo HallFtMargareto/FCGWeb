@@ -12,10 +12,17 @@
     </div>
 
     <div class="search-term">
-      <searchform size="mini" :maxShow="3" @search="onQuery">
+      <searchform size="mini" :maxShow="4" @search="onQuery">
 
         <el-form-item label="用户名称">
           <el-input v-model="searchInfo.nick_name" placeholder="用户名称" clearable></el-input>
+        </el-form-item>
+        <!-- <el-form-item label="群组名称">
+          <el-input v-model="searchInfo.group_name" placeholder="群组名称" clearable></el-input>
+        </el-form-item> -->
+
+        <el-form-item label="投注号码">
+          <el-input v-model="searchInfo.bet_number" placeholder="投注号码" clearable></el-input>
         </el-form-item>
 
         <!-- <el-form-item label="期号ID">
@@ -25,6 +32,7 @@
         <el-form-item label="期号">
           <el-input v-model="searchInfo.issue_no" placeholder="冗余的期号，便于查询" clearable></el-input>
         </el-form-item>
+
 
         <!-- <el-form-item label="追号组ID（若属于追号则有值）">
           <el-input v-model="searchInfo.trace_id" placeholder="追号组ID（若属于追号则有值）" clearable></el-input>
@@ -44,12 +52,12 @@
           <el-input v-model.number="searchInfo.bet_count" placeholder="请输入" clearable></el-input>
         </el-form-item>
 
-        <el-form-item label="业务单号">
-          <el-input v-model="searchInfo.order_no" placeholder="业务单号" clearable></el-input>
-        </el-form-item>
-
         <el-form-item label="用户账号">
           <el-input v-model="searchInfo.user_name" placeholder="用户账号" clearable></el-input>
+        </el-form-item>
+
+        <el-form-item label="业务单号">
+          <el-input v-model="searchInfo.order_no" placeholder="业务单号" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="投注金额">
@@ -203,7 +211,7 @@
       <el-table :data="processedTableData" border class="excel-table" size="mini" :span-method="mergeRows"
         style="width: 100% !important; table-layout: fixed;">
         <!-- 群名 -->
-        <el-table-column prop="group_name" label="群名" width="120" align="center">
+        <el-table-column prop="group_name" label="会话" width="120" align="center">
           <template slot-scope="scope">
             <span class="group-info">{{ scope.row.group_name }}</span>
           </template>

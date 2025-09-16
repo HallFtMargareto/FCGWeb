@@ -196,7 +196,7 @@ export default {
     this.$store.dispatch("product/updateProductList");
     this.$store.dispatch("common/updateCommonData");
     this.$store.dispatch("common/updateSiteData");
-    this.$store.dispatch("websocets/webSocketInit");
+    // this.$store.dispatch("websocets/webSocketInit");
   },
   created() {
     console.log(this.siteInfo);

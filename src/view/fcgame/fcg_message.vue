@@ -3,12 +3,13 @@
     <div class="search-term">
       <searchform size="mini" :maxShow="4" @search="onQuery">
 
-        <el-form-item label="发送者">
-          <el-input v-model="searchInfo.user_name" placeholder="发送者用户名" clearable></el-input>
+        <el-form-item label="用户名称">
+          <el-input v-model="searchInfo.nick_name" placeholder="发送用户名" clearable></el-input>
         </el-form-item>
 
-        <el-form-item label="用户名称">
-          <el-input v-model="searchInfo.nick_name" placeholder="用户显示名称" clearable></el-input>
+
+        <el-form-item label="所属会话">
+          <el-input v-model="searchInfo.session_name" placeholder="所属会话" clearable></el-input>
         </el-form-item>
 
         <!-- <el-form-item label="本地消息ID">
@@ -23,13 +24,20 @@
           <el-input v-model.number="searchInfo.local_type" placeholder="请输入消息类型" clearable></el-input>
         </el-form-item> -->
 
-        <el-form-item label="发送时间">
-          <el-input v-model="searchInfo.create_time" placeholder="创建时间戳" clearable></el-input>
-        </el-form-item>
+
 
         <el-form-item label="消息内容">
           <el-input v-model="searchInfo.message_content" placeholder="消息文本内容" clearable></el-input>
         </el-form-item>
+
+        <el-form-item label="发送时间">
+          <el-input v-model="searchInfo.create_time" placeholder="创建时间戳" clearable></el-input>
+        </el-form-item>
+
+        <el-form-item label="用户标识">
+          <el-input v-model="searchInfo.user_name" placeholder="用户标识" clearable></el-input>
+        </el-form-item>
+
         <!-- 
         <el-form-item label="消息状态">
           <el-input v-model.number="searchInfo.status" placeholder="请输入消息状态" clearable></el-input>
@@ -60,14 +68,14 @@
         </el-form-item>
       </searchform>
 
-      <el-form size="mini" :inline="true" class="btn-form-inline">
+      <!-- <el-form size="mini" :inline="true" class="btn-form-inline">
         <el-button v-if="userInfo.perm['system.create']" @click="createRow" icon="el-icon-plus"
           type="primary">新增</el-button>
         <el-button v-if="userInfo.perm['system.batch_delete'] && multipleSelection.length > 0"
           @click="handleCommand('remove')" icon="el-icon-delete" type="danger" plain>批量删除</el-button>
         <el-button v-if="userInfo.perm['system.import']" @click="importExcel" icon="el-icon-sell">导入</el-button>
         <el-button v-if="userInfo.perm['system.export']" @click="exportExcel" icon="el-icon-sold-out">导出</el-button>
-      </el-form>
+      </el-form> -->
     </div>
 
     <el-table :data="tableData" @selection-change="handleSelectionChange" @sort-change="sortChange" ref="multipleTable"
@@ -75,11 +83,8 @@
       <el-table-column type="selection" width="50"></el-table-column>
       <el-table-column label="ID" prop="ID" sortable></el-table-column>
 
-
-
       <!-- <el-table-column label="发送者" prop="user_name" show-overflow-tooltip>
       </el-table-column> -->
-
 
       <el-table-column label="用户名称" prop="nick_name" show-overflow-tooltip>
       </el-table-column>
@@ -87,37 +92,34 @@
       <el-table-column label="消息内容" prop="message_content" width="500">
       </el-table-column>
 
+      <el-table-column label="所属会话" prop="session_name">
+      </el-table-column>
+
+
       <el-table-column label="发送时间" prop="create_time" width="160">
         <template slot-scope="scope">
           {{ formatTimestamp(scope.row.create_time) }}
         </template>
       </el-table-column>
 
-
       <!-- <el-table-column label="本地消息ID" prop="local_id">
       </el-table-column> -->
 
+      <!-- <el-table-column label="排序序号" prop="sort_seq">
+      </el-table-column> -->
 
-      <el-table-column label="排序序号" prop="sort_seq">
+      <el-table-column label="消息编号" prop="message_no" show-overflow-tooltip>
       </el-table-column>
 
-
-      <el-table-column label="消息ID" prop="server_id" width="200">
-      </el-table-column>
+      <!-- <el-table-column label="消息ID" prop="server_id" width="200">
+      </el-table-column> -->
 
 
       <!-- <el-table-column label="消息类型" prop="local_type">
       </el-table-column> -->
 
-
-
-
-
       <!-- <el-table-column label="真实发送者" prop="real_sender_id">
       </el-table-column> -->
-
-
-
 
 
       <!-- <el-table-column label="消息状态" prop="status">
@@ -134,14 +136,8 @@
         </template>
       </el-table-column>
 
-      <!-- <el-table-column label="消息编号" prop="message_no" show-overflow-tooltip>
-      </el-table-column> -->
-
-
       <el-table-column label="任务列表" prop="task_list" show-overflow-tooltip>
       </el-table-column>
-
-
 
       <el-table-column label="添加时间" width="160" prop="created_at" sortable="custom">
         <template slot-scope="scope">

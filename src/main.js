@@ -48,6 +48,7 @@ import {
     CollapseItem,
     Tooltip,
     DatePicker,
+    TimePicker,
     InputNumber,
     Steps,
     Step,
@@ -110,6 +111,7 @@ Vue.use(Collapse);
 Vue.use(CollapseItem);
 Vue.use(Tooltip);
 Vue.use(DatePicker);
+Vue.use(TimePicker);
 Vue.use(Steps);
 Vue.use(Step);
 Vue.use(Upload);

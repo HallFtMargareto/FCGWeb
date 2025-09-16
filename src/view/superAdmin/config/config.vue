@@ -5,7 +5,7 @@
         <el-form ref="site" :model="config.site" :rules="site_rules" size="medium" label-width="150px"
           label-position="left">
           <el-col :span="12">
-            <el-row>
+            <el-row class="el-row-cnf">
               <el-col :span="24">
                 <el-form-item label="网站名称" prop="site_name">
                   <el-input v-model="config.site.site_name" placeholder="请输入网站名称" clearable
@@ -43,21 +43,52 @@
                     :autosize="{ minRows: 4, maxRows: 4 }" :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
+              <el-col :span="24">
+                <el-form-item size="large">
+                  <el-button type="primary" @click="submitForm('site')">提交</el-button>
+                  <!-- <el-button @click="resetForm">重置</el-button> -->
+                </el-form-item>
+              </el-col>
             </el-row>
           </el-col>
-          <el-col :span="24">
-            <el-form-item size="large">
-              <el-button type="primary" @click="submitForm('site')">提交</el-button>
-              <!-- <el-button @click="resetForm">重置</el-button> -->
-            </el-form-item>
-          </el-col>
+
+        </el-form>
+      </el-tab-pane>
+      <el-tab-pane label="福彩配置" name="fcgame">
+        <el-form ref="site" :model="config.site" :rules="site_rules" size="medium" label-width="150px"
+          label-position="left">
+          <el-row class="el-row-cnf">
+            <el-col :span="24">
+              <el-form-item label="开盘时间">
+                <time-range-picker :start-time.sync="config.game.market_start_time"
+                  :end-time.sync="config.game.market_end_time">
+                </time-range-picker>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="自动开奖" prop="open_state">
+                <el-switch v-model="config.game.auto_award"></el-switch>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="全局状态" prop="open_state">
+                <el-switch v-model="config.game.global_state"></el-switch>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item size="large">
+                <el-button type="primary" @click="submitForm('site')">提交</el-button>
+                <!-- <el-button @click="resetForm">重置</el-button> -->
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-form>
       </el-tab-pane>
       <el-tab-pane label="邮件设置" name="email">
         <el-form ref="email" :model="config.email" :rules="email_rules" size="medium" label-width="150px"
           label-position="left">
           <el-col :span="12">
-            <el-row>
+            <el-row class="el-row-cnf">
               <el-col :span="24">
                 <el-form-item label="SMTP服务器" prop="email_host">
                   <el-input v-model="config.email.email_host" placeholder="请输入SMTP服务器" clearable
@@ -99,19 +130,19 @@
                   <el-switch v-model="config.email.state"></el-switch>
                 </el-form-item>
               </el-col>
+              <el-col :span="24">
+                <el-form-item size="large">
+                  <el-button type="primary" @click="submitForm('email')">提交</el-button>
+                </el-form-item>
+              </el-col>
             </el-row>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item size="large">
-              <el-button type="primary" @click="submitForm('email')">提交</el-button>
-            </el-form-item>
           </el-col>
         </el-form>
       </el-tab-pane>
       <el-tab-pane label="充值设置" name="charge">
         <el-form ref="charge" :model="config.charge" size="medium" label-width="150px" label-position="left">
           <el-col :span="12">
-            <el-row>
+            <el-row class="el-row-cnf">
               <el-col :span="24">
                 <el-form-item label="允许转网提交" prop="transfer_state">
                   <el-switch v-model="config.charge.transfer_state"></el-switch>
@@ -127,13 +158,13 @@
                   <el-input v-model="config.charge.max_req_time_out" placeholder="超时时间,单位秒" clearable></el-input>
                 </el-form-item>
               </el-col>
+              <el-col :span="24">
+                <el-form-item size="large">
+                  <el-button type="primary" @click="submitForm('charge')">提交</el-button>
+                  <!-- <el-button @click="resetForm">重置</el-button> -->
+                </el-form-item>
+              </el-col>
             </el-row>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item size="large">
-              <el-button type="primary" @click="submitForm('charge')">提交</el-button>
-              <!-- <el-button @click="resetForm">重置</el-button> -->
-            </el-form-item>
           </el-col>
         </el-form>
       </el-tab-pane>
@@ -144,15 +175,19 @@
   </div>
 </template>
 <script>
+
 import Info from "./info.vue";
 import { getSystemConfig, setSystemConfig } from "@/api/system";
+import TimeRangePicker from "@/components/timepicker";
 
 export default {
   components: {
     Info,
+    TimeRangePicker,
   },
   data() {
     return {
+      value1: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)],
       show_imgc: false,
       image_list: [],
       load: false,
@@ -225,6 +260,7 @@ export default {
       this.$refs[key].validate((valid) => {
         if (!valid) return;
         // TODO 提交表单
+        console.log(this.config)
         let res = setSystemConfig(this.config);
         res.then((res) => {
           if (res.code == 0) {
@@ -257,3 +293,14 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.el-tabs__header {
+  margin-left: 50px !important;
+}
+
+.el-row-cnf {
+  /* padding-left: 20px; */
+  margin-left: 50px
+}
+</style>
