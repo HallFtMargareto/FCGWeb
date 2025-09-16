@@ -17,9 +17,9 @@
         <el-form-item label="用户名称">
           <el-input v-model="searchInfo.nick_name" placeholder="用户名称" clearable></el-input>
         </el-form-item>
-        <!-- <el-form-item label="群组名称">
+        <el-form-item label="群组名称">
           <el-input v-model="searchInfo.group_name" placeholder="群组名称" clearable></el-input>
-        </el-form-item> -->
+        </el-form-item>
 
         <el-form-item label="投注号码">
           <el-input v-model="searchInfo.bet_number" placeholder="投注号码" clearable></el-input>
