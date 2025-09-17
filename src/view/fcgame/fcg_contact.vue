@@ -64,7 +64,6 @@
       <el-table-column type="selection" width="50"></el-table-column>
       <el-table-column label="ID" prop="ID" sortable></el-table-column>
 
-
       <!-- <el-table-column label="租户ID" prop="tenant_id">
       </el-table-column> -->
 
@@ -74,14 +73,15 @@
       <el-table-column label="会话标识" prop="user_name" width="300">
       </el-table-column>
 
-
       <el-table-column label="会话状态" prop="state">
         <template slot-scope="scope">
           <booltag :tagState="scope.row.state" true-text="已激活" false-text="未激活"></booltag>
         </template>
       </el-table-column>
 
-
+      <el-table-column label="费率" prop="fee_rate">
+        <template slot-scope="scope"> {{ scope.row.fee_rate }}% </template>
+      </el-table-column>
 
       <!-- <el-table-column label="别名" prop="alias" show-overflow-tooltip>
       </el-table-column>
@@ -106,18 +106,14 @@
       <el-table-column label="小头像" prop="small_head_url" show-overflow-tooltip>
       </el-table-column> -->
 
-
       <!-- <el-table-column label="备注" prop="remark" show-overflow-tooltip>
       </el-table-column> -->
-
 
       <!-- <el-table-column label="描述" prop="description" show-overflow-tooltip>
       </el-table-column> -->
 
-
       <!-- <el-table-column label="msg_hash" prop="hash" show-overflow-tooltip>
       </el-table-column> -->
-
 
       <el-table-column label="添加时间" width="160" prop="created_at" sortable="custom">
         <template slot-scope="scope">
@@ -139,13 +135,29 @@
     </el-table>
 
     <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
-      @confirm="enterDialog" ref="dialog">
+      @confirm="enterDialog" width="50%" ref="dialog">
       <el-form-item label="状态" prop="state">
         <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="已激活" inactive-text="未激活"
           v-model="formData.state"></el-switch>
       </el-form-item>
-      <el-form-item label="倍率">
-        <el-input v-model="formData.remark" placeholder="请输入内容"></el-input>
+
+      <el-form-item label="费率">
+        <el-input v-model.number="formData.fee_rate" placeholder="费率" clearable>
+          <template slot="append">%</template>
+        </el-input>
+        <div class="el-form-item__tip">
+          请输入代理费率，格式为数字,例如百分之五填数字5.
+        </div>
+      </el-form-item>
+
+      <el-form-item label="赔率">
+        <el-row :gutter="24">
+          <el-col :span="10" v-for="(odd, index) in formData.odds_rate" :key="odd.game_type_id">
+            <el-form-item :label="odd.game_type_name" :prop="'odds_rate.' + index + '.odds'">
+              <el-input v-model="odd.odds" placeholder="请输入赔率"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form-item>
     </dialogform>
 
@@ -189,6 +201,8 @@ export default {
       dialogTitle: "",
       type: "",
       multipleSelection: [],
+      // defOddList: [],
+      // oddlist: [],
       formData: {
         tenant_id: undefined,
         username: "",
@@ -202,31 +216,55 @@ export default {
         remark: "",
         description: "",
         hash: "",
-        odds: [],
+        fee_rate: 0,
+        odds_rate: [],
       },
       formRules: {
-        tenant_id: [{ required: true, message: "请填写数据", trigger: "blur" }], username: [{ required: true, message: "请填写数据", trigger: "blur" }], nick_name: [{ required: true, message: "请填写数据", trigger: "blur" }], alias: [{ required: true, message: "请填写数据", trigger: "blur" }], local_type: [{ required: true, message: "请填写数据", trigger: "blur" }], pin_yin_initial: [{ required: true, message: "请填写数据", trigger: "blur" }], quan_pin: [{ required: true, message: "请填写数据", trigger: "blur" }], big_head_url: [{ required: true, message: "请填写数据", trigger: "blur" }], small_head_url: [{ required: true, message: "请填写数据", trigger: "blur" }], remark: [{ required: true, message: "请填写数据", trigger: "blur" }], description: [{ required: true, message: "请填写数据", trigger: "blur" }], hash: [{ required: true, message: "请填写数据", trigger: "blur" }],
+        tenant_id: [{ required: true, message: "请填写数据", trigger: "blur" }],
+        username: [{ required: true, message: "请填写数据", trigger: "blur" }],
+        nick_name: [{ required: true, message: "请填写数据", trigger: "blur" }],
+        alias: [{ required: true, message: "请填写数据", trigger: "blur" }],
+        local_type: [
+          { required: true, message: "请填写数据", trigger: "blur" },
+        ],
+        pin_yin_initial: [
+          { required: true, message: "请填写数据", trigger: "blur" },
+        ],
+        quan_pin: [{ required: true, message: "请填写数据", trigger: "blur" }],
+        big_head_url: [
+          { required: true, message: "请填写数据", trigger: "blur" },
+        ],
+        small_head_url: [
+          { required: true, message: "请填写数据", trigger: "blur" },
+        ],
+        remark: [{ required: true, message: "请填写数据", trigger: "blur" }],
+        description: [
+          { required: true, message: "请填写数据", trigger: "blur" },
+        ],
+        hash: [{ required: true, message: "请填写数据", trigger: "blur" }],
       },
     };
   },
   methods: {
     // 格式化时间戳为标准时间格式
     formatTimestamp(timestamp) {
-      if (!timestamp) return '';
+      if (!timestamp) return "";
       // 如果是时间戳（数字），转换为毫秒
-      const time = typeof timestamp === 'number' ? timestamp * 1000 : timestamp;
+      const time = typeof timestamp === "number" ? timestamp * 1000 : timestamp;
       return formatTimeToStr(time, "yyyy-MM-dd hh:mm:ss");
     },
     onQuery() {
       this.summary = {};
       this.showSummary = false;
 
-      this.page = 1
-      this.pageSize = 10
-      this.getTableData()
+      this.page = 1;
+      this.pageSize = 10;
+      this.getTableData();
     },
     createRow() {
-      this.formData = {};
+      this.formData = {
+        game_odds: [],
+      };
       this.type = "create";
       this.dialogTitle = "创建";
       this.openDialog = true;
@@ -245,7 +283,7 @@ export default {
       if (res.code == 0) {
         this.$message({
           type: "success",
-          message: "删除成功"
+          message: "删除成功",
         });
         if (this.tableData.length == 1) {
           this.page--;
@@ -260,6 +298,7 @@ export default {
           res = await createFcgContact(this.formData);
           break;
         case "update":
+          // this.formData.game_odds = this.oddlist
           res = await updateFcgContact(this.formData);
           break;
         default:
@@ -272,21 +311,21 @@ export default {
       if (res.code == 0) {
         this.$message({
           type: "success",
-          message: "操作成功"
-        })
+          message: "操作成功",
+        });
         this.$refs.dialog.handleClose();
         this.openDialog = false;
         this.getTableData();
       }
     },
     handleSelectionChange(val) {
-      this.multipleSelection = val
+      this.multipleSelection = val;
     },
     handleCommand(command) {
-      this.$confirm('是否要执行批量操作?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
+      this.$confirm("是否要执行批量操作?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
       }).then(async () => {
         const ids = [];
         if (this.multipleSelection.length == 0) {
@@ -296,13 +335,14 @@ export default {
           });
           return;
         }
-        this.multipleSelection && this.multipleSelection.map((item) => {
-          ids.push(item.ID);
-        });
+        this.multipleSelection &&
+          this.multipleSelection.map((item) => {
+            ids.push(item.ID);
+          });
 
         const res = await batchFcgContactOperation({
           ids,
-          'command': command
+          command: command,
         });
         if (res.code == 0) {
           this.$message({
@@ -311,7 +351,7 @@ export default {
           });
           this.getTableData();
         }
-      })
+      });
     },
     sortChange(row) {
       //自定义排序要设置两个属性prop="field-name" sortable="custom"
@@ -349,18 +389,26 @@ export default {
       await this.$api.getExcel(this.searchInfo);
     },
     async getOdds() {
-      const res = getFcgOdds();
-      this.odds = res.data.odds
-    }
+      const res = await getFcgOdds();
+      if (res.code === 0) {
+        this.defOddList = res.data.odds;
+        this.oddlist = [...this.defOddList];
+      }
+    },
   },
   async created() {
     await this.getTableData();
-    await this.getOdds();
-  }
+    //await this.getOdds();
+  },
 };
 </script>
 
 <style scoped>
+.el-form-item__tip {
+  font-size: 10px;
+  color: gray;
+}
+
 .search-term {
   padding: 20px;
   background-color: #f5f7fa;
