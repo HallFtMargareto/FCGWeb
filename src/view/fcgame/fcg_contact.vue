@@ -140,51 +140,12 @@
 
     <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
       @confirm="enterDialog" ref="dialog">
-      <!-- <el-form-item label="租户ID" prop="tenant_id">
-        <el-input v-model.number="formData.tenant_id" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="用户唯一标识" prop="user_name">
-        <el-input v-model="formData.user_name" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="昵称" prop="nick_name">
-        <el-input v-model="formData.nick_name" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="别名" prop="alias">
-        <el-input v-model="formData.alias" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="本地类型" prop="local_type">
-        <el-input v-model.number="formData.local_type" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="拼音首字母" prop="pin_yin_initial">
-        <el-input v-model="formData.pin_yin_initial" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="全拼" prop="quan_pin">
-        <el-input v-model="formData.quan_pin" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="大头像" prop="big_head_url">
-        <el-input v-model="formData.big_head_url" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="小头像" prop="small_head_url">
-        <el-input v-model="formData.small_head_url" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="备注" prop="remark">
-        <el-input v-model="formData.remark" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="描述" prop="description">
-        <el-input v-model="formData.description" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="msg_hash" prop="hash">
-        <el-input v-model="formData.hash" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="所属微信账号" prop="owner">
-        <el-input v-model="formData.owner" placeholder="请输入" clearable></el-input>
-      </el-form-item>
-      <el-form-item label="ownerId" prop="owner_id">
-        <el-input v-model.number="formData.owner_id" placeholder="请输入" clearable></el-input>
-      </el-form-item> -->
       <el-form-item label="状态" prop="state">
         <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="已激活" inactive-text="未激活"
           v-model="formData.state"></el-switch>
+      </el-form-item>
+      <el-form-item label="倍率">
+        <el-input v-model="formData.remark" placeholder="请输入内容"></el-input>
       </el-form-item>
     </dialogform>
 
@@ -211,6 +172,7 @@ import {
   batchFcgContactOperation,
   getFcgContactSummary,
 } from "@/api/fcgame/fcg_contact";
+import { getFcgOdds } from "@/api/fcgame/fcg_game";
 import infoList from "@/mixins/infoList";
 import { mapGetters } from "vuex";
 import { formatTimeToStr } from "@/utils/date";
@@ -240,7 +202,7 @@ export default {
         remark: "",
         description: "",
         hash: "",
-
+        odds: [],
       },
       formRules: {
         tenant_id: [{ required: true, message: "请填写数据", trigger: "blur" }], username: [{ required: true, message: "请填写数据", trigger: "blur" }], nick_name: [{ required: true, message: "请填写数据", trigger: "blur" }], alias: [{ required: true, message: "请填写数据", trigger: "blur" }], local_type: [{ required: true, message: "请填写数据", trigger: "blur" }], pin_yin_initial: [{ required: true, message: "请填写数据", trigger: "blur" }], quan_pin: [{ required: true, message: "请填写数据", trigger: "blur" }], big_head_url: [{ required: true, message: "请填写数据", trigger: "blur" }], small_head_url: [{ required: true, message: "请填写数据", trigger: "blur" }], remark: [{ required: true, message: "请填写数据", trigger: "blur" }], description: [{ required: true, message: "请填写数据", trigger: "blur" }], hash: [{ required: true, message: "请填写数据", trigger: "blur" }],
@@ -386,9 +348,14 @@ export default {
       this.searchInfo.action = "fcg_contact";
       await this.$api.getExcel(this.searchInfo);
     },
+    async getOdds() {
+      const res = getFcgOdds();
+      this.odds = res.data.odds
+    }
   },
   async created() {
     await this.getTableData();
+    await this.getOdds();
   }
 };
 </script>
