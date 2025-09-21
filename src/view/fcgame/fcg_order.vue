@@ -286,7 +286,7 @@
         </el-table-column>
 
         <!-- 中奖状态 -->
-        <el-table-column prop="win_status" label="中奖状态" width="80" align="center">
+        <el-table-column prop="win_status" label="中奖状态" width="100" align="center">
           <template slot-scope="scope">
             <el-tag :type="scope.row.win_flag ? 'success' : 'info'" size="mini">
               {{ scope.row.win_flag ? '中奖' : '未中奖' }}
@@ -295,13 +295,13 @@
         </el-table-column>
 
         <!-- 订单状态 -->
-        <el-table-column prop="order_status" label="订单状态" width="80" align="center">
+        <!-- <el-table-column prop="order_status" label="订单状态" width="80" align="center">
           <template slot-scope="scope">
             <el-tag :type="getOrderStatusType(scope.row.order_status)" size="mini">
               {{ getOrderStatusText(scope.row.order_status) }}
             </el-tag>
           </template>
-        </el-table-column>
+        </el-table-column> -->
 
         <!-- 中奖总金额 -->
         <el-table-column prop="total_win_amount" label="中奖总金额" width="100" align="center">
@@ -313,13 +313,15 @@
         </el-table-column>
 
         <!-- 订单中奖状态 -->
-        <el-table-column prop="order_win_status" label="中奖状态" width="100" align="center">
+        <!-- <el-table-column prop="order_win_status" label="中奖状态" width="80" align="center">
           <template slot-scope="scope">
             <el-tag :type="scope.row.order_win_amount > 0 ? 'success' : 'info'" size="mini">
               {{ scope.row.order_win_amount > 0 ? '有中奖' : '未中奖' }}
             </el-tag>
           </template>
-        </el-table-column>
+        </el-table-column> -->
+
+        <el-table-column prop="created_at" label="创建时间" width="160" align="center"></el-table-column>
 
         <!-- 操作 -->
         <el-table-column label="操作" width="150" align="center">
@@ -399,10 +401,10 @@ export default {
               user_info: userInfo,
               chat_content: chatContent,
               seq: detail.seq || (index + 1),
-              single_bet_amount: (detail.bet_amount / 100).toFixed(2),
-              order_amount: (detail.bet_amount * detail.multiple / 100).toFixed(2),
-              detail_win_amount: detail.win_amount > 0 ? (detail.win_amount / 100).toFixed(2) : '0.00',
-              total_win_amount: (order.win_amount / 100).toFixed(2),
+              single_bet_amount: (detail.bet_amount / 10000).toFixed(2),
+              order_amount: (detail.bet_amount * detail.multiple / 10000).toFixed(2),
+              detail_win_amount: detail.win_amount > 0 ? (detail.win_amount / 10000).toFixed(2) : '0.00',
+              total_win_amount: (order.win_amount / 10000).toFixed(2),
               order_win_amount: order.win_amount,
               _rowSpan: index === 0 ? order.order_details.length : 0
             });
@@ -471,7 +473,7 @@ export default {
       tabState: '0', // 默认选中的tab
       gameTypes: [
         { value: 0, label: '全部' },
-        { value: 1, label: '单选(直选)' },
+        { value: 1, label: '单选' },
         { value: 2, label: '组三(对子)' },
         { value: 3, label: '组六(无重复)' },
         { value: 4, label: '组六四码' },
@@ -488,7 +490,11 @@ export default {
         { value: 15, label: '一码不定位' },
         { value: 16, label: '一码定位' },
         { value: 17, label: '两码不定位(双飞)' },
-        { value: 18, label: '两码定位' }
+        { value: 18, label: '两码定位' },
+        { value: 19, label: '复试重复号' },
+        { value: 20, label: '复试(三不同号)' },
+        { value: 21, label: '包对子' },
+        { value: 22, label: '包对一' },
       ]
     };
   },
@@ -496,7 +502,7 @@ export default {
     // 合并表格行，实现Excel风格的合并单元格
     mergeRows({ row, column }) {
       // 需要合并的列：群名、用户、聊天记录、期号、订单状态、中奖总金额、订单中奖状态
-      const mergeColumns = ['group_name', 'user_info', 'chat_content', 'issue_no', 'order_status', 'total_win_amount', 'order_win_status'];
+      const mergeColumns = ['group_name', 'user_info', 'chat_content', 'issue_no', 'order_status', 'total_win_amount', 'order_win_status', 'created_at'];
 
       // 操作列也需要合并
       if (mergeColumns.includes(column.property) || column.label === '操作') {
