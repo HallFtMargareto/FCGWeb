@@ -65,7 +65,8 @@ import {
     ButtonGroup,
     Popconfirm,
     Image,
-    Rate
+    Rate,
+    Slider
 } from 'element-ui';
 
 Vue.use(Button);
@@ -128,6 +129,7 @@ Vue.use(ButtonGroup);
 Vue.use(Popconfirm);
 Vue.use(Image);
 Vue.use(Rate);
+Vue.use(Slider);
 
 import { Timeline, TimelineItem } from 'element-ui';
 Vue.use(Timeline).use(TimelineItem);
@@ -193,4 +195,3 @@ export default new Vue({
     router,
     store
 }).$mount('#app')
-

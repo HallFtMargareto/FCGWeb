@@ -6,7 +6,7 @@
         <div class="tilte">
           <!-- <img alt class="logoimg" :src="~@/assets/nav_logo.png" /> -->
           <img alt class="logoimg" :src="siteInfo.logo_action" />
-          <h2 class="tit-text" v-if="isSider">{{ siteInfo.site_name }}</h2>
+          <h2 class="tit-text" v-if="isSider && siteInfo">{{ siteInfo.site_name }}</h2>
         </div>
         <Aside class="aside" />
       </el-aside>

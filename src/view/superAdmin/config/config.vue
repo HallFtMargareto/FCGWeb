@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-tabs tab-position="left" @tab-click="handleTabClick" :value="activeTab">
-      <el-tab-pane label="网站配置" name="site">
+      <el-tab-pane label="网站配置" name="site" v-if="init">
         <el-form ref="site" :model="config.site" :rules="site_rules" size="medium" label-width="150px"
           label-position="left">
           <el-col :span="12">
@@ -55,24 +55,49 @@
         </el-form>
       </el-tab-pane>
       <el-tab-pane label="福彩配置" name="fcgame">
-        <el-form ref="site" :model="config.site" :rules="site_rules" size="medium" label-width="150px"
+        <el-form ref="site" :model="config.fcgame" :rules="site_rules" size="medium" label-width="150px"
           label-position="left">
           <el-row class="el-row-cnf">
             <el-col :span="24">
               <el-form-item label="开盘时间">
-                <time-range-picker :start-time.sync="config.game.market_start_time"
-                  :end-time.sync="config.game.market_end_time">
+                <time-range-picker :start-time.sync="config.fcgame.market_start_time"
+                  :end-time.sync="config.fcgame.market_end_time">
                 </time-range-picker>
               </el-form-item>
             </el-col>
             <el-col :span="24">
               <el-form-item label="自动开奖" prop="open_state">
-                <el-switch v-model="config.game.auto_award"></el-switch>
+                <el-switch v-model="config.fcgame.auto_award"></el-switch>
+              </el-form-item>
+            </el-col>
+            <!-- <el-col :span="24">
+              <el-form-item label="全局状态" prop="open_state">
+                <el-switch v-model="config.fcgame.global_state"></el-switch>
+              </el-form-item>
+            </el-col> -->
+            <el-col :span="24">
+              <el-form-item size="large">
+                <el-button type="primary" @click="submitForm('site')">提交</el-button>
+                <!-- <el-button @click="resetForm">重置</el-button> -->
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+      </el-tab-pane>
+      <el-tab-pane label="体彩配置" name="tcgame">
+        <el-form ref="site" :model="config.tcgame" :rules="site_rules" size="medium" label-width="150px"
+          label-position="left">
+          <el-row class="el-row-cnf">
+            <el-col :span="24">
+              <el-form-item label="开盘时间">
+                <time-range-picker :start-time.sync="config.tcgame.market_start_time"
+                  :end-time.sync="config.tcgame.market_end_time">
+                </time-range-picker>
               </el-form-item>
             </el-col>
             <el-col :span="24">
-              <el-form-item label="全局状态" prop="open_state">
-                <el-switch v-model="config.game.global_state"></el-switch>
+              <el-form-item label="自动开奖" prop="open_state">
+                <el-switch v-model="config.tcgame.auto_award"></el-switch>
               </el-form-item>
             </el-col>
             <el-col :span="24">
@@ -82,6 +107,91 @@
               </el-form-item>
             </el-col>
           </el-row>
+        </el-form>
+      </el-tab-pane>
+      <el-tab-pane label="模型配置" name="llm">
+        <el-form ref="llm" :model="config.llm_model" size="medium" label-width="150px" label-position="left">
+          <el-col :span="12">
+            <el-row class="el-row-cnf">
+              <el-col :span="24">
+                <el-form-item label="API Key" prop="api_key">
+                  <el-input v-model="config.llm_model.api_key" placeholder="请输入API Key" clearable
+                    :style="{ width: '100%' }"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="API Key环境变量" prop="api_key_env_var">
+                  <el-input v-model="config.llm_model.api_key_env_var" placeholder="请输入API Key环境变量名称" clearable
+                    :style="{ width: '100%' }"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="API Base URL" prop="api_base_url">
+                  <el-input v-model="config.llm_model.api_base_url" placeholder="请输入API Base URL" clearable
+                    :style="{ width: '100%' }"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="模型名称" prop="model_name">
+                  <el-input v-model="config.llm_model.model_name" placeholder="请输入使用的模型名称" clearable
+                    :style="{ width: '100%' }"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="默认系统提示词" prop="default_system_prompt">
+                  <el-input v-model="config.llm_model.default_system_prompt" type="textarea" placeholder="请输入默认系统提示词"
+                    :autosize="{ minRows: 4, maxRows: 6 }" :style="{ width: '100%' }"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="最大重试次数" prop="max_retries">
+                  <el-input-number v-model="config.llm_model.max_retries" :min="0" :max="10" controls-position="right"
+                    :style="{ width: '100%' }"></el-input-number>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="请求超时时间(秒)" prop="request_timeout">
+                  <el-input-number v-model="config.llm_model.request_timeout" :min="1" :max="300"
+                    controls-position="right" :style="{ width: '100%' }"></el-input-number>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="Content-Type" prop="content_type">
+                  <el-input v-model="config.llm_model.content_type" placeholder="请输入Content-Type" clearable
+                    :style="{ width: '100%' }"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="Authorization前缀" prop="auth_prefix">
+                  <el-input v-model="config.llm_model.auth_prefix" placeholder="请输入请求头Authorization前缀" clearable
+                    :style="{ width: '100%' }"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="默认温度参数" prop="default_temperature">
+                  <el-slider v-model="config.llm_model.default_temperature" :min="0" :max="1" :step="0.1"
+                    show-input></el-slider>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="默认TopP参数" prop="default_top_p">
+                  <el-slider v-model="config.llm_model.default_top_p" :min="0" :max="1" :step="0.1"
+                    show-input></el-slider>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="最大Token数" prop="max_tokens">
+                  <el-input-number v-model="config.llm_model.max_tokens" :min="1" :max="10000" controls-position="right"
+                    :style="{ width: '100%' }"></el-input-number>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item size="large">
+                  <el-button type="primary" @click="submitForm('llm')">提交</el-button>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-col>
         </el-form>
       </el-tab-pane>
       <el-tab-pane label="邮件设置" name="email">
@@ -187,6 +297,7 @@ export default {
   },
   data() {
     return {
+      init: false,
       value1: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)],
       show_imgc: false,
       image_list: [],
@@ -290,6 +401,7 @@ export default {
     if (this.config.site.logo_action != "") {
       this.image_list.push({ fullurl: this.config.site.logo_action });
     }
+    this.init = true;
   },
 };
 </script>
