@@ -360,80 +360,83 @@
     <uploadexcel ref="uploadexcel" action="FcgOrder"></uploadexcel>
 
     <!-- 订单编辑弹窗 -->
-    <el-dialog :title="dialogTitle" :visible.sync="openDialog" width="70%" @close="handleDialogClose">
+    <el-dialog :title="dialogTitle" :visible.sync="openDialog" width="60%" @close="handleDialogClose"
+      class="order-dialog">
       <el-form ref="editForm" :model="editFormData" label-width="100px" size="mini">
         <el-row>
-          <el-col :span="12">
+          <!-- <el-col :span="12">
             <el-form-item label="订单总金额">
               <el-input v-model.number="editFormData.bet_amount" placeholder="请输入订单总金额"></el-input>
             </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="订单号">
-              <el-input v-model="editFormData.order_no" disabled></el-input>
-            </el-form-item>
+          </el-col> -->
+          <el-col :span="24">
+            <!-- <el-form-item label="投注内容">
+              <el-input v-model="editFormData.bet_content" disabled></el-input>
+            </el-form-item> -->
+            <div style="text-align: center;">{{ editFormData.bet_content }}</div>
           </el-col>
         </el-row>
 
-        <el-form-item label="子订单">
+        <el-row>
           <el-button type="primary" @click="addOrderDetail" size="mini">添加子订单</el-button>
-        </el-form-item>
+        </el-row>
+        <div class="dialog-table-container">
+          <el-table :data="editFormData.order_details" border style="width: 100%" size="mini">
+            <el-table-column label="游戏类型">
+              <template slot-scope="scope">
+                <el-select v-model="scope.row.game_type" placeholder="请选择游戏类型">
+                  <el-option v-for="item in gameTypes" :key="item.value" :label="item.label" :value="item.value">
+                  </el-option>
+                </el-select>
+              </template>
+            </el-table-column>
 
-        <el-table :data="editFormData.order_details" border style="width: 100%" size="mini">
-          <el-table-column label="游戏类型" width="120">
-            <template slot-scope="scope">
-              <el-select v-model="scope.row.game_type" placeholder="请选择游戏类型">
-                <el-option v-for="item in gameTypes" :key="item.value" :label="item.label" :value="item.value">
-                </el-option>
-              </el-select>
-            </template>
-          </el-table-column>
+            <el-table-column label="玩法">
+              <template slot-scope="scope">
+                <el-select v-model="scope.row.game_category" placeholder="请选择玩法">
+                  <el-option label="福彩" :value="1"></el-option>
+                  <el-option label="体彩" :value="2"></el-option>
+                </el-select>
+              </template>
+            </el-table-column>
 
-          <el-table-column label="玩法" width="120">
-            <template slot-scope="scope">
-              <el-select v-model="scope.row.game_category" placeholder="请选择玩法">
-                <el-option label="福彩" :value="1"></el-option>
-                <el-option label="体彩" :value="2"></el-option>
-              </el-select>
-            </template>
-          </el-table-column>
+            <el-table-column label="投注号码">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.bet_number" placeholder="投注号码"></el-input>
+              </template>
+            </el-table-column>
 
-          <el-table-column label="投注号码" width="120">
-            <template slot-scope="scope">
-              <el-input v-model="scope.row.bet_number" placeholder="投注号码"></el-input>
-            </template>
-          </el-table-column>
+            <el-table-column label="注数">
+              <template slot-scope="scope">
+                <el-input v-model.number="scope.row.bet_count" placeholder="注数"></el-input>
+              </template>
+            </el-table-column>
 
-          <el-table-column label="注数" width="80">
-            <template slot-scope="scope">
-              <el-input v-model.number="scope.row.bet_count" placeholder="注数"></el-input>
-            </template>
-          </el-table-column>
+            <el-table-column label="投注金额">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.bet_amount" placeholder="投注金额"></el-input>
+              </template>
+            </el-table-column>
 
-          <el-table-column label="投注金额" width="100">
-            <template slot-scope="scope">
-              <el-input v-model.number="scope.row.bet_amount" placeholder="投注金额"></el-input>
-            </template>
-          </el-table-column>
+            <el-table-column label="倍数">
+              <template slot-scope="scope">
+                <el-input v-model.number="scope.row.multiple" placeholder="倍数"></el-input>
+              </template>
+            </el-table-column>
 
-          <el-table-column label="倍数" width="80">
-            <template slot-scope="scope">
-              <el-input v-model.number="scope.row.multiple" placeholder="倍数"></el-input>
-            </template>
-          </el-table-column>
+            <!-- <el-table-column label="订单金额">
+              <template slot-scope="scope">
+                <el-input v-model.number="scope.row.order_amount" placeholder="订单金额"></el-input>
+              </template>
+            </el-table-column> -->
 
-          <el-table-column label="订单金额" width="100">
-            <template slot-scope="scope">
-              <el-input v-model.number="scope.row.order_amount" placeholder="订单金额"></el-input>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="操作" width="80">
-            <template slot-scope="scope">
-              <el-button type="danger" @click="removeOrderDetail(scope.$index)" size="mini">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+            <el-table-column label="操作">
+              <template slot-scope="scope">
+                <el-button type="danger" @click="removeOrderDetail(scope.$index)" size="mini">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -484,10 +487,10 @@ export default {
               user_info: userInfo,
               chat_content: chatContent,
               seq: detail.seq || (index + 1),
-              single_bet_amount: (detail.bet_amount / 10000).toFixed(2),
-              order_amount: (detail.bet_amount * detail.multiple / 10000).toFixed(2),
-              detail_win_amount: detail.win_amount > 0 ? (detail.win_amount / 10000).toFixed(2) : '0.00',
-              total_win_amount: (order.win_amount / 10000).toFixed(2),
+              single_bet_amount: detail.bet_amount,
+              order_amount: detail.bet_amount,
+              detail_win_amount: detail.win_amount,
+              total_win_amount: order.win_amount,
               order_win_amount: order.win_amount,
               _rowSpan: index === 0 ? order.order_details.length : 0
             });
@@ -503,10 +506,10 @@ export default {
             game_category_name: '未知',
             game_type_name: '未知',
             bet_number: order.bet_content,
-            single_bet_amount: (order.bet_amount / 100).toFixed(2),
-            order_amount: (order.bet_amount / 100).toFixed(2),
-            detail_win_amount: (order.win_amount / 100).toFixed(2),
-            total_win_amount: (order.win_amount / 100).toFixed(2),
+            single_bet_amount: order.bet_amount,
+            order_amount: order.bet_amount,
+            detail_win_amount: order.win_amount,
+            total_win_amount: order.win_amount,
             order_win_amount: order.win_amount,
             win_flag: order.win_amount > 0,
             _rowSpan: 1
@@ -684,13 +687,14 @@ export default {
           ID: order.ID,
           order_no: order.order_no,
           bet_amount: order.bet_amount,
+          bet_content: order.bet_content,
           order_details: order.order_details ? order.order_details.map(detail => {
             return {
               ID: detail.ID,
               game_category: detail.game_category,
               game_type: detail.game_type,
               bet_number: detail.bet_number || '',
-              bet_count: detail.bet_count || 0,
+              bet_count: Number(detail.bet_count) || 0,
               bet_amount: detail.bet_amount || 0,
               multiple: detail.multiple || 1,
               order_amount: detail.bet_amount * detail.multiple || 0 // 计算订单金额
@@ -814,7 +818,7 @@ export default {
         game_category_name: '',
         game_type_name: '',
         bet_number: '',
-        bet_count: 0,
+        bet_count: Number(0),
         bet_amount: 0,
         multiple: 1,
         order_amount: 0
@@ -1032,5 +1036,46 @@ export default {
   text-align: center;
   color: #909399;
   font-size: 14px;
+}
+
+/* 订单编辑弹窗样式 */
+.order-dialog {
+  display: flex;
+  flex-direction: column;
+  margin-top: 5%;
+}
+
+.order-dialog ::v-deep .el-dialog {
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto !important;
+  max-height: calc(100vh - 30px);
+}
+
+.order-dialog ::v-deep .el-dialog__body {
+  flex: 1;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+}
+
+.dialog-table-container {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.dialog-table-container ::v-deep .el-table {
+  width: 100%;
+  min-width: 800px;
+}
+
+@media screen and (max-width: 768px) {
+  .order-dialog ::v-deep .el-dialog {
+    width: 95% !important;
+    max-height: calc(100vh - 20px);
+  }
+
+  .order-dialog ::v-deep .el-dialog__body {
+    max-height: calc(100vh - 150px);
+  }
 }
 </style>
