@@ -358,6 +358,83 @@
     </div>
 
     <uploadexcel ref="uploadexcel" action="FcgOrder"></uploadexcel>
+
+    <!-- 订单编辑弹窗 -->
+    <el-dialog :title="dialogTitle" :visible.sync="openDialog" width="70%" @close="handleDialogClose">
+      <el-form ref="editForm" :model="editFormData" label-width="100px" size="mini">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="订单总金额">
+              <el-input v-model.number="editFormData.bet_amount" placeholder="请输入订单总金额"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="订单号">
+              <el-input v-model="editFormData.order_no" disabled></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-form-item label="子订单">
+          <el-button type="primary" @click="addOrderDetail" size="mini">添加子订单</el-button>
+        </el-form-item>
+
+        <el-table :data="editFormData.order_details" border style="width: 100%" size="mini">
+          <el-table-column label="游戏类型" width="120">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.game_category_name" placeholder="游戏类型"></el-input>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="玩法" width="120">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.game_type_name" placeholder="玩法"></el-input>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="投注号码" width="120">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.bet_number" placeholder="投注号码"></el-input>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="注数" width="80">
+            <template slot-scope="scope">
+              <el-input v-model.number="scope.row.bet_count" placeholder="注数"></el-input>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="投注金额" width="100">
+            <template slot-scope="scope">
+              <el-input v-model.number="scope.row.bet_amount" placeholder="投注金额"></el-input>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="倍数" width="80">
+            <template slot-scope="scope">
+              <el-input v-model.number="scope.row.multiple" placeholder="倍数"></el-input>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="订单金额" width="100">
+            <template slot-scope="scope">
+              <el-input v-model.number="scope.row.order_amount" placeholder="订单金额"></el-input>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="操作" width="80">
+            <template slot-scope="scope">
+              <el-button type="danger" @click="removeOrderDetail(scope.$index)" size="mini">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="openDialog = false" size="small">取 消</el-button>
+        <el-button type="primary" @click="saveOrderEdit" size="small">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -470,7 +547,14 @@ export default {
         ext: "",
 
       },
-      tabState: '0', // 默认选中的tab
+      // 添加编辑订单相关的数据
+      editFormData: {
+        ID: undefined,
+        order_no: "",
+        bet_amount: undefined,
+        order_details: []
+      },
+      tabState: '0',
       gameTypes: [
         { value: 0, label: '全部' },
         { value: 1, label: '单选' },
@@ -585,10 +669,28 @@ export default {
     },
     async editRow(row) {
       this.type = "update";
-      this.dialogTitle = "编辑";
+      this.dialogTitle = "编辑订单";
       const res = await findFcgOrder({ ID: row.ID });
       if (res.code == 0) {
-        this.formData = res.data.refcg_order;
+        // 构造编辑表单数据
+        const order = res.data.refcg_order;
+        this.editFormData = {
+          ID: order.ID,
+          order_no: order.order_no,
+          bet_amount: order.bet_amount,
+          order_details: order.order_details ? order.order_details.map(detail => {
+            return {
+              ID: detail.ID,
+              game_category_name: detail.game_category_name || '',
+              game_type_name: detail.game_type_name || '',
+              bet_number: detail.bet_number || '',
+              bet_count: detail.bet_count || 0,
+              bet_amount: detail.bet_amount || 0,
+              multiple: detail.multiple || 1,
+              order_amount: detail.bet_amount * detail.multiple || 0 // 计算订单金额
+            };
+          }) : []
+        };
         this.openDialog = true;
       }
     },
@@ -699,6 +801,48 @@ export default {
     async exportExcel() {
       this.searchInfo.action = "fcg_order";
       await this.$api.getExcel(this.searchInfo);
+    },
+    // 添加子订单
+    addOrderDetail() {
+      this.editFormData.order_details.push({
+        game_category_name: '',
+        game_type_name: '',
+        bet_number: '',
+        bet_count: 0,
+        bet_amount: 0,
+        multiple: 1,
+        order_amount: 0
+      });
+    },
+    // 删除子订单
+    removeOrderDetail(index) {
+      this.editFormData.order_details.splice(index, 1);
+    },
+    // 保存订单编辑
+    async saveOrderEdit() {
+      const res = await updateFcgOrder(this.editFormData);
+      if (res.code == 0) {
+        this.$message({
+          type: "success",
+          message: "订单编辑成功"
+        });
+        this.openDialog = false;
+        this.getTableData();
+      } else {
+        this.$message({
+          type: "error",
+          message: res.msg || "订单编辑失败"
+        });
+      }
+    },
+    // 关闭弹窗时的处理
+    handleDialogClose() {
+      this.editFormData = {
+        ID: undefined,
+        order_no: "",
+        bet_amount: undefined,
+        order_details: []
+      };
     },
   },
   async created() {
