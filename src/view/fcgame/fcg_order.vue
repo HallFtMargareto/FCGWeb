@@ -382,8 +382,8 @@
         <el-table :data="editFormData.order_details" border style="width: 100%" size="mini">
           <el-table-column label="游戏类型" width="120">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.game_category_name" placeholder="请选择游戏类型">
-                <el-option v-for="item in gameTypes" :key="item.value" :label="item.label" :value="item.label">
+              <el-select v-model="scope.row.game_type" placeholder="请选择游戏类型">
+                <el-option v-for="item in gameTypes" :key="item.value" :label="item.label" :value="item.value">
                 </el-option>
               </el-select>
             </template>
@@ -391,9 +391,9 @@
 
           <el-table-column label="玩法" width="120">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.game_type_name" placeholder="请选择玩法">
-                <el-option label="福彩3D" value="福彩3D"></el-option>
-                <el-option label="体彩" value="体彩"></el-option>
+              <el-select v-model="scope.row.game_category" placeholder="请选择玩法">
+                <el-option label="福彩" :value="1"></el-option>
+                <el-option label="体彩" :value="2"></el-option>
               </el-select>
             </template>
           </el-table-column>
@@ -687,8 +687,8 @@ export default {
           order_details: order.order_details ? order.order_details.map(detail => {
             return {
               ID: detail.ID,
-              game_category_name: detail.game_category_name || '',
-              game_type_name: detail.game_type_name || '',
+              game_category: detail.game_category,
+              game_type: detail.game_type,
               bet_number: detail.bet_number || '',
               bet_count: detail.bet_count || 0,
               bet_amount: detail.bet_amount || 0,
