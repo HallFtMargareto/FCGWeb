@@ -213,16 +213,18 @@
         <!-- 群名 -->
         <el-table-column prop="group_name" label="会话" width="120" align="center">
           <template slot-scope="scope">
-            <span class="group-info">{{ scope.row.group_name }}</span>
+            <span class="user-info">群组：{{ scope.row.group_name }}</span><br>
+            <span class="group-info">用户：{{ scope.row.user_info }}</span> <br>
+            <span></span>
           </template>
         </el-table-column>
 
         <!-- 用户 -->
-        <el-table-column prop="user_info" label="用户" width="120" align="center">
+        <!-- <el-table-column prop="user_info" label="用户" width="120" align="center">
           <template slot-scope="scope">
-            <span class="user-info">{{ scope.row.user_info }}</span>
+            <span class="user-info"></span>
           </template>
-        </el-table-column>
+        </el-table-column> -->
 
         <!-- 聊天记录 -->
         <el-table-column prop="chat_content" label="聊天记录" width="200" align="center">
@@ -303,11 +305,20 @@
           </template>
         </el-table-column> -->
 
-        <!-- 中奖总金额 -->
-        <el-table-column prop="total_win_amount" label="中奖总金额" width="100" align="center">
+        <!-- 总注数 -->
+        <el-table-column prop="total_bet_count" label="总投注" width="100" align="center">
           <template slot-scope="scope">
-            <span :class="{ 'win-amount': scope.row.total_win_amount > 0 }">
-              {{ scope.row.total_win_amount }}
+            <span>
+              {{ scope.row.total_bet_count }}
+            </span>
+          </template>
+        </el-table-column>
+
+        <!-- 总金额 -->
+        <el-table-column prop="total_bet_amount" label="总金额" width="100" align="center">
+          <template slot-scope="scope">
+            <span>
+              {{ scope.row.total_bet_amount }}
             </span>
           </template>
         </el-table-column>
@@ -492,6 +503,8 @@ export default {
               detail_win_amount: detail.win_amount,
               total_win_amount: order.win_amount,
               order_win_amount: order.win_amount,
+              total_bet_count: order.bet_count,
+              total_bet_amount: order.bet_amount,
               _rowSpan: index === 0 ? order.order_details.length : 0
             });
           });
@@ -511,6 +524,8 @@ export default {
             detail_win_amount: order.win_amount,
             total_win_amount: order.win_amount,
             order_win_amount: order.win_amount,
+            total_bet_count: order.bet_count,
+            total_bet_amount: order.bet_amount,
             win_flag: order.win_amount > 0,
             _rowSpan: 1
           });
@@ -595,7 +610,7 @@ export default {
     // 合并表格行，实现Excel风格的合并单元格
     mergeRows({ row, column }) {
       // 需要合并的列：群名、用户、聊天记录、期号、订单状态、中奖总金额、订单中奖状态
-      const mergeColumns = ['group_name', 'user_info', 'chat_content', 'issue_no', 'order_status', 'total_win_amount', 'order_win_status', 'created_at'];
+      const mergeColumns = ['group_name', 'user_info', 'chat_content', 'issue_no', 'order_status', 'total_win_amount', 'order_win_status', 'created_at', 'total_bet_count', 'total_bet_amount'];
 
       // 操作列也需要合并
       if (mergeColumns.includes(column.property) || column.label === '操作') {
@@ -965,7 +980,7 @@ export default {
 
 .user-info {
   font-weight: 500;
-  color: #606266;
+  color: hsl(220, 86%, 39%);
   word-break: break-all;
 }
 
