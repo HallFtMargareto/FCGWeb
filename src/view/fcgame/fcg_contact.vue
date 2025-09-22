@@ -150,9 +150,10 @@
         </div>
       </el-form-item>
 
-      <el-form-item label="赔率">
+      <el-divider content-position="center">赔率设置</el-divider>
+      <el-form-item label="">
         <el-row :gutter="24">
-          <el-col :span="10" v-for="(odd, index) in formData.odds_rate" :key="odd.game_type_id">
+          <el-col :span="12" v-for="(odd, index) in formData.odds_rate" :key="odd.game_type_id">
             <el-form-item :label="odd.game_type_name" :prop="'odds_rate.' + index + '.odds'">
               <el-input v-model="odd.odds" placeholder="请输入赔率"></el-input>
             </el-form-item>
@@ -252,7 +253,7 @@ export default {
       if (value === '' || value === null || value === undefined) {
         return;
       }
-      
+
       // 使用正则表达式验证是否为数字（包括小数）
       const numberRegex = /^(\d+\.?\d*|\.\d+)$/;
       if (!numberRegex.test(value.toString())) {

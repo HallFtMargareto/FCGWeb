@@ -48,8 +48,8 @@
       <el-table-column type="selection" width="50"></el-table-column>
       <el-table-column label="ID" prop="ID" sortable></el-table-column>
 
-      <el-table-column label="账号" prop="username" show-overflow-tooltip>
-      </el-table-column>
+      <!-- <el-table-column label="账号" prop="username" show-overflow-tooltip>
+      </el-table-column> -->
       <!-- <el-table-column label="玩家头像URL" prop="avatar_url" show-overflow-tooltip>
       </el-table-column> -->
 
@@ -74,8 +74,8 @@
       <el-table-column label="冻结金额" prop="frozen_balance">
       </el-table-column>
 
-      <el-table-column label="货币单位" prop="currency" show-overflow-tooltip>
-      </el-table-column>
+      <!-- <el-table-column label="货币单位" prop="currency" show-overflow-tooltip>
+      </el-table-column> -->
 
       <el-table-column label="累计充值" prop="total_deposit_amount">
       </el-table-column>
