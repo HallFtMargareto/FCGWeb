@@ -86,63 +86,51 @@
     </div>
 
     <el-table :data="tableData" @selection-change="handleSelectionChange" @sort-change="sortChange" ref="multipleTable"
-      :show-summary="showSummary" :summary-method="getSummaries" border stripe>
-      <el-table-column type="selection" width="50"></el-table-column>
-      <el-table-column label="ID" prop="ID" sortable></el-table-column>
+      :show-summary="showSummary" :summary-method="getSummaries" style="width: 100%"
+      :header-cell-style="{ background: '#f5f7fa', color: '#606266' }">
+      <el-table-column type="selection" width="55" align="center"></el-table-column>
+      <el-table-column label="ID" prop="ID" sortable align="center" width="80"></el-table-column>
 
-      <el-table-column label="企业名称" prop="name" show-overflow-tooltip>
+      <el-table-column label="企业名称" prop="name" show-overflow-tooltip min-width="150">
+        <template slot-scope="scope">
+          <span class="enterprise-name">{{ scope.row.name }}</span>
+        </template>
       </el-table-column>
 
-      <el-table-column label="英文名称" prop="name_en" show-overflow-tooltip>
+      <el-table-column label="信用代码" prop="usci" show-overflow-tooltip min-width="180" align="center">
       </el-table-column>
 
-      <el-table-column label="简称" prop="short_name" show-overflow-tooltip>
+      <el-table-column label="注册资本" prop="registered_capital" show-overflow-tooltip min-width="120" align="center">
       </el-table-column>
 
-      <el-table-column label="信用代码" prop="usci" show-overflow-tooltip>
+      <el-table-column label="法人" prop="legal_person" show-overflow-tooltip min-width="120" align="center">
       </el-table-column>
 
-      <el-table-column label="注册币种" prop="registered_currency" show-overflow-tooltip>
+      <el-table-column label="成立时间" prop="establishing_time" align="center" min-width="160">
       </el-table-column>
 
-      <el-table-column label="注册资本" prop="registered_capital" show-overflow-tooltip>
+      <el-table-column label="所属行业" prop="industry_involved" show-overflow-tooltip min-width="120" align="center">
       </el-table-column>
 
-      <el-table-column label="法人" prop="legal_person" show-overflow-tooltip>
+      <el-table-column label="状态" prop="state" show-overflow-tooltip align="center" min-width="100">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.state === '正常' ? 'success' : 'warning'">{{ scope.row.state }}</el-tag>
+        </template>
       </el-table-column>
 
-      <el-table-column label="成立时间" prop="establishing_time">
+      <el-table-column label="删除状态" prop="deleted" align="center" min-width="100">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.deleted ? 'danger' : 'success'">{{
+            scope.row.deleted ? '已删除' : '正常'
+          }}</el-tag>
+        </template>
       </el-table-column>
 
-      <el-table-column label="企业性质" prop="business_nature" show-overflow-tooltip>
-      </el-table-column>
-
-      <el-table-column label="所属行业" prop="industry_involved" show-overflow-tooltip>
-      </el-table-column>
-
-      <el-table-column label="注册地址" prop="registered_address" show-overflow-tooltip>
-      </el-table-column>
-
-      <el-table-column label="经营范围" prop="business_scope" show-overflow-tooltip>
-      </el-table-column>
-
-      <el-table-column label="员工数" prop="staff_number" show-overflow-tooltip>
-      </el-table-column>
-
-      <el-table-column label="状态" prop="state" show-overflow-tooltip>
-      </el-table-column>
-
-      <el-table-column label="删除状态" prop="deleted">
-        <template slot-scope="scope">{{
-          scope.row.deleted | formatBoolean
-        }}</template>
-      </el-table-column>
-
-      <el-table-column label="日期" width="160" prop="created_at" sortable="custom">
+      <el-table-column label="创建时间" width="160" prop="created_at" sortable="custom" align="center">
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
       </el-table-column>
 
-      <el-table-column label="操作" fixed="right" width="200">
+      <el-table-column label="操作" fixed="right" width="160" align="center">
         <template slot-scope="scope">
           <el-button v-if="userInfo.perm['system.update']" @click="editRow(scope.row)" type="text" size="small"
             icon="el-icon-edit">编辑</el-button>
@@ -456,4 +444,50 @@ export default {
 };
 </script>
 
-<style></style>
+<style scoped>
+.enterprise-name {
+  font-weight: 500;
+  color: #1890ff;
+}
+
+.el-table {
+  margin-top: 15px;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.el-table::before {
+  height: 0;
+}
+
+.el-table th {
+  font-weight: 600;
+}
+
+.el-table .el-button+.el-button {
+  margin-left: 8px;
+}
+
+.pagination-container {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.search-term {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+}
+
+.btn-form-inline {
+  margin-top: 15px;
+  border-top: 1px solid #ebeef5;
+  padding-top: 15px;
+}
+
+.dialog-footer {
+  text-align: right;
+}
+</style>
