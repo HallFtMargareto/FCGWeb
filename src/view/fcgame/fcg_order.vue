@@ -382,13 +382,19 @@
         <el-table :data="editFormData.order_details" border style="width: 100%" size="mini">
           <el-table-column label="游戏类型" width="120">
             <template slot-scope="scope">
-              <el-input v-model="scope.row.game_category_name" placeholder="游戏类型"></el-input>
+              <el-select v-model="scope.row.game_category_name" placeholder="请选择游戏类型">
+                <el-option v-for="item in gameTypes" :key="item.value" :label="item.label" :value="item.label">
+                </el-option>
+              </el-select>
             </template>
           </el-table-column>
 
           <el-table-column label="玩法" width="120">
             <template slot-scope="scope">
-              <el-input v-model="scope.row.game_type_name" placeholder="玩法"></el-input>
+              <el-select v-model="scope.row.game_type_name" placeholder="请选择玩法">
+                <el-option label="福彩3D" value="福彩3D"></el-option>
+                <el-option label="体彩" value="体彩"></el-option>
+              </el-select>
             </template>
           </el-table-column>
 
