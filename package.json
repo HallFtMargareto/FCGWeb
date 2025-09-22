@@ -17,6 +17,7 @@
     "axios": "^0.19.2",
     "element-ui": "^2.15.6",
     "highlight.js": "^10.6.0",
+    "markdown-it": "^14.1.0",
     "marked": "^2.0.3",
     "mavon-editor": "^2.9.1",
     "path": "^0.12.7",

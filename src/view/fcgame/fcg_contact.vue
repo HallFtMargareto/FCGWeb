@@ -142,7 +142,7 @@
       </el-form-item>
 
       <el-form-item label="费率">
-        <el-input v-model.number="formData.fee_rate" placeholder="费率" clearable>
+        <el-input v-model="formData.fee_rate" placeholder="费率" clearable @input="validateNumberInput">
           <template slot="append">%</template>
         </el-input>
         <div class="el-form-item__tip">
@@ -201,6 +201,7 @@ export default {
       dialogTitle: "",
       type: "",
       multipleSelection: [],
+      lastValidFeeRate: 0, // 用于保存上一次的有效费率值
       // defOddList: [],
       // oddlist: [],
       formData: {
@@ -246,6 +247,24 @@ export default {
     };
   },
   methods: {
+    validateNumberInput(value) {
+      // 允许空值
+      if (value === '' || value === null || value === undefined) {
+        return;
+      }
+      
+      // 使用正则表达式验证是否为数字（包括小数）
+      const numberRegex = /^(\d+\.?\d*|\.\d+)$/;
+      if (!numberRegex.test(value.toString())) {
+        // 如果不是有效数字，恢复为上一次的有效值
+        this.$nextTick(() => {
+          this.formData.fee_rate = this.lastValidFeeRate || 0;
+        });
+      } else {
+        // 保存当前有效值
+        this.lastValidFeeRate = value;
+      }
+    },
     // 格式化时间戳为标准时间格式
     formatTimestamp(timestamp) {
       if (!timestamp) return "";
@@ -265,6 +284,7 @@ export default {
       this.formData = {
         game_odds: [],
       };
+      this.lastValidFeeRate = 0;
       this.type = "create";
       this.dialogTitle = "创建";
       this.openDialog = true;
@@ -275,6 +295,7 @@ export default {
       const res = await findFcgContact({ ID: row.ID });
       if (res.code == 0) {
         this.formData = res.data.refcg_contact;
+        this.lastValidFeeRate = this.formData.fee_rate;
         this.openDialog = true;
       }
     },

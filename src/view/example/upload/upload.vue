@@ -1,232 +1,86 @@
 <template>
-  <div>
-    <div class="search-term">
-      <el-form
-        :inline="true"
-        class="demo-form-inline"
-        size="mini"
-        label-width="120px"
-        label-position="right"
-        :model="searchInfo"
-      >
-        <el-row :gutter="24">
-          <el-col :span="24">
-            <div>
-              <el-form-item label="文件地址">
-                <el-input
-                  placeholder="文件地址"
-                  v-model="searchInfo.url"
-                ></el-input>
-              </el-form-item>
+  <div class="upload-container">
 
-              <el-form-item label="文件名">
-                <el-input
-                  placeholder="文件名"
-                  v-model="searchInfo.name"
-                ></el-input>
-              </el-form-item>
-
-              <el-form-item label="文件标签">
-                <el-input
-                  placeholder="文件标签"
-                  v-model="searchInfo.tag"
-                ></el-input>
-              </el-form-item>
-
-              <el-form-item label="编号">
-                <el-input
-                  placeholder="编号"
-                  v-model="searchInfo.key"
-                ></el-input>
-              </el-form-item>
-
-              <el-form-item label="开始时间">
-                <datepicker v-model="searchInfo.startTime" type="datetime" />
-              </el-form-item>
-              <el-form-item label="结束时间">
-                <datepicker v-model="searchInfo.endTime" type="datetime" />
-              </el-form-item>
-
-              <el-form-item label=" ">
-                <el-button @click="onQuery" type="primary">查询</el-button>
-                <el-button @click="$bus.$emit('reload')">重置</el-button>
-              </el-form-item>
+    <!-- 文件列表 -->
+    <el-card class="file-list-card" shadow="never">
+      <div class="file-grid">
+        <div v-for="file in tableData" :key="file.ID" class="file-item" :class="{ 'selected': isSelected(file) }"
+          @click="toggleSelection(file)">
+          <div class="file-checkbox">
+            <el-checkbox :value="isSelected(file)" @click.native.stop @change="handleFileSelect(file)">
+            </el-checkbox>
+          </div>
+          <div class="file-preview">
+            <div v-if="isImage(file.url)" class="image-preview">
+              <el-image :src="file.fullurl" fit="cover" :preview-src-list="[file.fullurl]" lazy>
+                <div slot="error" class="image-error">
+                  <i class="el-icon-picture-outline"></i>
+                </div>
+              </el-image>
             </div>
-          </el-col>
-        </el-row>
-      </el-form>
+            <div v-else class="file-icon">
+              <i class="el-icon-document"></i>
+            </div>
+          </div>
+          <div class="file-info">
+            <div class="file-name" :title="file.name">{{ file.name }}</div>
+            <div class="file-tag" v-if="file.tag">
+              <el-tag size="mini">{{ file.tag }}</el-tag>
+            </div>
+            <div class="file-meta">
+              <span class="file-key">{{ file.key }}</span>
+              <span class="file-date">{{ formatDate(file.created_at) }}</span>
+            </div>
+          </div>
+          <div class="file-actions">
+            <el-link :href="file.fullurl" target="_blank" :underline="false" class="action-btn">
+              <i class="el-icon-view"></i>
+            </el-link>
+            <el-button v-if="userInfo.perm['system.update']" type="text" size="small" icon="el-icon-edit"
+              @click.stop="editRow(file)" class="action-btn">
+            </el-button>
+            <el-button v-if="userInfo.perm['system.delete']" type="text" size="small" icon="el-icon-delete"
+              @click.stop="deleteRow(file)" class="action-btn">
+            </el-button>
+          </div>
+        </div>
+      </div>
 
-      <el-form size="mini" :inline="true" class="btn-form-inline">
-        <el-button
-          v-if="userInfo.perm['system.create']"
-          @click="createRow"
-          class="btn-info"
-          >新增</el-button
-        >
-        <el-button
-          v-if="userInfo.perm['system.batch_delete']"
-          @click="handleCommand('remove')"
-          class="btn-info"
-          >批量删除</el-button
-        >
-        <el-button
-          v-if="userInfo.perm['system.summary']"
-          @click="getSummaryList"
-          class="btn-info"
-          >合计</el-button
-        >
-        <el-button
-          v-if="userInfo.perm['system.import']"
-          @click="importExcel"
-          icon="el-icon-upload2"
-          class="btn-info"
-          >导入</el-button
-        >
-        <el-button
-          v-if="userInfo.perm['system.export']"
-          @click="exportExcel"
-          icon="el-icon-download"
-          class="btn-info"
-          >导出</el-button
-        >
-      </el-form>
+      <!-- 空状态 -->
+      <el-empty v-if="tableData.length === 0" description="暂无文件数据"></el-empty>
+    </el-card>
+
+    <!-- 分页 -->
+    <div class="pagination-section" v-if="tableData.length > 0">
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="page"
+        :page-sizes="[12, 24, 36, 48]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
+        :total="total" background>
+      </el-pagination>
     </div>
 
-    <el-table
-      :data="tableData"
-      @selection-change="handleSelectionChange"
-      @sort-change="sortChange"
-      ref="multipleTable"
-      :show-summary="showSummary"
-      :summary-method="getSummaries"
-      border
-      stripe
-    >
-      <el-table-column type="selection" width="50"></el-table-column>
-      <el-table-column label="ID" prop="ID" sortable></el-table-column>
-
-      <el-table-column label="预览">
-        <template slot-scope="scope">
-          <el-link :href="scope.row.fullurl" target="_blank">
-            <el-image
-              :src="scope.row.fullurl"
-              style="width: 50px; height: 50px"
-              type="primary"
-              >{{ scope.row.url }}</el-image
-            >
-          </el-link>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="文件名" prop="name" show-overflow-tooltip>
-      </el-table-column>
-
-      <el-table-column label="文件标签" prop="tag" show-overflow-tooltip>
-      </el-table-column>
-
-      <el-table-column label="编号" prop="key" show-overflow-tooltip>
-      </el-table-column>
-
-      <!-- <el-table-column label="tenantId" prop="tenant_id"> </el-table-column> -->
-
-      <el-table-column
-        label="日期"
-        width="160"
-        prop="created_at"
-        sortable="custom"
-      >
-        <template slot-scope="scope">{{ scope.row.created_at }}</template>
-      </el-table-column>
-
-      <el-table-column label="操作" fixed="right" width="200">
-        <template slot-scope="scope">
-          <el-button
-            v-if="userInfo.perm['system.update']"
-            @click="editRow(scope.row)"
-            type="text"
-            size="small"
-            icon="el-icon-edit"
-            >编辑</el-button
-          >
-          <el-button
-            v-if="userInfo.perm['system.delete']"
-            @click="deleteRow(scope.row)"
-            type="text"
-            size="small"
-            icon="el-icon-delete"
-            >删除</el-button
-          >
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <el-pagination
-      :current-page="page"
-      :page-size="pageSize"
-      :page-sizes="[10, 30, 50, 100]"
-      :style="{ float: 'right', padding: '20px' }"
-      :total="total"
-      @current-change="handleCurrentChange"
-      @size-change="handleSizeChange"
-      layout="total, sizes, prev, pager, next, jumper"
-      background
-    ></el-pagination>
-
-    <el-dialog
-      @close="closeDialog"
-      :visible.sync="dialogFormVisible"
-      :title="dialogTitle"
-      width="25%"
-    >
-      <el-form
-        :model="formData"
-        :rules="formDataRules"
-        ref="ruleForm"
-        size="mini"
-        label-position="right"
-        label-width="80px"
-      >
+    <!-- 编辑对话框 -->
+    <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="500px" :before-close="closeDialog">
+      <el-form :model="formData" :rules="formDataRules" ref="ruleForm" label-width="100px" size="small">
         <el-form-item label="文件名" prop="name">
-          <el-input
-            v-model="formData.name"
-            clearable
-            placeholder="请输入"
-          ></el-input>
+          <el-input v-model="formData.name" placeholder="请输入文件名"></el-input>
         </el-form-item>
         <el-form-item label="文件地址" prop="url">
-          <el-input
-            v-model="formData.url"
-            clearable
-            placeholder="请输入"
-          ></el-input>
+          <el-input v-model="formData.url" placeholder="请输入文件地址"></el-input>
         </el-form-item>
         <el-form-item label="文件标签" prop="tag">
-          <el-input
-            v-model="formData.tag"
-            clearable
-            placeholder="请输入"
-          ></el-input>
+          <el-input v-model="formData.tag" placeholder="请输入文件标签"></el-input>
         </el-form-item>
         <el-form-item label="编号" prop="key">
-          <el-input
-            v-model="formData.key"
-            clearable
-            placeholder="请输入"
-          ></el-input>
+          <el-input v-model="formData.key" placeholder="请输入编号"></el-input>
         </el-form-item>
-        <el-form-item label="tenantId" prop="tenant_id">
-          <el-input
-            v-model.number="formData.tenant_id"
-            clearable
-            placeholder="请输入"
-          ></el-input>
+        <el-form-item label="租户ID" prop="tenant_id">
+          <el-input-number v-model="formData.tenant_id" placeholder="请输入租户ID" style="width: 100%;" :min="0">
+          </el-input-number>
         </el-form-item>
       </el-form>
-      <div class="dialog-footer" slot="footer">
-        <el-button @click="dialogFormVisible = !dialogFormVisible"
-          >取 消</el-button
-        >
-        <el-button @click="enterDialog" type="primary">确 定</el-button>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="closeDialog">取 消</el-button>
+        <el-button type="primary" @click="enterDialog">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -236,14 +90,13 @@
 
 <script>
 import infoList from "@/mixins/infoList";
-import datepicker from "@/components/datepicker";
 import uploadexcel from "@/components/uploadexcel";
 import { mapGetters } from "vuex";
+
 export default {
   name: "upload",
   mixins: [infoList],
   components: {
-    datepicker,
     uploadexcel,
   },
   computed: {
@@ -256,6 +109,7 @@ export default {
       dialogTitle: "",
       type: "",
       multipleSelection: [],
+      searchTime: [],
       formData: {
         name: "",
         url: "",
@@ -264,32 +118,94 @@ export default {
         tenant_id: undefined,
       },
       formDataRules: {
-        name: [{ required: true, message: "请填写数据", trigger: "blur" }],
-        url: [{ required: true, message: "请填写数据", trigger: "blur" }],
-        tag: [{ required: true, message: "请填写数据", trigger: "blur" }],
-        key: [{ required: true, message: "请填写数据", trigger: "blur" }],
-        tenant_id: [{ required: true, message: "请填写数据", trigger: "blur" }],
+        name: [{ required: true, message: "请输入文件名", trigger: "blur" }],
+        url: [{ required: true, message: "请输入文件地址", trigger: "blur" }],
+        tag: [{ required: true, message: "请输入文件标签", trigger: "blur" }],
+        key: [{ required: true, message: "请输入编号", trigger: "blur" }],
+        tenant_id: [{ required: true, message: "请输入租户ID", trigger: "blur" }],
       },
       reslist: {},
     };
   },
+  watch: {
+    searchTime(newVal) {
+      if (newVal && newVal.length === 2) {
+        this.searchInfo.startTime = newVal[0];
+        this.searchInfo.endTime = newVal[1];
+      } else {
+        this.searchInfo.startTime = "";
+        this.searchInfo.endTime = "";
+      }
+    }
+  },
   methods: {
+    // 判断文件是否为图片
+    isImage(url) {
+      if (!url) return false;
+      const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+      const ext = url.split('.').pop().toLowerCase();
+      return imageExtensions.includes(ext);
+    },
+
+    // 格式化日期
+    formatDate(date) {
+      if (!date) return '';
+      const d = new Date(date);
+      return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+    },
+
+    // 重置搜索
+    resetSearch() {
+      this.searchInfo = {};
+      this.searchTime = [];
+      this.onQuery();
+    },
+
+    // 判断文件是否被选中
+    isSelected(file) {
+      return this.multipleSelection.some(item => item.ID === file.ID);
+    },
+
+    // 切换文件选择状态
+    toggleSelection(file) {
+      this.handleFileSelect(file);
+    },
+
+    // 处理文件选择
+    handleFileSelect(file) {
+      const index = this.multipleSelection.findIndex(item => item.ID === file.ID);
+      if (index > -1) {
+        // 已选中，取消选中
+        this.multipleSelection.splice(index, 1);
+      } else {
+        // 未选中，添加选中
+        this.multipleSelection.push(file);
+      }
+    },
+
     onQuery() {
       this.summary = {};
       this.showSummary = false;
 
       this.page = 1;
-      this.pageSize = 10;
+      this.pageSize = 30;
       this.getTableData();
     },
     createRow() {
       this.type = "create";
-      this.dialogTitle = "创建";
+      this.dialogTitle = "新增文件";
+      this.formData = {
+        name: "",
+        url: "",
+        tag: "",
+        key: "",
+        tenant_id: undefined,
+      };
       this.dialogFormVisible = true;
     },
     async editRow(row) {
       this.type = "update";
-      this.dialogTitle = "编辑";
+      this.dialogTitle = "编辑文件";
       const res = await this.$api.findSysUpload({ ID: row.ID });
       if (res.code == 0) {
         this.formData = res.data.reupload;
@@ -297,7 +213,7 @@ export default {
       }
     },
     deleteRow(row) {
-      this.$confirm("确定要删除吗?", "提示", {
+      this.$confirm(`确定要删除文件 "${row.name}" 吗?`, "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
@@ -320,7 +236,13 @@ export default {
     },
     closeDialog() {
       this.$refs["ruleForm"].resetFields();
-      this.formData = {};
+      this.formData = {
+        name: "",
+        url: "",
+        tag: "",
+        key: "",
+        tenant_id: undefined,
+      };
       this.dialogFormVisible = false;
     },
     async enterDialog() {
@@ -366,7 +288,7 @@ export default {
       this.multipleSelection = val;
     },
     handleCommand(command) {
-      this.$confirm("是否要执行批量操作?", "提示", {
+      this.$confirm(`是否要删除选中的 ${this.multipleSelection.length} 个文件?`, "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
@@ -434,10 +356,202 @@ export default {
     },
   },
   async created() {
+    this.pageSize = 30;
     await this.getTableData();
   },
 };
 </script>
 
-<style>
+<style scoped>
+.upload-container {
+  padding: 10px;
+  /* background-color: #f5f7fa; */
+  min-height: calc(100vh - 84px);
+}
+
+.search-card {
+  border: none;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.search-card ::v-deep .el-card__header {
+  padding: 12px 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ebeef5;
+  border-radius: 8px 8px 0 0;
+}
+
+.search-actions {
+  text-align: right;
+}
+
+.toolbar-section {
+  margin-bottom: 20px;
+}
+
+.file-list-card {
+  border: none;
+  border-radius: 8px;
+}
+
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.file-item {
+  border: 1px solid #ebeef5;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s;
+  position: relative;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.file-item:hover {
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.file-item.selected {
+  border-color: #409eff;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+}
+
+.file-checkbox {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
+}
+
+.file-preview {
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+}
+
+.image-preview ::v-deep .el-image {
+  width: 100%;
+  height: 100%;
+}
+
+.image-preview ::v-deep .el-image__inner {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #c0c4cc;
+  font-size: 24px;
+}
+
+.file-icon {
+  font-size: 48px;
+  color: #c0c4cc;
+}
+
+.file-info {
+  padding: 15px;
+}
+
+.file-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #303133;
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-tag {
+  margin-bottom: 8px;
+}
+
+.file-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #909399;
+}
+
+.file-key {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-date {
+  flex-shrink: 0;
+}
+
+.file-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 15px 15px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.file-item:hover .file-actions {
+  opacity: 1;
+}
+
+.action-btn {
+  margin-left: 10px;
+  padding: 5px;
+  font-size: 16px;
+  color: #909399;
+}
+
+.action-btn:hover {
+  color: #409eff;
+}
+
+.pagination-section {
+  display: flex;
+  justify-content: flex-end;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.dialog-footer {
+  text-align: right;
+}
+
+::v-deep .el-dialog {
+  border-radius: 8px;
+}
+
+::v-deep .el-dialog__header {
+  padding: 15px 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ebeef5;
+  border-radius: 8px 8px 0 0;
+}
+
+::v-deep .el-dialog__body {
+  padding: 20px;
+}
 </style>
