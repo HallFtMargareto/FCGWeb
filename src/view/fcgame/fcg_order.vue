@@ -2,12 +2,18 @@
   <div>
     <div>
       <el-button-group>
-        <el-button class="btg">全部</el-button>
-        <el-button class="btg">待开奖</el-button>
-        <el-button class="btg">已开奖</el-button>
-        <el-button class="btg">已中奖</el-button>
-        <el-button class="btg">未中奖</el-button>
-        <el-button class="btg">已撤单</el-button>
+        <el-button :type="activeFilter === 'all' ? 'primary' : ''" class="btg"
+          @click="filterOrders('all')">全部</el-button>
+        <el-button :type="activeFilter === 'pending' ? 'primary' : ''" class="btg"
+          @click="filterOrders('pending')">待开奖</el-button>
+        <el-button :type="activeFilter === 'opened' ? 'primary' : ''" class="btg"
+          @click="filterOrders('opened')">已开奖</el-button>
+        <el-button :type="activeFilter === 'won' ? 'primary' : ''" class="btg"
+          @click="filterOrders('won')">已中奖</el-button>
+        <el-button :type="activeFilter === 'lost' ? 'primary' : ''" class="btg"
+          @click="filterOrders('lost')">未中奖</el-button>
+        <el-button :type="activeFilter === 'cancelled' ? 'primary' : ''" class="btg"
+          @click="filterOrders('cancelled')">已撤单</el-button>
       </el-button-group>
     </div>
 
@@ -17,12 +23,17 @@
         <el-form-item label="用户名称">
           <el-input v-model="searchInfo.nick_name" placeholder="用户名称" clearable></el-input>
         </el-form-item>
-        <el-form-item label="群组名称">
+
+        <el-form-item label="会话名称">
           <el-input v-model="searchInfo.group_name" placeholder="群组名称" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="投注号码">
           <el-input v-model="searchInfo.bet_number" placeholder="投注号码" clearable></el-input>
+        </el-form-item>
+
+        <el-form-item label="原始内容">
+          <el-input v-model="searchInfo.bet_content" placeholder="原始内容" clearable></el-input>
         </el-form-item>
 
         <!-- <el-form-item label="期号ID">
@@ -43,9 +54,7 @@
           <el-input v-model="searchInfo.parent_order_id" placeholder="若为组合/拆单的顶层单，可记录父ID" clearable></el-input>
         </el-form-item> -->
 
-        <el-form-item label="原始内容">
-          <el-input v-model="searchInfo.bet_content" placeholder="原始内容" clearable></el-input>
-        </el-form-item>
+
 
 
         <el-form-item label="投注数量">
@@ -211,9 +220,9 @@
       <el-table :data="processedTableData" border class="excel-table" size="mini" :span-method="mergeRows"
         style="width: 100% !important; table-layout: fixed;">
         <!-- 群名 -->
-        <el-table-column prop="group_name" label="会话" width="120" align="center">
+        <el-table-column prop="group_name" label="会话" width="130" align="center">
           <template slot-scope="scope">
-            <span class="user-info">群组：{{ scope.row.group_name }}</span><br>
+            <span class="user-info">会话：{{ scope.row.group_name }}</span><br>
             <span class="group-info">用户：{{ scope.row.user_info }}</span> <br>
             <span></span>
           </template>
@@ -494,6 +503,8 @@ export default {
             result.push({
               ...order,
               ...detail,
+              // 保存订单的原始ID，避免被明细ID覆盖
+              order_id: order.ID,
               group_name: groupName,
               user_info: userInfo,
               chat_content: chatContent,
@@ -542,6 +553,7 @@ export default {
       dialogTitle: "",
       type: "",
       multipleSelection: [],
+      activeFilter: 'all',
       formData: {
         order_no: "",
         user_id: undefined,
@@ -603,7 +615,7 @@ export default {
         { value: 20, label: '复试(三不同号)' },
         { value: 21, label: '包对子' },
         { value: 22, label: '包对一' },
-      ]
+      ],
     };
   },
   methods: {
@@ -626,6 +638,43 @@ export default {
           };
         }
       }
+    },
+
+    // 订单筛选功能
+    filterOrders(filterType) {
+      this.activeFilter = filterType;
+
+      // 清除之前的筛选条件
+      delete this.searchInfo.order_status;
+      delete this.searchInfo.win_flag;
+
+      // 根据筛选类型设置查询条件
+      switch (filterType) {
+        case 'pending': // 待开奖
+          this.searchInfo.order_status = 2;
+          break;
+        case 'opened': // 已开奖
+          this.searchInfo.order_status = 3;
+          break;
+        case 'won': // 已中奖
+          this.searchInfo.win_flag = 1;
+          break;
+        case 'lost': // 未中奖
+          this.searchInfo.win_flag = 0;
+          break;
+        case 'cancelled': // 已撤单
+          this.searchInfo.order_status = 4;
+          break;
+        case 'all':
+        default:
+          // 全部状态，不添加筛选条件
+          break;
+      }
+
+      // 重置页码并重新获取数据
+      this.page = 1;
+      this.pageSize = 10;
+      this.getTableData();
     },
 
     handleClick(tab) {
@@ -692,9 +741,12 @@ export default {
       this.openDialog = true;
     },
     async editRow(row) {
+      console.log(row)
       this.type = "update";
       this.dialogTitle = "编辑订单";
-      const res = await findFcgOrder({ ID: row.ID });
+      // 使用订单的原始ID，而不是可能被明细覆盖的ID
+      const orderId = row.order_id || row.ID;
+      const res = await findFcgOrder({ ID: orderId });
       if (res.code == 0) {
         // 构造编辑表单数据
         const order = res.data.refcg_order;
@@ -720,7 +772,9 @@ export default {
       }
     },
     async deleteRow(row) {
-      const res = await deleteFcgOrder({ ID: row.ID });
+      // 使用订单的原始ID，而不是可能被明细覆盖的ID
+      const orderId = row.order_id || row.ID;
+      const res = await deleteFcgOrder({ ID: orderId });
       if (res.code == 0) {
         this.$message({
           type: "success",
@@ -776,7 +830,8 @@ export default {
           return;
         }
         this.multipleSelection && this.multipleSelection.map((item) => {
-          ids.push(item.ID);
+          // 使用订单的原始ID，而不是可能被明细覆盖的ID
+          ids.push(item.order_id || item.ID);
         });
 
         const res = await batchFcgOrderOperation({
@@ -868,13 +923,14 @@ export default {
         bet_amount: undefined,
         order_details: []
       };
-    },
+    }
   },
   async created() {
     await this.getTableData();
   }
 };
 </script>
+
 
 <style scoped>
 .btg {

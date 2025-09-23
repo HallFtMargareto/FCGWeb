@@ -7,9 +7,16 @@
           <el-input v-model="searchInfo.nick_name" placeholder="发送用户名" clearable></el-input>
         </el-form-item>
 
-
         <el-form-item label="所属会话">
           <el-input v-model="searchInfo.session_name" placeholder="所属会话" clearable></el-input>
+        </el-form-item>
+
+        <el-form-item label="识别状态">
+          <el-select v-model="searchInfo.recognition_status" placeholder="识别状态" clearable>
+            <el-option label="识别完成" :value="2"></el-option>
+            <el-option label="识别失败" :value="3"></el-option>
+            <el-option label="识别中" :value="1"></el-option>
+          </el-select>
         </el-form-item>
 
         <!-- <el-form-item label="本地消息ID">
@@ -23,8 +30,6 @@
         <!-- <el-form-item label="消息类型">
           <el-input v-model.number="searchInfo.local_type" placeholder="请输入消息类型" clearable></el-input>
         </el-form-item> -->
-
-
 
         <el-form-item label="消息内容">
           <el-input v-model="searchInfo.message_content" placeholder="消息文本内容" clearable></el-input>
@@ -42,15 +47,6 @@
         <el-form-item label="消息状态">
           <el-input v-model.number="searchInfo.status" placeholder="请输入消息状态" clearable></el-input>
         </el-form-item> -->
-
-        <el-form-item label="识别状态">
-          <el-select v-model="searchInfo.recognition_status" placeholder="请选择识别状态" clearable>
-            <el-option label="未识别" :value="0"></el-option>
-            <el-option label="识别中" :value="1"></el-option>
-            <el-option label="识别完成" :value="2"></el-option>
-            <el-option label="识别失败" :value="3"></el-option>
-          </el-select>
-        </el-form-item>
 
         <el-form-item label="消息编号">
           <el-input v-model="searchInfo.message_no" placeholder="业务唯一编号" clearable></el-input>

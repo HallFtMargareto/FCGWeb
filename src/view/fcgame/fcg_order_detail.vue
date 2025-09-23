@@ -4,42 +4,31 @@
       <searchform size="mini" :maxShow="3" @search="onQuery">
         <el-form-item label="所属投注批次ID">
           <el-input v-model="searchInfo.batch_id" placeholder="所属投注批次ID" clearable></el-input>
-
         </el-form-item>
-
-
 
         <el-form-item label="所属订单ID">
           <el-input v-model="searchInfo.order_id" placeholder="所属订单ID" clearable></el-input>
-
         </el-form-item>
-
-
 
         <el-form-item label="玩家ID (冗余)">
           <el-input v-model="searchInfo.user_id" placeholder="玩家ID (冗余)" clearable></el-input>
-
         </el-form-item>
-
 
 
         <el-form-item label="奖期号 (冗余)">
           <el-input v-model="searchInfo.issue_number" placeholder="奖期号 (冗余)" clearable></el-input>
-
         </el-form-item>
 
 
 
         <el-form-item label="拆分后的3位数直选组合 (如: 318, 005)">
           <el-input v-model="searchInfo.bet_combination" placeholder="拆分后的3位数直选组合 (如: 318, 005)" clearable></el-input>
-
         </el-form-item>
 
 
 
         <el-form-item label="原始玩法编码 (冗余, 用于区分奖金)">
           <el-input v-model="searchInfo.game_type_code" placeholder="原始玩法编码 (冗余, 用于区分奖金)" clearable></el-input>
-
         </el-form-item>
 
 
