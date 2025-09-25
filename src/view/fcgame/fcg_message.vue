@@ -16,6 +16,7 @@
             <el-option label="识别完成" :value="2"></el-option>
             <el-option label="识别失败" :value="3"></el-option>
             <el-option label="识别中" :value="1"></el-option>
+            <el-option label="未识别" :value="0"></el-option>
           </el-select>
         </el-form-item>
 
@@ -81,15 +82,20 @@
 
       <!-- <el-table-column label="发送者" prop="user_name" show-overflow-tooltip>
       </el-table-column> -->
-
-      <el-table-column label="用户名称" prop="nick_name" show-overflow-tooltip>
-      </el-table-column>
-
-      <el-table-column label="消息内容" prop="message_content" width="500">
-      </el-table-column>
-
       <el-table-column label="所属会话" prop="session_name">
+        <template slot-scope="scope">
+          {{ scope.row.nick_name }} <br>
+          {{ scope.row.session_name }}
+        </template>
       </el-table-column>
+
+      <!-- <el-table-column label="用户名称" prop="nick_name" show-overflow-tooltip>
+      </el-table-column> -->
+
+      <el-table-column label="消息内容" prop="message_content" width="350">
+      </el-table-column>
+
+
 
 
       <el-table-column label="发送时间" prop="create_time" width="160">
@@ -104,8 +110,8 @@
       <!-- <el-table-column label="排序序号" prop="sort_seq">
       </el-table-column> -->
 
-      <el-table-column label="消息编号" prop="message_no" show-overflow-tooltip>
-      </el-table-column>
+      <!-- <el-table-column label="消息编号" prop="message_no" show-overflow-tooltip>
+      </el-table-column> -->
 
       <!-- <el-table-column label="消息ID" prop="server_id" width="200">
       </el-table-column> -->
@@ -132,7 +138,14 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="任务列表" prop="task_list" show-overflow-tooltip>
+      <el-table-column label="LLM" width="500" prop="llm_resp" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <code style="white-space: pre-wrap; word-break: break-all;">
+            {{ scope.row.llm_resp }}
+          </code>
+        </template>
+      </el-table-column>
+      <el-table-column label="耗时/s" prop="llmcons_at" show-overflow-tooltip>
       </el-table-column>
 
       <el-table-column label="添加时间" width="160" prop="created_at" sortable="custom">
