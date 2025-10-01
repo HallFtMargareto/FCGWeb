@@ -528,6 +528,7 @@ export default {
         { value: 20, label: '复试(三不同号)' },
         { value: 21, label: '包对子' },
         { value: 22, label: '包对一' },
+        { value: 23, label: '豹子' },
       ],
     };
   },
@@ -591,7 +592,11 @@ export default {
     },
 
     handleClick(tab) {
-      this.searchInfo.game_type = tab.name;
+      if (tab.name == 0) {
+        this.searchInfo.game_type = undefined
+      } else {
+        this.searchInfo.game_type = tab.name;
+      }
       this.getTableData();
     },
     // 格式化时间戳为标准时间格式
