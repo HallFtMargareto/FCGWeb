@@ -240,6 +240,8 @@
                 <el-tag size="small">{{ orderGroup.total_bet_amount }}</el-tag>
               </el-descriptions-item>
               <el-descriptions-item label="识别难度">{{ orderGroup.risk_score }}</el-descriptions-item>
+              <el-descriptions-item label="代理佣金">{{ orderGroup.commission }}</el-descriptions-item>
+              <el-descriptions-item label="识别次数">{{ orderGroup.version }}</el-descriptions-item>
               <el-descriptions-item label="创建时间">{{ orderGroup.created_at }}</el-descriptions-item>
               <el-descriptions-item label="聊天记录" :span="2" content-class-name="kl_content">
                 {{ orderGroup.chat_content }}
@@ -348,6 +350,7 @@
                 <el-select v-model="scope.row.game_category" placeholder="请选择玩法">
                   <el-option label="福彩" :value="1"></el-option>
                   <el-option label="体彩" :value="2"></el-option>
+                  <el-option label="排列三" :value="3"></el-option>
                 </el-select>
               </template>
             </el-table-column>
@@ -776,7 +779,8 @@ export default {
     getGameCategoryName(categoryId) {
       const categoryMap = {
         1: '福彩',
-        2: '体彩'
+        2: '体彩',
+        3: '排列三',
       };
       return categoryMap[categoryId] || '未知';
     },

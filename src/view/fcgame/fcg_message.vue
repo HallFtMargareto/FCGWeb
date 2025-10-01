@@ -95,15 +95,6 @@
       <el-table-column label="消息内容" prop="message_content" width="350">
       </el-table-column>
 
-
-
-
-      <el-table-column label="发送时间" prop="create_time" width="160">
-        <template slot-scope="scope">
-          {{ formatTimestamp(scope.row.create_time) }}
-        </template>
-      </el-table-column>
-
       <!-- <el-table-column label="本地消息ID" prop="local_id">
       </el-table-column> -->
 
@@ -148,9 +139,17 @@
       <el-table-column label="耗时/s" prop="llmcons_at" show-overflow-tooltip>
       </el-table-column>
 
-      <el-table-column label="添加时间" width="160" prop="created_at" sortable="custom">
+      <!-- <el-table-column label="添加时间" width="160" prop="created_at" sortable="custom">
         <template slot-scope="scope">
           {{ formatTimestamp(scope.row.created_at) }}
+        </template>
+      </el-table-column> -->
+
+      <el-table-column label="时间" prop="create_time" width="250">
+        <template slot-scope="scope">
+          发送时间：{{ formatTimestamp(scope.row.create_time) }} <br>
+          开始识别时间：{{ formatTimestamp(scope.row.llm_st) }} <br>
+          识别完成时间：{{ formatTimestamp(scope.row.llm_et) }}
         </template>
       </el-table-column>
 
