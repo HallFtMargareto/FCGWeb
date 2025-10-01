@@ -186,6 +186,12 @@
                 </el-form-item>
               </el-col>
               <el-col :span="24">
+                <el-form-item label="Response_Format" prop="response_format">
+                  <el-input v-model="config.llm_model.response_format" placeholder="请输入Response_Format" clearable
+                    :style="{ width: '100%' }"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
                 <el-form-item size="large">
                   <el-button type="primary" @click="submitForm('llm')">提交</el-button>
                 </el-form-item>

@@ -1,8 +1,24 @@
 <template>
   <div>
-    <div class="search-term">
-      <searchform size="mini" :maxShow="5" @search="onQuery">
+    <div>
+      <el-button-group>
+        <el-button :type="activeFilter === 'all' ? 'primary' : ''" class="btg"
+          @click="filterOrders('all')">全部</el-button>
+        <el-button :type="activeFilter === 'pending' ? 'primary' : ''" class="btg"
+          @click="filterOrders('pending')">待开奖</el-button>
+        <el-button :type="activeFilter === 'opened' ? 'primary' : ''" class="btg"
+          @click="filterOrders('opened')">已开奖</el-button>
+        <el-button :type="activeFilter === 'won' ? 'primary' : ''" class="btg"
+          @click="filterOrders('won')">已中奖</el-button>
+        <el-button :type="activeFilter === 'lost' ? 'primary' : ''" class="btg"
+          @click="filterOrders('lost')">未中奖</el-button>
+        <el-button :type="activeFilter === 'cancelled' ? 'primary' : ''" class="btg"
+          @click="filterOrders('cancelled')">已撤单</el-button>
+      </el-button-group>
+    </div>
 
+    <div class="search-term">
+      <searchform size="mini" :maxShow="4" @search="onQuery">
 
         <el-form-item label="用户名称">
           <el-input v-model="searchInfo.nick_name" placeholder="用户名称" clearable></el-input>
@@ -24,27 +40,6 @@
           <el-input v-model="searchInfo.issue_id" placeholder="期号ID" clearable></el-input>
         </el-form-item> -->
 
-        <el-form-item label="识别难度">
-          <el-select v-model="searchInfo.risk_level" placeholder="请选择识别难度">
-            <el-option label="容易" value="1"></el-option>
-            <el-option label="一般" value="2"></el-option>
-            <el-option label="困难" value="3"></el-option>
-            <el-option label="极难" value="4"></el-option>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="订单筛选">
-          <el-select v-model="activeFilter" @change="filterOrders">
-            <el-option label="全部" value="all"></el-option>
-            <el-option label="待开奖" value="pending"></el-option>
-            <el-option label="已开奖" value="opened"></el-option>
-            <el-option label="已中奖" value="won"></el-option>
-            <el-option label="未中奖" value="lost"></el-option>
-            <el-option label="已撤单" value="cancelled"></el-option>
-          </el-select>
-        </el-form-item>
-
-
         <el-form-item label="期号">
           <el-input v-model="searchInfo.issue_no" placeholder="冗余的期号，便于查询" clearable></el-input>
         </el-form-item>
@@ -58,6 +53,10 @@
         <!-- <el-form-item label="若为组合/拆单的顶层单，可记录父ID">
           <el-input v-model="searchInfo.parent_order_id" placeholder="若为组合/拆单的顶层单，可记录父ID" clearable></el-input>
         </el-form-item> -->
+
+
+
+
         <el-form-item label="投注数量">
           <el-input v-model.number="searchInfo.bet_count" placeholder="请输入" clearable></el-input>
         </el-form-item>
@@ -186,7 +185,7 @@
           <el-input v-model="searchInfo.ext" placeholder="扩展字段（备用）" clearable></el-input>
         </el-form-item> -->
 
-        <el-form-item label="开始时间">
+        <el-form-item label="创建时间">
           <datepicker v-model="searchInfo.startTime" type="datetime" />
         </el-form-item>
         <el-form-item label="结束时间">
@@ -216,94 +215,164 @@
       </el-tabs>
     </div>
 
-    <!-- Card风格布局 -->
-    <div class="card-container" v-if="groupedTableData">
-      <div v-if="!groupedTableData || groupedTableData.length === 0" class="empty-state">
-        暂无订单数据
-      </div>
+    <!-- Excel风格表格 -->
+    <div class="excel-table-container">
+      <el-table :data="processedTableData" border class="excel-table" size="mini" :span-method="mergeRows"
+        style="width: 100% !important; table-layout: fixed;">
+        <!-- 群名 -->
+        <el-table-column prop="group_name" label="会话" width="130" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span class="group-info">用户：{{ scope.row.user_info }}</span><br>
+            <span class="user-info">会话：{{ scope.row.group_name }}</span><br>
+            <span></span>
+          </template>
+        </el-table-column>
 
-      <el-card v-for="(orderGroup, index) in groupedTableData" :key="index" class="order-card" shadow="hover">
-        <div class="card-content">
-          <!-- 左侧：订单信息 -->
-          <!-- <el-tag size="small"></el-tag> -->
-          <div class="left-panel">
-            <el-descriptions :column="2" size="mini" border :labelStyle="{ width: '100px' }">
-              <el-descriptions-item label="ID">{{ orderGroup.ID }}</el-descriptions-item>
-              <el-descriptions-item label="单号">{{ orderGroup.order_no }}</el-descriptions-item>
-              <el-descriptions-item label="会话">{{ orderGroup.group_name }}</el-descriptions-item>
-              <el-descriptions-item label="用户">{{ orderGroup.user_info }}</el-descriptions-item>
-              <el-descriptions-item label="期号">{{ orderGroup.issue_no || orderGroup.issue_no_display
-              }}</el-descriptions-item>
-              <el-descriptions-item label="来源">{{ orderGroup.source }}</el-descriptions-item>
-              <el-descriptions-item label="总投注">{{ orderGroup.total_bet_count }}</el-descriptions-item>
-              <el-descriptions-item label="总金额">
-                <el-tag size="small">{{ orderGroup.total_bet_amount }}</el-tag>
-              </el-descriptions-item>
-              <el-descriptions-item label="识别难度">{{ orderGroup.risk_score }}</el-descriptions-item>
-              <el-descriptions-item label="创建时间">{{ orderGroup.created_at }}</el-descriptions-item>
-              <el-descriptions-item label="聊天记录" :span="2" content-class-name="kl_content">
-                {{ orderGroup.chat_content }}
-              </el-descriptions-item>
-            </el-descriptions>
-          </div>
+        <!-- 用户 -->
+        <!-- <el-table-column prop="user_info" label="用户" width="120" align="center">
+          <template slot-scope="scope">
+            <span class="user-info"></span>
+          </template>
+        </el-table-column> -->
 
-          <!-- 右侧：子订单表格 -->
-          <div class="right-panel">
-            <el-table :data="orderGroup.order_details" size="small" border style="width: 100%" highlight-current-row>
-              <el-table-column prop="seq" label="序号" align="center"></el-table-column>
-              <el-table-column prop="game_category_name" label="游戏类型" align="center"
-                show-overflow-tooltip></el-table-column>
-              <el-table-column prop="game_type_name" label="玩法" align="center" show-overflow-tooltip></el-table-column>
-              <el-table-column prop="bet_number" label="投注号码" align="center" show-overflow-tooltip>
-                <template slot-scope="scope">
-                  <div class="bet-number-clear">{{ scope.row.bet_number }}</div>
-                </template>
-              </el-table-column>
-              <el-table-column prop="bet_count" label="注数" align="center"></el-table-column>
-              <el-table-column prop="bet_amount" label="投注金额" align="center"></el-table-column>
-              <el-table-column prop="multiple" label="倍数" align="center"></el-table-column>
-              <!-- <el-table-column prop="order_amount" label="订单金额" align="center"></el-table-column> -->
-              <el-table-column prop="win_amount" label="中奖金额" align="center">
-                <template slot-scope="scope">
-                  <span :class="{ 'win-amount': scope.row.win_amount > 0 }">
-                    {{ scope.row.win_amount }}
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="win_status" label="中奖状态" align="center">
-                <template slot-scope="scope">
-                  <el-tag :type="scope.row.win_amount > 0 ? 'success' : 'info'" size="mini">
-                    {{ scope.row.win_amount > 0 ? '中奖' : '未中奖' }}
-                  </el-tag>
-                </template>
-              </el-table-column>
-            </el-table>
-          </div>
+        <!-- 聊天记录 -->
+        <el-table-column prop="chat_content" label="聊天记录" width="200" align="center">
+          <template slot-scope="scope">
+            <div class="chat-content">
+              {{ scope.row.chat_content }}
+            </div>
+          </template>
+        </el-table-column>
 
-          <div style="display: flex; align-items: center;">
-            <div class="operation-buttons">
-              <el-button v-if="userInfo.perm['system.update']" @click="editRow(orderGroup)" type="text" size="mini"
+        <!-- 期号 -->
+        <el-table-column prop="issue_no" label="期号" width="100" align="center">
+          <template slot-scope="scope">
+            {{ scope.row.issue_no || scope.row.issue_no_display }}
+          </template>
+        </el-table-column>
+
+        <!-- 序号 -->
+        <el-table-column prop="seq" label="序号" width="60" align="center"></el-table-column>
+
+        <!-- 游戏类型 -->
+        <el-table-column prop="game_category_name" label="游戏类型" width="120" align="center"></el-table-column>
+
+        <!-- 玩法 -->
+        <el-table-column prop="game_type_name" label="玩法" width="150" align="center"></el-table-column>
+
+        <!-- 投注号码 -->
+        <el-table-column prop="bet_number" label="投注号码" width="120" align="center">
+          <template slot-scope="scope">
+            <div class="bet-number-clear">{{ scope.row.bet_number }}</div>
+          </template>
+        </el-table-column>
+
+        <!-- 注数 -->
+        <el-table-column prop="bet_count" label="注数" width="60" align="center"></el-table-column>
+
+        <!-- 投注金额 -->
+        <el-table-column prop="bet_amount" label="投注金额" width="100" align="center">
+          <template slot-scope="scope">
+            {{ scope.row.single_bet_amount }}
+          </template>
+        </el-table-column>
+
+        <!-- 倍数 -->
+        <el-table-column prop="multiple" label="倍数" width="60" align="center"></el-table-column>
+
+        <!-- 订单金额 -->
+        <el-table-column prop="order_amount" label="订单金额" width="100" align="center">
+          <template slot-scope="scope">
+            {{ scope.row.order_amount }}
+          </template>
+        </el-table-column>
+
+        <!-- 中奖金额 -->
+        <el-table-column prop="win_amount" label="中奖金额" width="100" align="center">
+          <template slot-scope="scope">
+            <span :class="{ 'win-amount': scope.row.detail_win_amount > 0 }">
+              {{ scope.row.detail_win_amount }}
+            </span>
+          </template>
+        </el-table-column>
+
+        <!-- 中奖状态 -->
+        <el-table-column prop="win_status" label="中奖状态" width="100" align="center">
+          <template slot-scope="scope">
+            <el-tag :type="scope.row.win_flag ? 'success' : 'info'" size="mini">
+              {{ scope.row.win_flag ? '中奖' : '未中奖' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+
+        <!-- 订单状态 -->
+        <!-- <el-table-column prop="order_status" label="订单状态" width="80" align="center">
+          <template slot-scope="scope">
+            <el-tag :type="getOrderStatusType(scope.row.order_status)" size="mini">
+              {{ getOrderStatusText(scope.row.order_status) }}
+            </el-tag>
+          </template>
+        </el-table-column> -->
+
+        <!-- 总注数 -->
+        <el-table-column prop="total_bet_count" label="总投注" width="100" align="center">
+          <template slot-scope="scope">
+            <span>
+              {{ scope.row.total_bet_count }}
+            </span>
+          </template>
+        </el-table-column>
+
+        <!-- 总金额 -->
+        <el-table-column prop="total_bet_amount" label="总金额" width="100" align="center">
+          <template slot-scope="scope">
+            <span>
+              {{ scope.row.total_bet_amount }}
+            </span>
+          </template>
+        </el-table-column>
+
+        <!-- 订单中奖状态 -->
+        <!-- <el-table-column prop="order_win_status" label="中奖状态" width="80" align="center">
+          <template slot-scope="scope">
+            <el-tag :type="scope.row.order_win_amount > 0 ? 'success' : 'info'" size="mini">
+              {{ scope.row.order_win_amount > 0 ? '有中奖' : '未中奖' }}
+            </el-tag>
+          </template>
+        </el-table-column> -->
+
+        <el-table-column prop="created_at" label="创建时间" width="160" align="center"></el-table-column>
+
+        <!-- 操作 -->
+        <el-table-column label="操作" width="150" align="center">
+          <template slot-scope="scope">
+            <div v-if="scope.row._rowSpan > 0" class="operation-buttons">
+              <el-button v-if="userInfo.perm['system.update']" @click="editRow(scope.row)" type="text" size="mini"
                 icon="el-icon-edit">
                 编辑
               </el-button>
               <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
-                title="确定要撤销这个订单吗？" @confirm="deleteRow(orderGroup)" v-if="userInfo.perm['system.delete']">
-                <el-button type="text" size="mini" icon="el-icon-delete" slot="reference" style="color: red;">
+                title="确定要撤销这个订单吗？" @confirm="deleteRow(scope.row)" v-if="userInfo.perm['system.delete']">
+                <el-button type="text" size="mini" icon="el-icon-delete" slot="reference" class="danger-btn">
                   撤单
                 </el-button>
-
               </el-popconfirm>
             </div>
-          </div>
-        </div>
-      </el-card>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 无数据状态 -->
+      <div v-if="!tableData || tableData.length === 0" class="empty-state">
+        暂无订单数据
+      </div>
     </div>
 
     <!-- class="pagination-container" -->
     <div>
       <!-- 数据合计,按需求启用 -->
       <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
-      <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 20, 30, 50]"
+      <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
         :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
         @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
     </div>
@@ -332,8 +401,7 @@
           <el-button type="primary" @click="addOrderDetail" size="mini">添加子订单</el-button>
         </el-row>
         <div class="dialog-table-container">
-          <el-table :data="editFormData.order_details" border style="width: 100%" size="mini" max-height="400"
-            highlight-current-row>
+          <el-table :data="editFormData.order_details" border style="width: 100%" size="mini">
             <el-table-column label="游戏类型">
               <template slot-scope="scope">
                 <el-select v-model="scope.row.game_type" placeholder="请选择游戏类型">
@@ -417,45 +485,66 @@ export default {
   mixins: [infoList],
   computed: {
     ...mapGetters("user", ["userInfo"]),
-    // 处理表格数据，将订单按主订单分组
-    groupedTableData() {
+    // 处理表格数据，将订单明细展开为行数据
+    processedTableData() {
+      const result = [];
       if (!this.tableData || this.tableData.length === 0) {
-        return [];
+        return result;
       }
 
-      // 缓存游戏类型和玩法名称，避免重复计算
-      const gameCategoryCache = {};
-      const gameTypeCache = {};
-
-      return this.tableData.map(order => {
+      this.tableData.forEach(order => {
         const groupName = order.message ? order.message.session_name : '未知群';
         const userInfo = order.user ? (order.user.nickname || order.user.username) : order.username || '未知用户';
         const chatContent = order.bet_content || '';
 
-        // 处理子订单数据
-        const orderDetails = order.order_details && order.order_details.length > 0
-          ? order.order_details.map((detail, index) => ({
-            ...detail,
-            seq: detail.seq || (index + 1),
-            game_category_name: gameCategoryCache[detail.game_category] || (gameCategoryCache[detail.game_category] = this.getGameCategoryName(detail.game_category)),
-            game_type_name: gameTypeCache[detail.game_type] || (gameTypeCache[detail.game_type] = this.getGameTypeName(detail.game_type)),
-            win_status: detail.win_amount > 0 ? '中奖' : '未中奖'
-          }))
-          : [];
-
-        return {
-          ...order,
-          group_name: groupName,
-          user_info: userInfo,
-          chat_content: chatContent,
-          issue_no_display: order.issue_no || '',
-          total_bet_count: order.bet_count || 0,
-          total_bet_amount: order.bet_amount || 0,
-          order_details: orderDetails
-        };
+        if (order.order_details && order.order_details.length > 0) {
+          // 有明细的情况
+          order.order_details.forEach((detail, index) => {
+            result.push({
+              ...order,
+              ...detail,
+              // 保存订单的原始ID，避免被明细ID覆盖
+              order_id: order.ID,
+              group_name: groupName,
+              user_info: userInfo,
+              chat_content: chatContent,
+              seq: detail.seq || (index + 1),
+              single_bet_amount: detail.bet_amount,
+              order_amount: detail.bet_amount,
+              detail_win_amount: detail.win_amount,
+              total_win_amount: order.win_amount,
+              order_win_amount: order.win_amount,
+              total_bet_count: order.bet_count,
+              total_bet_amount: order.bet_amount,
+              _rowSpan: index === 0 ? order.order_details.length : 0
+            });
+          });
+        } else {
+          // 没有明细的情况，显示订单基本信息
+          result.push({
+            ...order,
+            group_name: groupName,
+            user_info: userInfo,
+            chat_content: chatContent,
+            seq: 1,
+            game_category_name: '未知',
+            game_type_name: '未知',
+            bet_number: order.bet_content,
+            single_bet_amount: order.bet_amount,
+            order_amount: order.bet_amount,
+            detail_win_amount: order.win_amount,
+            total_win_amount: order.win_amount,
+            order_win_amount: order.win_amount,
+            total_bet_count: order.bet_count,
+            total_bet_amount: order.bet_amount,
+            win_flag: order.win_amount > 0,
+            _rowSpan: 1
+          });
+        }
       });
-    },
 
+      return result;
+    }
   },
   data() {
     return {
@@ -465,8 +554,6 @@ export default {
       type: "",
       multipleSelection: [],
       activeFilter: 'all',
-      // 防抖定时器
-      searchDebounceTimer: null,
       formData: {
         order_no: "",
         user_id: undefined,
@@ -640,19 +727,12 @@ export default {
       return statusMap[status] || '已支付';
     },
     onQuery() {
-      // 清除之前的定时器
-      if (this.searchDebounceTimer) {
-        clearTimeout(this.searchDebounceTimer);
-      }
+      this.summary = {};
+      this.showSummary = false;
 
-      // 设置新的防抖定时器
-      this.searchDebounceTimer = setTimeout(() => {
-        this.summary = {};
-        this.showSummary = false;
-        this.page = 1;
-        this.pageSize = 10;
-        this.getTableData();
-      }, 300); // 300ms防抖延迟
+      this.page = 1
+      this.pageSize = 10
+      this.getTableData()
     },
     createRow() {
       this.formData = {};
@@ -767,34 +847,6 @@ export default {
         }
       })
     },
-    // 获取游戏类型名称
-    getGameCategoryName(categoryId) {
-      const categoryMap = {
-        1: '福彩',
-        2: '体彩'
-      };
-      return categoryMap[categoryId] || '未知';
-    },
-
-    // 获取玩法名称
-    getGameTypeName(typeId) {
-      // 创建缓存对象
-      if (!this._gameTypeCache) {
-        this._gameTypeCache = {};
-      }
-
-      // 如果缓存中存在，直接返回
-      if (this._gameTypeCache[typeId] !== undefined) {
-        return this._gameTypeCache[typeId];
-      }
-
-      // 查找并缓存结果
-      const type = this.gameTypes.find(item => item.value === typeId);
-      const result = type ? type.label : '未知';
-      this._gameTypeCache[typeId] = result;
-      return result;
-    },
-
     sortChange(row) {
       //自定义排序要设置两个属性prop="field-name" sortable="custom"
       this.orderField = row.prop;
@@ -874,36 +926,13 @@ export default {
     }
   },
   async created() {
-    // 性能监控：记录组件创建时间
-    if (process.env.NODE_ENV === 'development') {
-      console.time('fcg_order component created');
-    }
     await this.getTableData();
-    if (process.env.NODE_ENV === 'development') {
-      console.timeEnd('fcg_order component created');
-    }
-  },
-  beforeDestroy() {
-    // 清理缓存，避免内存泄漏
-    if (this._gameTypeCache) {
-      this._gameTypeCache = null;
-    }
-
-    // 清理防抖定时器
-    if (this.searchDebounceTimer) {
-      clearTimeout(this.searchDebounceTimer);
-      this.searchDebounceTimer = null;
-    }
   }
 };
 </script>
 
 
 <style scoped>
-.kl_content {
-  background-color: #409eff !important;
-}
-
 .btg {
   width: 80px;
   height: 35px;
@@ -1022,7 +1051,7 @@ export default {
 .bet-number-clear {
   font-family: 'Arial', 'Microsoft YaHei', sans-serif;
   font-weight: 600;
-  /* background-color: #f0f9ff; */
+  background-color: #f0f9ff;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 13px;
@@ -1078,111 +1107,6 @@ export default {
   text-align: center;
   color: #909399;
   font-size: 14px;
-}
-
-/* Card布局样式 */
-.card-container {
-  margin: 20px 0;
-}
-
-.order-card {
-  margin-bottom: 20px;
-  width: 100%;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 15px;
-  border-bottom: 1px solid #ebeef5;
-  background-color: #f5f7fa;
-  font-weight: 600;
-  color: #303133;
-}
-
-.card-header .el-button {
-  padding: 6px 12px;
-  font-size: 12px;
-}
-
-.card-content {
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-/* 固定描述列表label宽度 */
-.left-panel ::v-deep .el-descriptions__label {
-  width: 100px !important;
-  min-width: 100px !important;
-  max-width: 100px !important;
-  text-align: center;
-}
-
-.left-panel {
-  width: 700px;
-  min-width: 600px;
-  height: 300px;
-  overflow-y: auto;
-}
-
-.right-panel {
-  flex: 1;
-  min-width: 400px;
-  height: 300px;
-  overflow-y: auto;
-}
-
-/* 响应式设计 */
-@media screen and (max-width: 1400px) {
-  .left-panel {
-    width: 500px;
-    min-width: 500px;
-    height: 300px;
-    overflow-y: auto;
-  }
-
-  .right-panel {
-    min-width: 300px;
-    height: 300px;
-    overflow-y: auto;
-  }
-}
-
-@media screen and (max-width: 1200px) {
-  .card-content {
-    flex-direction: row;
-  }
-
-  .left-panel {
-    width: 400px;
-    min-width: 400px;
-    height: 300px;
-    overflow-y: auto;
-  }
-
-  .right-panel {
-    min-width: 350px;
-    height: 300px;
-    overflow-y: auto;
-  }
-}
-
-@media screen and (max-width: 992px) {
-  .card-content {
-    flex-direction: column;
-  }
-
-  .left-panel,
-  .right-panel {
-    width: 100%;
-    min-width: 100%;
-    height: auto;
-    max-height: 300px;
-    overflow-y: auto;
-  }
 }
 
 /* 订单编辑弹窗样式 */
