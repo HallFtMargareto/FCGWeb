@@ -192,6 +192,17 @@
                 </el-form-item>
               </el-col>
               <el-col :span="24">
+                <el-form-item label="思考模式" prop="thinking_mode">
+                  <el-input v-model="config.llm_model.thinking_mode" placeholder="请输入思考模式" clearable
+                    :style="{ width: '100%' }"></el-input>
+                  <div class="el-form-item__tip">
+                    disabled：强制关闭深度思考能力，模型不输出思维链内容 <br>
+                    enabled：强制开启深度思考能力，模型强制输出思维链内容。<br>
+                    auto：模型自行判断是否需要进行深度思考(部分模型支持)。
+                  </div>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
                 <el-form-item size="large">
                   <el-button type="primary" @click="submitForm('llm')">提交</el-button>
                 </el-form-item>

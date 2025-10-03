@@ -210,10 +210,29 @@
 
 
     <div>
-      <el-tabs v-model="tabState" @tab-click="handleClick">
-        <el-tab-pane v-for="item in gameTypes" :key="item.value" :label="item.label"
-          :name="String(item.value)"></el-tab-pane>
-      </el-tabs>
+      <el-row :gutter="24">
+
+        <el-col :span="7">
+          <!-- 订单状态标签页 -->
+          <el-tabs v-model="statusTabState" @tab-click="handleStatusTabClick">
+            <el-tab-pane label="全部订单" name="all"></el-tab-pane>
+            <el-tab-pane label="待识别" name="0"></el-tab-pane>
+            <el-tab-pane label="识别成功" name="1"></el-tab-pane>
+            <el-tab-pane label="识别失败" name="2"></el-tab-pane>
+            <!-- <el-tab-pane label="待开奖" name="3"></el-tab-pane> -->
+            <el-tab-pane label="未中奖" name="4"></el-tab-pane>
+            <el-tab-pane label="已中奖" name="5"></el-tab-pane>
+          </el-tabs>
+        </el-col>
+
+        <el-col :span="17">
+          <!-- 玩法类型标签页 -->
+          <el-tabs v-model="tabState" @tab-click="handleClick">
+            <el-tab-pane v-for="item in gameTypes" :key="item.value" :label="item.label"
+              :name="String(item.value)"></el-tab-pane>
+          </el-tabs>
+        </el-col>
+      </el-row>
     </div>
 
     <!-- Card风格布局 -->
@@ -223,29 +242,49 @@
       </div>
 
       <el-card v-for="(orderGroup, index) in groupedTableData" :key="index" class="order-card" shadow="hover">
+        <div class="card-title">
+          <div style="flex: 1; text-align: left;">
+            <span style="margin-right: 5px;">【{{ orderGroup.group_name }}】-</span>
+            <span style="margin-right: 5px;">{{ orderGroup.user_info }} :</span>
+            <span class="chat-content">{{ orderGroup.chat_content }}</span>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <el-button v-if="userInfo.perm['system.update']" @click="editRow(orderGroup)" type="text" size="mini"
+              icon="el-icon-edit">
+              编辑
+            </el-button>
+            <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
+              title="确定要撤销这个订单吗？" @confirm="deleteRow(orderGroup)" v-if="userInfo.perm['system.delete']">
+              <el-button type="text" size="mini" icon="el-icon-delete" slot="reference" style="color: red;">
+                撤单
+              </el-button>
+            </el-popconfirm>
+          </div>
+        </div>
         <div class="card-content">
           <!-- 左侧：订单信息 -->
           <!-- <el-tag size="small"></el-tag> -->
           <div class="left-panel">
             <el-descriptions :column="2" size="mini" border :labelStyle="{ width: '100px' }">
               <el-descriptions-item label="ID">{{ orderGroup.ID }}</el-descriptions-item>
-              <el-descriptions-item label="单号">{{ orderGroup.order_no }}</el-descriptions-item>
-              <el-descriptions-item label="会话">{{ orderGroup.group_name }}</el-descriptions-item>
-              <el-descriptions-item label="用户">{{ orderGroup.user_info }}</el-descriptions-item>
-              <el-descriptions-item label="期号">{{ orderGroup.issue_no || orderGroup.issue_no_display
+              <el-descriptions-item label="总金额">
+                ¥ {{ orderGroup.total_bet_amount }}
+              </el-descriptions-item>
+              <el-descriptions-item label="识别次数">{{ orderGroup.version }}</el-descriptions-item>
+              <el-descriptions-item label="代理佣金">¥ {{ orderGroup.commission }}</el-descriptions-item>
+              <el-descriptions-item label="识别难度">
+                {{ getRiskLevelText(orderGroup.risk_score) }}
+              </el-descriptions-item>
+              <el-descriptions-item label="总投注">
+                {{ orderGroup.total_bet_count }}
+              </el-descriptions-item>
+              <el-descriptions-item label="识别耗时">{{ orderGroup.message ? orderGroup.message.llmcons_at : ""
               }}</el-descriptions-item>
               <el-descriptions-item label="来源">{{ orderGroup.source }}</el-descriptions-item>
-              <el-descriptions-item label="总投注">{{ orderGroup.total_bet_count }}</el-descriptions-item>
-              <el-descriptions-item label="总金额">
-                <el-tag size="small">{{ orderGroup.total_bet_amount }}</el-tag>
-              </el-descriptions-item>
-              <el-descriptions-item label="识别难度">{{ orderGroup.risk_score }}</el-descriptions-item>
-              <el-descriptions-item label="代理佣金">{{ orderGroup.commission }}</el-descriptions-item>
-              <el-descriptions-item label="识别次数">{{ orderGroup.version }}</el-descriptions-item>
+              <el-descriptions-item label="期号">{{ orderGroup.issue_no || orderGroup.issue_no_display
+              }}</el-descriptions-item>
               <el-descriptions-item label="创建时间">{{ orderGroup.created_at }}</el-descriptions-item>
-              <el-descriptions-item label="聊天记录" :span="2" content-class-name="kl_content">
-                {{ orderGroup.chat_content }}
-              </el-descriptions-item>
+              <el-descriptions-item label="单号">{{ orderGroup.order_no }}</el-descriptions-item>
             </el-descriptions>
           </div>
 
@@ -262,7 +301,11 @@
                 </template>
               </el-table-column>
               <el-table-column prop="bet_count" label="注数" align="center"></el-table-column>
-              <el-table-column prop="bet_amount" label="投注金额" align="center"></el-table-column>
+              <el-table-column prop="bet_amount" label="投注金额" align="center">
+                <template slot-scope="scope">
+                  ¥ {{ scope.row.bet_amount }}
+                </template>
+              </el-table-column>
               <el-table-column prop="multiple" label="倍数" align="center"></el-table-column>
               <!-- <el-table-column prop="order_amount" label="订单金额" align="center"></el-table-column> -->
               <el-table-column prop="win_amount" label="中奖金额" align="center">
@@ -280,22 +323,6 @@
                 </template>
               </el-table-column>
             </el-table>
-          </div>
-
-          <div style="display: flex; align-items: center;">
-            <div class="operation-buttons">
-              <el-button v-if="userInfo.perm['system.update']" @click="editRow(orderGroup)" type="text" size="mini"
-                icon="el-icon-edit">
-                编辑
-              </el-button>
-              <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
-                title="确定要撤销这个订单吗？" @confirm="deleteRow(orderGroup)" v-if="userInfo.perm['system.delete']">
-                <el-button type="text" size="mini" icon="el-icon-delete" slot="reference" style="color: red;">
-                  撤单
-                </el-button>
-
-              </el-popconfirm>
-            </div>
           </div>
         </div>
       </el-card>
@@ -507,6 +534,7 @@ export default {
         order_details: []
       },
       tabState: '0',
+      statusTabState: 'all',
       gameTypes: [
         { value: 0, label: '全部' },
         { value: 1, label: '单选' },
@@ -536,6 +564,24 @@ export default {
     };
   },
   methods: {
+    // 获取风险级别文本
+    getRiskLevelText(score) {
+      const numScore = parseInt(score) || 0;
+      if (numScore >= 0 && numScore <= 20) return '容易';
+      if (numScore >= 21 && numScore <= 40) return '一般';
+      if (numScore >= 41 && numScore <= 60) return '困难';
+      if (numScore >= 61 && numScore <= 100) return '极难';
+      return '未知';
+    },
+    // 获取风险级别样式
+    getRiskLevelType(score) {
+      const numScore = parseInt(score) || 0;
+      if (numScore >= 0 && numScore <= 20) return 'success'; // 容易 - 绿色
+      if (numScore >= 21 && numScore <= 40) return 'info';    // 一般 - 蓝色
+      if (numScore >= 41 && numScore <= 60) return 'warning'; // 困难 - 黄色
+      if (numScore >= 61 && numScore <= 100) return 'danger'; // 极难 - 红色
+      return 'info';
+    },
     // 合并表格行，实现Excel风格的合并单元格
     mergeRows({ row, column }) {
       // 需要合并的列：群名、用户、聊天记录、期号、订单状态、中奖总金额、订单中奖状态
@@ -599,6 +645,16 @@ export default {
         this.searchInfo.game_type = undefined
       } else {
         this.searchInfo.game_type = tab.name;
+      }
+      this.getTableData();
+    },
+
+    // 处理订单状态标签页点击
+    handleStatusTabClick(tab) {
+      if (tab.name === 'all') {
+        delete this.searchInfo.order_status;
+      } else {
+        this.searchInfo.order_status = tab.name;
       }
       this.getTableData();
     },
@@ -909,6 +965,14 @@ export default {
 
 
 <style scoped>
+.card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px;
+  margin-top: -20px;
+}
+
 .kl_content {
   background-color: #409eff !important;
 }
@@ -951,8 +1015,13 @@ export default {
 
 /* 标签样式优化 */
 .el-tag {
-  border-radius: 12px;
   font-weight: 500;
+}
+
+/* 风险级别标签样式 */
+.risk-level-tag {
+  font-size: 12px;
+  font-weight: 600;
 }
 
 /* 分页样式 */
@@ -1021,10 +1090,7 @@ export default {
 }
 
 .chat-content {
-  max-width: 180px;
-  word-break: break-all;
-  line-height: 1.4;
-  color: #303133;
+  color: #446CF9;
 }
 
 /* 投注号码样式 - 更清晰的显示 */
@@ -1149,13 +1215,13 @@ export default {
   .left-panel {
     width: 500px;
     min-width: 500px;
-    height: 300px;
+    max-height: 350px;
     overflow-y: auto;
   }
 
   .right-panel {
     min-width: 300px;
-    height: 300px;
+    max-height: 350px;
     overflow-y: auto;
   }
 }
@@ -1168,13 +1234,13 @@ export default {
   .left-panel {
     width: 400px;
     min-width: 400px;
-    height: 300px;
+    height: 350px;
     overflow-y: auto;
   }
 
   .right-panel {
     min-width: 350px;
-    height: 300px;
+    height: 350px;
     overflow-y: auto;
   }
 }
@@ -1189,7 +1255,7 @@ export default {
     width: 100%;
     min-width: 100%;
     height: auto;
-    max-height: 300px;
+    max-height: 400px;
     overflow-y: auto;
   }
 }
