@@ -217,11 +217,10 @@
           <el-tabs v-model="statusTabState" @tab-click="handleStatusTabClick">
             <el-tab-pane label="全部订单" name="all"></el-tab-pane>
             <el-tab-pane label="待识别" name="0"></el-tab-pane>
-            <el-tab-pane label="识别成功" name="1"></el-tab-pane>
-            <el-tab-pane label="识别失败" name="2"></el-tab-pane>
-            <!-- <el-tab-pane label="待开奖" name="3"></el-tab-pane> -->
-            <el-tab-pane label="未中奖" name="4"></el-tab-pane>
-            <el-tab-pane label="已中奖" name="5"></el-tab-pane>
+            <el-tab-pane label="识别失败" name="1"></el-tab-pane>
+            <el-tab-pane label="识别成功" name="2"></el-tab-pane>
+            <el-tab-pane label="未中奖" name="3"></el-tab-pane>
+            <el-tab-pane label="已中奖" name="4"></el-tab-pane>
           </el-tabs>
         </el-col>
 
@@ -244,7 +243,7 @@
       <el-card v-for="(orderGroup, index) in groupedTableData" :key="index" class="order-card" shadow="hover">
         <div class="card-title">
           <div style="flex: 1; text-align: left;">
-            <span style="margin-right: 5px;">【{{ orderGroup.group_name }}】-</span>
+            <span style="margin-right: 5px;">【{{ orderGroup.group_name }}】</span>
             <span style="margin-right: 5px;">{{ orderGroup.user_info }} :</span>
             <span class="chat-content">{{ orderGroup.chat_content }}</span>
           </div>
@@ -279,10 +278,10 @@
                 {{ orderGroup.total_bet_count }}
               </el-descriptions-item>
               <el-descriptions-item label="识别耗时">{{ orderGroup.message ? orderGroup.message.llmcons_at : ""
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
               <el-descriptions-item label="来源">{{ orderGroup.source }}</el-descriptions-item>
               <el-descriptions-item label="期号">{{ orderGroup.issue_no || orderGroup.issue_no_display
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
               <el-descriptions-item label="创建时间">{{ orderGroup.created_at }}</el-descriptions-item>
               <el-descriptions-item label="单号">{{ orderGroup.order_no }}</el-descriptions-item>
             </el-descriptions>
@@ -943,6 +942,16 @@ export default {
     if (process.env.NODE_ENV === 'development') {
       console.time('fcg_order component created');
     }
+
+    // 检查URL查询参数中的状态
+    const status = this.$route.query.status;
+    if (status) {
+      // 设置状态标签页
+      this.statusTabState = status;
+      // 设置搜索条件
+      this.searchInfo.order_status = status;
+    }
+
     await this.getTableData();
     if (process.env.NODE_ENV === 'development') {
       console.timeEnd('fcg_order component created');
