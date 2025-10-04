@@ -7,35 +7,28 @@
       </el-form>
     </div>
 
-    <!-- 留言列表区域 -->
-    <div class="feedback-list">
-      <el-card class="feedback-card" shadow="never" v-for="item in tableData" :key="item.ID">
-        <div class="feedback-header">
-
-          <div class="feedback-info">
-            <!-- <span class="feedback-id">ID: {{ item.ID }}</span> -->
-            <span class="feedback-time">{{ item.created_at | formatDate }}</span>
-            <!-- <span class="feedback-ip">IP: {{ item.ip }}</span>
-            <span class="feedback-mobile">手机号: {{ item.mobile }}</span> -->
-          </div>
-          <div class="feedback-actions">
-
-          </div>
-        </div>
-        <div class="feedback-content">
-          <div class="message-content">
-            <div v-html="renderMarkdown(item.message)"></div>
-          </div>
-          <!-- <div v-if="item.remark" class="feedback-remark">
-            <span class="remark-label">备注:</span>
-            <span class="remark-content">{{ item.remark }}</span>
-          </div>
-          <div v-if="item.follow === 1 && item.follow_employe" class="follow-info">
-            <span class="follow-label">回访员工:</span>
-            <span class="follow-content">{{ item.follow_employe }}</span>
-          </div> -->
-        </div>
-      </el-card>
+    <!-- 留言时间线区域 -->
+    <div class="feedback-timeline">
+      <el-timeline>
+        <el-timeline-item v-for="item in tableData" :key="item.ID" :timestamp="item.created_at | formatDate"
+          placement="top">
+          <el-card class="feedback-card">
+            <div class="feedback-content">
+              <div class="message-content">
+                <div v-html="renderMarkdown(item.message)"></div>
+              </div>
+              <!-- <div v-if="item.remark" class="feedback-remark">
+                <span class="remark-label">备注:</span>
+                <span class="remark-content">{{ item.remark }}</span>
+              </div>
+              <div v-if="item.follow === 1 && item.follow_employe" class="follow-info">
+                <span class="follow-label">回访员工:</span>
+                <span class="follow-content">{{ item.follow_employe }}</span>
+              </div> -->
+            </div>
+          </el-card>
+        </el-timeline-item>
+      </el-timeline>
 
       <!-- 空状态 -->
       <el-empty v-if="tableData.length === 0" description="暂无反馈数据"></el-empty>
@@ -376,12 +369,11 @@ export default {
   margin-bottom: 20px;
 }
 
-.feedback-list {
+.feedback-timeline {
   margin-bottom: 20px;
 }
 
 .feedback-card {
-  margin-bottom: 15px;
   border-radius: 8px;
   border: 1px solid #ebeef5;
   transition: box-shadow 0.3s;
@@ -389,31 +381,6 @@ export default {
 
 .feedback-card:hover {
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-}
-
-.feedback-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.feedback-info {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.feedback-info span {
-  margin-right: 15px;
-  font-size: 13px;
-  color: #909399;
-}
-
-.feedback-id {
-  font-weight: bold;
-  color: #303133;
 }
 
 .feedback-actions {
