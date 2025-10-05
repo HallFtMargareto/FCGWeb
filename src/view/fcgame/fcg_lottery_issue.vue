@@ -83,6 +83,13 @@
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
       </el-table-column>
 
+      <el-table-column label="操作" fixed="right" width="200">
+        <template slot-scope="scope">
+          <el-button v-if="userInfo.perm['system.update']" @click="editRow(scope.row)" type="text" size="small"
+            icon="el-icon-edit">编辑</el-button>
+        </template>
+      </el-table-column>
+
     </el-table>
 
     <!-- class="pagination-container" -->
@@ -93,6 +100,16 @@
         :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
         @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
     </div>
+
+    <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
+      @confirm="enterDialog" ref="dialog">
+      <el-form-item label="官方期号" prop="official_issue_no">
+        <el-input v-model="formData.official_issue_no" placeholder="例如 20250909" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="开奖号码" prop="draw_number">
+        <el-input v-model="formData.draw_number" placeholder="请输入开奖号码" clearable></el-input>
+      </el-form-item>
+    </dialogform>
 
     <uploadexcel ref="uploadexcel" action="FcgLotteryIssue"></uploadexcel>
   </div>
@@ -127,7 +144,7 @@ export default {
       },
       listApi: getFcgLotteryIssueList,
       openDialog: false,
-      dialogTitle: "",
+      dialogTitle: "手动开奖",
       type: "",
       multipleSelection: [],
       formData: {

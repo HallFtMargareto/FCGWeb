@@ -66,7 +66,8 @@ import {
     Popconfirm,
     Image,
     Rate,
-    Slider
+    Slider,
+    Backtop
 } from 'element-ui';
 
 Vue.use(Button);
@@ -130,6 +131,7 @@ Vue.use(Popconfirm);
 Vue.use(Image);
 Vue.use(Rate);
 Vue.use(Slider);
+Vue.use(Backtop);
 
 import { Timeline, TimelineItem } from 'element-ui';
 Vue.use(Timeline).use(TimelineItem);

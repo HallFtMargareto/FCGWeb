@@ -278,10 +278,10 @@
                 {{ orderGroup.total_bet_count }}
               </el-descriptions-item>
               <el-descriptions-item label="识别耗时">{{ orderGroup.message ? orderGroup.message.llmcons_at : ""
-                }}</el-descriptions-item>
+              }}</el-descriptions-item>
               <el-descriptions-item label="来源">{{ orderGroup.source }}</el-descriptions-item>
               <el-descriptions-item label="期号">{{ orderGroup.issue_no || orderGroup.issue_no_display
-                }}</el-descriptions-item>
+              }}</el-descriptions-item>
               <el-descriptions-item label="创建时间">{{ orderGroup.created_at }}</el-descriptions-item>
               <el-descriptions-item label="单号">{{ orderGroup.order_no }}</el-descriptions-item>
             </el-descriptions>
@@ -425,6 +425,46 @@
         <el-button type="primary" @click="saveOrderEdit" size="small">确 定</el-button>
       </span>
     </el-dialog>
+
+    <!-- 右侧漂浮操作按钮 -->
+    <div class="float-operations">
+      <!-- 返回顶部按钮 -->
+      <!-- <el-button class="float-btn top-btn" type="primary" icon="el-icon-top" circle size="small"
+        @click="handleBackToTop" title="返回顶部"></el-button> -->
+
+      <!-- 查看风控订单按钮 -->
+      <el-button style="margin-left: 0 !important;" class="float-btn risk-btn" type="primary" icon="el-icon-s-release"
+        circle @click="openRiskOrderDialog" title="风控订单"></el-button>
+    </div>
+
+    <!-- 风控订单弹窗 -->
+    <el-dialog :title="'风控订单列表'" :visible.sync="riskOrderDialogVisible" width="80%" top="10vh">
+      <el-table style="width: 100%" height="500px">
+        <el-table-column prop="id" label="ID" width="80"></el-table-column>
+        <el-table-column prop="bet_number" label="投注口令" width="180"></el-table-column>
+        <el-table-column prop="bet_amount" label="投注金额" width="120">
+          <template slot-scope="scope">
+            {{ scope.row.bet_amount }}元
+          </template>
+        </el-table-column>
+        <el-table-column prop="commission" label="佣金" width="100">
+          <template slot-scope="scope">
+            {{ scope.row.commission }}元
+          </template>
+        </el-table-column>
+        <el-table-column prop="create_time" label="添加时间" width="180">
+          <template slot-scope="scope">
+            {{ formatTimeToStr(scope.row.create_time) }}
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页组件 -->
+      <div class="pagination-container" style="margin-top: 20px;">
+        <el-pagination background layout="prev, pager, next, jumper" :total="riskOrderTotal" :page-size="10"
+          @current-change="handleRiskOrderPageChange"></el-pagination>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -488,6 +528,13 @@ export default {
   },
   data() {
     return {
+      // 风控订单弹窗相关
+      riskOrderDialogVisible: false,
+      riskOrderList: [],
+      riskOrderTotal: 0,
+      riskOrderCurrentPage: 1,
+
+
       listApi: getFcgOrderList,
       openDialog: false,
       dialogTitle: "",
@@ -535,7 +582,7 @@ export default {
       tabState: '0',
       statusTabState: 'all',
       gameTypes: [
-        { value: 0, label: '全部' },
+        { value: 0, label: '全部玩法' },
         { value: 1, label: '单选' },
         { value: 2, label: '组三(对子)' },
         { value: 3, label: '组六(无重复)' },
@@ -563,6 +610,66 @@ export default {
     };
   },
   methods: {
+    // 返回顶部功能
+    handleBackToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    },
+
+    // 打开风控订单弹窗
+    openRiskOrderDialog() {
+      this.riskOrderDialogVisible = true;
+      this.riskOrderCurrentPage = 1;
+      this.loadRiskOrderList();
+    },
+
+    // 加载风控订单列表
+    loadRiskOrderList() {
+      // 这里应该调用API获取风控订单数据
+      // 暂时使用模拟数据
+      this.riskOrderList = [
+        {
+          id: 1,
+          bet_number: "FC20231201001",
+          bet_amount: 100.00,
+          commission: 5.00,
+          create_time: new Date().getTime() - 3600000
+        },
+        {
+          id: 2,
+          bet_number: "FC20231201002",
+          bet_amount: 200.00,
+          commission: 10.00,
+          create_time: new Date().getTime() - 7200000
+        },
+        {
+          id: 3,
+          bet_number: "FC20231201003",
+          bet_amount: 500.00,
+          commission: 25.00,
+          create_time: new Date().getTime() - 10800000
+        }
+      ];
+      this.riskOrderTotal = this.riskOrderList.length;
+
+      // 实际项目中应该调用后端API，类似：
+      // getRiskOrderList({
+      //   page: this.riskOrderCurrentPage,
+      //   pageSize: 10
+      // }).then(res => {
+      //   this.riskOrderList = res.data.list;
+      //   this.riskOrderTotal = res.data.total;
+      // });
+    },
+
+    // 风控订单分页变化
+    handleRiskOrderPageChange(page) {
+      this.riskOrderCurrentPage = page;
+      this.loadRiskOrderList();
+    },
+
     // 获取风险级别文本
     getRiskLevelText(score) {
       const numScore = parseInt(score) || 0;
@@ -974,6 +1081,52 @@ export default {
 
 
 <style scoped>
+/* 右侧漂浮操作按钮样式 */
+.float-operations {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 漂浮按钮通用样式 */
+.float-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.float-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* 特定按钮样式 */
+.top-btn {
+  background-color: #409EFF;
+}
+
+.top-btn:hover {
+  background-color: #66b1ff;
+}
+
+.risk-btn {
+  background-color: #DE776F;
+}
+
+.risk-btn:hover {
+  background-color: #DE776F;
+}
+
 .card-title {
   display: flex;
   align-items: center;

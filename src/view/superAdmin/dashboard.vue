@@ -136,7 +136,9 @@ export default {
             stats: [
               { key: "amount", label: "投注金额", value: "¥0.00" },
               { key: "denomination", label: "投注注数", value: 0 },
-              { key: "order", label: "投注笔数", value: 0 }
+              { key: "order", label: "投注笔数", value: 0 },
+              { key: "profit", label: "利润", value: 0 },
+              { key: "commission", label: "佣金", value: 0 },
             ]
           },
           {
