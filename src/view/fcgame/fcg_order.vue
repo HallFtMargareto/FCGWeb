@@ -342,12 +342,104 @@
 
     <uploadexcel ref="uploadexcel" action="FcgOrder"></uploadexcel>
 
-    <!-- 订单拆分详情弹窗 -->
-    <el-dialog title="拆分详情" :visible.sync="orderDetailDialogVisible" width="80%" center>
+    <!-- 订单修改弹窗 -->
+    <el-dialog :title="dialogTitle" :visible.sync="openDialog" width="60%" @close="handleDialogClose"
+      class="order-dialog">
+      <el-form ref="editForm" :model="editFormData" label-width="100px" size="mini">
+        <el-row>
+          <!-- <el-col :span="12">
+            <el-form-item label="订单总金额">
+              <el-input v-model.number="editFormData.bet_amount" placeholder="请输入订单总金额"></el-input>
+            </el-form-item>
+          </el-col> -->
+          <el-col :span="24">
+            <!-- <el-form-item label="投注内容">
+              <el-input v-model="editFormData.bet_content" disabled></el-input>
+            </el-form-item> -->
+            <div style="text-align: center;">{{ editFormData.bet_content }}</div>
+          </el-col>
+        </el-row>
 
+        <el-row>
+          <el-button type="primary" @click="addOrderDetail" size="mini">添加子订单</el-button>
+        </el-row>
+        <div class="dialog-table-container">
+          <el-table :data="editFormData.order_details" border style="width: 100%" size="mini" max-height="400"
+            highlight-current-row>
+            <el-table-column label="游戏类型">
+              <template slot-scope="scope">
+                <el-select v-model="scope.row.game_type" placeholder="请选择游戏类型">
+                  <el-option v-for="item in gameTypes" :key="item.value" :label="item.label" :value="item.value">
+                  </el-option>
+                </el-select>
+              </template>
+            </el-table-column>
+
+            <el-table-column label="玩法">
+              <template slot-scope="scope">
+                <el-select v-model="scope.row.game_category" placeholder="请选择玩法">
+                  <el-option label="福彩" :value="1"></el-option>
+                  <el-option label="体彩" :value="2"></el-option>
+                  <el-option label="排列三" :value="3"></el-option>
+                </el-select>
+              </template>
+            </el-table-column>
+
+            <el-table-column label="投注号码">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.bet_number" placeholder="投注号码"></el-input>
+              </template>
+            </el-table-column>
+
+            <el-table-column label="注数">
+              <template slot-scope="scope">
+                <el-input v-model.number="scope.row.bet_count" placeholder="注数"></el-input>
+              </template>
+            </el-table-column>
+
+            <el-table-column label="投注金额">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.bet_amount" placeholder="投注金额"></el-input>
+              </template>
+            </el-table-column>
+
+            <el-table-column label="倍数">
+              <template slot-scope="scope">
+                <el-input v-model.number="scope.row.multiple" placeholder="倍数"></el-input>
+              </template>
+            </el-table-column>
+
+            <!-- <el-table-column label="订单金额">
+              <template slot-scope="scope">
+                <el-input v-model.number="scope.row.order_amount" placeholder="订单金额"></el-input>
+              </template>
+            </el-table-column> -->
+
+            <el-table-column label="操作">
+              <template slot-scope="scope">
+                <el-button type="danger" @click="removeOrderDetail(scope.$index)" size="mini">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="openDialog = false" size="small">取 消</el-button>
+        <el-button type="primary" @click="saveOrderEdit" size="small">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 订单拆分详情弹窗 -->
+    <el-dialog title="订单信息" :visible.sync="orderDetailDialogVisible" width="60%" center>
       <div class="detail-section">
         <h3>投注文本</h3>
         <code>{{ orderDetailData.content }}</code>
+      </div>
+
+      <div class="detail-section">
+        <h3>投注金额</h3>
+        <span>总金额:{{ orderDetailData.total_amount }} | 号码平均金额:{{ orderDetailData.split_amount }}</span>
       </div>
 
       <!-- 显示split数据 -->
@@ -355,12 +447,14 @@
         <h3>拆分信息</h3>
         <el-table :data="orderDetailData.split" size="small" border style="width: 100%">
           <el-table-column prop="bet_number" label="投注号码" align="center"></el-table-column>
+          <el-table-column prop="bet_num" label="投注数量" align="center"></el-table-column>
+          <el-table-column prop="bet_amount" label="投注金额" align="center"></el-table-column>
           <el-table-column prop="game_type" label="玩法" align="center">
             <template slot-scope="scope">
               {{ getGameTypeName(scope.row.game_type) }}
             </template>
           </el-table-column>
-          <el-table-column prop="split_number" label="拆分号码" align="center" width="600">
+          <el-table-column prop="split_number" label="拆分信息" align="center" width="600">
             <template slot-scope="scope">
               <div class="split-numbers">
                 {{ scope.row.split_number }}
@@ -368,7 +462,7 @@
             </template>
           </el-table-column>
           <el-table-column prop="split_count" label="拆分数量" align="center"></el-table-column>
-          <el-table-column prop="ava_amount" label="单个号码金额" align="center"></el-table-column>
+          <!-- <el-table-column prop="ava_amount" label="单个号码金额" align="center"></el-table-column> -->
         </el-table>
       </div>
 
@@ -771,7 +865,6 @@ export default {
       this.openDialog = true;
     },
     async editRow(row) {
-      console.log(row)
       this.type = "update";
       this.dialogTitle = "编辑订单";
       // 使用订单的原始ID，而不是可能被明细覆盖的ID
