@@ -209,6 +209,7 @@
     </div>
 
 
+    <!-- 订单状态标签页 -->
     <div>
       <el-row :gutter="24">
 
@@ -234,7 +235,7 @@
       </el-row>
     </div>
 
-    <!-- Card风格布局 -->
+    <!-- table -->
     <div class="card-container" v-if="groupedTableData">
       <div v-if="!groupedTableData || groupedTableData.length === 0" class="empty-state">
         暂无订单数据
@@ -248,6 +249,9 @@
             <span class="chat-content">{{ orderGroup.chat_content }}</span>
           </div>
           <div style="display: flex; gap: 10px;">
+            <el-button @click="infoRow(orderGroup)" type="text" size="mini" icon="el-icon-warning-outline">
+              订单信息
+            </el-button>
             <el-button v-if="userInfo.perm['system.update']" @click="editRow(orderGroup)" type="text" size="mini"
               icon="el-icon-edit">
               编辑
@@ -338,92 +342,40 @@
 
     <uploadexcel ref="uploadexcel" action="FcgOrder"></uploadexcel>
 
-    <!-- 订单编辑弹窗 -->
-    <el-dialog :title="dialogTitle" :visible.sync="openDialog" width="60%" @close="handleDialogClose"
-      class="order-dialog">
-      <el-form ref="editForm" :model="editFormData" label-width="100px" size="mini">
-        <el-row>
-          <!-- <el-col :span="12">
-            <el-form-item label="订单总金额">
-              <el-input v-model.number="editFormData.bet_amount" placeholder="请输入订单总金额"></el-input>
-            </el-form-item>
-          </el-col> -->
-          <el-col :span="24">
-            <!-- <el-form-item label="投注内容">
-              <el-input v-model="editFormData.bet_content" disabled></el-input>
-            </el-form-item> -->
-            <div style="text-align: center;">{{ editFormData.bet_content }}</div>
-          </el-col>
-        </el-row>
+    <!-- 订单拆分详情弹窗 -->
+    <el-dialog title="拆分详情" :visible.sync="orderDetailDialogVisible" width="80%" center>
 
-        <el-row>
-          <el-button type="primary" @click="addOrderDetail" size="mini">添加子订单</el-button>
-        </el-row>
-        <div class="dialog-table-container">
-          <el-table :data="editFormData.order_details" border style="width: 100%" size="mini" max-height="400"
-            highlight-current-row>
-            <el-table-column label="游戏类型">
-              <template slot-scope="scope">
-                <el-select v-model="scope.row.game_type" placeholder="请选择游戏类型">
-                  <el-option v-for="item in gameTypes" :key="item.value" :label="item.label" :value="item.value">
-                  </el-option>
-                </el-select>
-              </template>
-            </el-table-column>
+      <div class="detail-section">
+        <h3>投注文本</h3>
+        <code>{{ orderDetailData.content }}</code>
+      </div>
 
-            <el-table-column label="玩法">
-              <template slot-scope="scope">
-                <el-select v-model="scope.row.game_category" placeholder="请选择玩法">
-                  <el-option label="福彩" :value="1"></el-option>
-                  <el-option label="体彩" :value="2"></el-option>
-                  <el-option label="排列三" :value="3"></el-option>
-                </el-select>
-              </template>
-            </el-table-column>
+      <!-- 显示split数据 -->
+      <div v-if="orderDetailData.split && orderDetailData.split.length > 0" class="detail-section">
+        <h3>拆分信息</h3>
+        <el-table :data="orderDetailData.split" size="small" border style="width: 100%">
+          <el-table-column prop="bet_number" label="投注号码" align="center"></el-table-column>
+          <el-table-column prop="game_type" label="玩法" align="center">
+            <template slot-scope="scope">
+              {{ getGameTypeName(scope.row.game_type) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="split_number" label="拆分号码" align="center" width="600">
+            <template slot-scope="scope">
+              <div class="split-numbers">
+                {{ scope.row.split_number }}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="split_count" label="拆分数量" align="center"></el-table-column>
+          <el-table-column prop="ava_amount" label="单个号码金额" align="center"></el-table-column>
+        </el-table>
+      </div>
 
-            <el-table-column label="投注号码">
-              <template slot-scope="scope">
-                <el-input v-model="scope.row.bet_number" placeholder="投注号码"></el-input>
-              </template>
-            </el-table-column>
-
-            <el-table-column label="注数">
-              <template slot-scope="scope">
-                <el-input v-model.number="scope.row.bet_count" placeholder="注数"></el-input>
-              </template>
-            </el-table-column>
-
-            <el-table-column label="投注金额">
-              <template slot-scope="scope">
-                <el-input v-model="scope.row.bet_amount" placeholder="投注金额"></el-input>
-              </template>
-            </el-table-column>
-
-            <el-table-column label="倍数">
-              <template slot-scope="scope">
-                <el-input v-model.number="scope.row.multiple" placeholder="倍数"></el-input>
-              </template>
-            </el-table-column>
-
-            <!-- <el-table-column label="订单金额">
-              <template slot-scope="scope">
-                <el-input v-model.number="scope.row.order_amount" placeholder="订单金额"></el-input>
-              </template>
-            </el-table-column> -->
-
-            <el-table-column label="操作">
-              <template slot-scope="scope">
-                <el-button type="danger" @click="removeOrderDetail(scope.$index)" size="mini">删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-form>
-
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="openDialog = false" size="small">取 消</el-button>
-        <el-button type="primary" @click="saveOrderEdit" size="small">确 定</el-button>
-      </span>
+      <div class="detail-section">
+        <h3>LLM报文</h3>
+        <code>{{ orderDetailData.msg }}</code>
+      </div>
     </el-dialog>
 
     <!-- 右侧漂浮操作按钮 -->
@@ -534,6 +486,10 @@ export default {
       riskOrderTotal: 0,
       riskOrderCurrentPage: 1,
 
+      // 订单详情弹窗相关
+      orderDetailDialogVisible: false,
+      orderDetailData: {},
+
 
       listApi: getFcgOrderList,
       openDialog: false,
@@ -610,6 +566,19 @@ export default {
     };
   },
   methods: {
+    async infoRow(row) {
+      const orderId = row.order_id || row.ID;
+      const res = await findFcgOrder({ ID: orderId, action: "split_info" });
+      console.log(res);
+      if (res.code == 0) {
+        // 保存订单详情数据
+        this.orderDetailData = res.data;
+        // 解析msg字段中的JSON字符串
+        // this.orderDetailData.parsedMsg = res.data.msg;
+        // 显示弹窗
+        this.orderDetailDialogVisible = true;
+      }
+    },
     // 返回顶部功能
     handleBackToTop() {
       window.scrollTo({
@@ -678,35 +647,6 @@ export default {
       if (numScore >= 41 && numScore <= 60) return '困难';
       if (numScore >= 61 && numScore <= 100) return '极难';
       return '未知';
-    },
-    // 获取风险级别样式
-    getRiskLevelType(score) {
-      const numScore = parseInt(score) || 0;
-      if (numScore >= 0 && numScore <= 20) return 'success'; // 容易 - 绿色
-      if (numScore >= 21 && numScore <= 40) return 'info';    // 一般 - 蓝色
-      if (numScore >= 41 && numScore <= 60) return 'warning'; // 困难 - 黄色
-      if (numScore >= 61 && numScore <= 100) return 'danger'; // 极难 - 红色
-      return 'info';
-    },
-    // 合并表格行，实现Excel风格的合并单元格
-    mergeRows({ row, column }) {
-      // 需要合并的列：群名、用户、聊天记录、期号、订单状态、中奖总金额、订单中奖状态
-      const mergeColumns = ['group_name', 'user_info', 'chat_content', 'issue_no', 'order_status', 'total_win_amount', 'order_win_status', 'created_at', 'total_bet_count', 'total_bet_amount'];
-
-      // 操作列也需要合并
-      if (mergeColumns.includes(column.property) || column.label === '操作') {
-        if (row._rowSpan > 0) {
-          return {
-            rowspan: row._rowSpan,
-            colspan: 1
-          };
-        } else {
-          return {
-            rowspan: 0,
-            colspan: 0
-          };
-        }
-      }
     },
 
     // 订单筛选功能
@@ -1461,5 +1401,64 @@ export default {
   .order-dialog ::v-deep .el-dialog__body {
     max-height: calc(100vh - 150px);
   }
+}
+
+
+.detail-section {
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #fafafa;
+  border-radius: 4px;
+}
+
+.detail-section h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #303133;
+  font-size: 16px;
+}
+
+.detail-section h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #606266;
+  font-size: 14px;
+}
+
+.order-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+}
+
+.info-label {
+  color: #606266;
+  margin-right: 5px;
+}
+
+.info-value {
+  color: #303133;
+  font-weight: 500;
+}
+
+.orders-section {
+  margin-top: 15px;
+}
+
+.split-numbers {
+  word-break: break-all;
+  white-space: normal;
+}
+
+.no-data {
+  text-align: center;
+  color: #909399;
+  padding: 40px 0;
 }
 </style>
