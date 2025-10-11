@@ -103,11 +103,14 @@
 
     <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
       @confirm="enterDialog" ref="dialog">
-      <el-form-item label="官方期号" prop="official_issue_no">
+      <!-- <el-form-item label="官方期号" prop="official_issue_no">
         <el-input v-model="formData.official_issue_no" placeholder="例如 20250909" clearable></el-input>
+      </el-form-item> -->
+      <el-form-item label="福彩开奖号码" prop="fc_draw_number">
+        <el-input v-model="formData.fc_draw_number" placeholder="请输入开奖号码" clearable></el-input>
       </el-form-item>
-      <el-form-item label="开奖号码" prop="draw_number">
-        <el-input v-model="formData.draw_number" placeholder="请输入开奖号码" clearable></el-input>
+      <el-form-item label="体彩开奖号码" prop="fc_draw_number">
+        <el-input v-model="formData.tc_draw_number" placeholder="请输入开奖号码" clearable></el-input>
       </el-form-item>
     </dialogform>
 

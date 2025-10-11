@@ -3,7 +3,6 @@
     <div class="search-term">
       <searchform size="mini" :maxShow="5" @search="onQuery">
 
-
         <el-form-item label="用户名称">
           <el-input v-model="searchInfo.nick_name" placeholder="用户名称" clearable></el-input>
         </el-form-item>
@@ -49,11 +48,9 @@
           <el-input v-model="searchInfo.issue_no" placeholder="冗余的期号，便于查询" clearable></el-input>
         </el-form-item>
 
-
         <!-- <el-form-item label="追号组ID（若属于追号则有值）">
           <el-input v-model="searchInfo.trace_id" placeholder="追号组ID（若属于追号则有值）" clearable></el-input>
         </el-form-item> -->
-
 
         <!-- <el-form-item label="若为组合/拆单的顶层单，可记录父ID">
           <el-input v-model="searchInfo.parent_order_id" placeholder="若为组合/拆单的顶层单，可记录父ID" clearable></el-input>
@@ -439,7 +436,7 @@
 
       <div class="detail-section">
         <h3>投注金额</h3>
-        <span>总金额:{{ orderDetailData.total_amount }} | 号码平均金额:{{ orderDetailData.split_amount }}</span>
+        <span>总金额:{{ orderDetailData.total_amount }}</span>
       </div>
 
       <!-- 显示split数据 -->
@@ -490,32 +487,46 @@
     </div>
 
     <!-- 风控订单弹窗 -->
-    <el-dialog :title="'风控订单列表'" :visible.sync="riskOrderDialogVisible" width="80%" top="10vh">
-      <el-table style="width: 100%" height="500px">
-        <el-table-column prop="id" label="ID" width="80"></el-table-column>
-        <el-table-column prop="bet_number" label="投注口令" width="180"></el-table-column>
-        <el-table-column prop="bet_amount" label="投注金额" width="120">
+    <el-dialog :title="'风控号码'" :visible.sync="riskOrderDialogVisible" width="50%" top="10vh">
+      <!-- 查询表单 -->
+      <el-form :inline="true" style="margin-bottom: 20px">
+        <el-form-item label="彩票种类">
+          <el-select v-model="riskOrderSearchInfo.category" placeholder="彩票种类">
+            <el-option label="福彩" value="1"></el-option>
+            <el-option label="体彩" value="2"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="searchRiskOrderList">查询</el-button>
+        </el-form-item>
+      </el-form>
+
+      <el-table :data="riskOrderList" style="width: 100%" height="500px">
+        <!-- <el-table-column prop="id" label="ID"></el-table-column> -->
+        <el-table-column prop="bet_number" label="号码"></el-table-column>
+        <el-table-column prop="split_number" label="拆分号码"></el-table-column>
+        <el-table-column prop="total_amount" label="金额">
           <template slot-scope="scope">
-            {{ scope.row.bet_amount }}元
+            {{ scope.row.total_amount }}
           </template>
         </el-table-column>
-        <el-table-column prop="commission" label="佣金" width="100">
+        <el-table-column prop="total_amount_new" label="转出金额">
           <template slot-scope="scope">
-            {{ scope.row.commission }}元
+            {{ scope.row.total_amount_new }}
           </template>
         </el-table-column>
-        <el-table-column prop="create_time" label="添加时间" width="180">
+        <!-- <el-table-column prop="create_time" label="添加时间" width="180">
           <template slot-scope="scope">
             {{ formatTimeToStr(scope.row.create_time) }}
           </template>
-        </el-table-column>
+        </el-table-column> -->
       </el-table>
 
       <!-- 分页组件 -->
-      <div class="pagination-container" style="margin-top: 20px;">
+      <!-- <div class="pagination-container" style="margin-top: 20px;">
         <el-pagination background layout="prev, pager, next, jumper" :total="riskOrderTotal" :page-size="10"
           @current-change="handleRiskOrderPageChange"></el-pagination>
-      </div>
+      </div> -->
     </el-dialog>
   </div>
 </template>
@@ -585,6 +596,9 @@ export default {
       riskOrderList: [],
       riskOrderTotal: 0,
       riskOrderCurrentPage: 1,
+      riskOrderSearchInfo: {
+        category: ''
+      },
 
       // 订单详情弹窗相关
       orderDetailDialogVisible: false,
@@ -691,46 +705,34 @@ export default {
     openRiskOrderDialog() {
       this.riskOrderDialogVisible = true;
       this.riskOrderCurrentPage = 1;
-      this.loadRiskOrderList();
+      // this.loadRiskOrderList();
     },
 
     // 加载风控订单列表
     loadRiskOrderList() {
-      // 这里应该调用API获取风控订单数据
-      // 暂时使用模拟数据
-      this.riskOrderList = [
-        {
-          id: 1,
-          bet_number: "FC20231201001",
-          bet_amount: 100.00,
-          commission: 5.00,
-          create_time: new Date().getTime() - 3600000
-        },
-        {
-          id: 2,
-          bet_number: "FC20231201002",
-          bet_amount: 200.00,
-          commission: 10.00,
-          create_time: new Date().getTime() - 7200000
-        },
-        {
-          id: 3,
-          bet_number: "FC20231201003",
-          bet_amount: 500.00,
-          commission: 25.00,
-          create_time: new Date().getTime() - 10800000
-        }
-      ];
-      this.riskOrderTotal = this.riskOrderList.length;
+      this.searchRiskOrderList();
+    },
 
-      // 实际项目中应该调用后端API，类似：
-      // getRiskOrderList({
-      //   page: this.riskOrderCurrentPage,
-      //   pageSize: 10
-      // }).then(res => {
-      //   this.riskOrderList = res.data.list;
-      //   this.riskOrderTotal = res.data.total;
-      // });
+    // 搜索风控订单列表
+    async searchRiskOrderList() {
+      try {
+        const searchParams = {
+          page: 1,
+          pageSize: 10000,
+          action: 'risk_management',
+          ...this.riskOrderSearchInfo
+        };
+
+        const res = await getFcgOrderList(searchParams);
+        if (res.code === 0) {
+          this.riskOrderList = res.data.order_list || [];
+        } else {
+          this.$message.error('获取风控订单列表失败');
+        }
+      } catch (error) {
+        console.error('获取风控订单列表异常:', error);
+        this.$message.error('获取风控订单列表异常');
+      }
     },
 
     // 风控订单分页变化
