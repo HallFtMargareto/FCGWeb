@@ -447,20 +447,26 @@
         <h3>拆分信息</h3>
         <el-table :data="orderDetailData.split" size="small" border style="width: 100%">
           <el-table-column prop="bet_number" label="投注号码" align="center"></el-table-column>
-          <el-table-column prop="bet_num" label="投注数量" align="center"></el-table-column>
-          <el-table-column prop="bet_amount" label="投注金额" align="center"></el-table-column>
-          <el-table-column prop="game_type" label="玩法" align="center">
+          <el-table-column prop="game_category" label="彩种" align="center" width="100">
+            <template slot-scope="scope">
+              {{ getGameCategoryName(scope.row.game_category) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="game_type" label="玩法" align="center" width="100">
             <template slot-scope="scope">
               {{ getGameTypeName(scope.row.game_type) }}
             </template>
           </el-table-column>
-          <el-table-column prop="split_number" label="拆分信息" align="center" width="600">
+          <el-table-column prop="bet_num" label="投注数量" align="center"></el-table-column>
+          <el-table-column prop="bet_amount" label="投注金额" align="center"></el-table-column>
+          <el-table-column prop="split_number" label="拆分信息" align="center">
             <template slot-scope="scope">
               <div class="split-numbers">
                 {{ scope.row.split_number }}
               </div>
             </template>
           </el-table-column>
+          <el-table-column prop="average_amount" label="平均金额" align="center"></el-table-column>
           <el-table-column prop="split_count" label="拆分数量" align="center"></el-table-column>
           <!-- <el-table-column prop="ava_amount" label="单个号码金额" align="center"></el-table-column> -->
         </el-table>
