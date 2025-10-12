@@ -1,78 +1,79 @@
 <template>
-  <el-container class="layout-cont">
-    <el-container :class="[isSider ? 'openside' : 'hideside', isMobile ? 'mobile' : '']">
-      <el-row :class="[isShadowBg ? 'shadowBg' : '']" @click.native="changeShadow()"></el-row>
-      <el-aside class="main-cont main-left">
-        <div class="tilte">
-          <!-- <img alt class="logoimg" :src="~@/assets/nav_logo.png" /> -->
-          <img alt class="logoimg" :src="siteInfo.logo_action" />
-          <h2 class="tit-text" v-if="isSider && siteInfo">{{ siteInfo.site_name }}</h2>
-        </div>
-        <Aside class="aside" />
-      </el-aside>
+  <div>
+    <GlobalLoading :loadingFlag="loadingFlag" text="正在加载中" />
+    <el-container class="layout-cont">
+      <el-container :class="[isSider ? 'openside' : 'hideside', isMobile ? 'mobile' : '']">
+        <el-row :class="[isShadowBg ? 'shadowBg' : '']" @click.native="changeShadow()"></el-row>
+        <el-aside class="main-cont main-left">
+          <div class="tilte">
+            <!-- <img alt class="logoimg" :src="~@/assets/nav_logo.png" /> -->
+            <img alt class="logoimg" :src="siteInfo.logo_action" />
+            <h2 class="tit-text" v-if="isSider && siteInfo">{{ siteInfo.site_name }}</h2>
+          </div>
+          <Aside class="aside" />
+        </el-aside>
 
-      <!-- 分块滑动功能 -->
-      <el-main class="main-cont main-right">
-        <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
-          <div :style="{
+        <!-- 分块滑动功能 -->
+        <el-main class="main-cont main-right">
+          <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
+            <div :style="{
             width: `calc(100% - ${isMobile ? '0px' : isCollapse ? '54px' : '220px'
               })`,
           }" class="topfix">
-            <el-row>
-              <!-- :xs="8" :sm="6" :md="4" :lg="3" :xl="1" -->
-              <el-header class="header-cont">
-                <el-col :xs="10" :lg="14" :md="14" :sm="9" :xl="14">
-                  <div @click="totalCollapse" class="menu-total">
-                    <i class="el-icon-s-unfold" v-if="isCollapse"></i>
-                    <i class="el-icon-s-fold" v-else></i>
-                  </div>
-                  <el-breadcrumb class="breadcrumb" separator-class="el-icon-arrow-right">
-                    <el-breadcrumb-item :key="item.path" v-for="item in matched.slice(1, matched.length)">{{
-                      item.meta.title }}</el-breadcrumb-item>
-                  </el-breadcrumb>
-                </el-col>
-                <el-col :xs="12" :md="9" :sm="14" :xl="10" :lg="10">
-                  <div class="fl-right right-box">
-                    <Search />
-                    <Screenfull class="screenfull" :style="{ cursor: 'pointer' }"></Screenfull>
+              <el-row>
+                <!-- :xs="8" :sm="6" :md="4" :lg="3" :xl="1" -->
+                <el-header class="header-cont">
+                  <el-col :xs="10" :lg="14" :md="14" :sm="9" :xl="14">
+                    <div @click="totalCollapse" class="menu-total">
+                      <i class="el-icon-s-unfold" v-if="isCollapse"></i>
+                      <i class="el-icon-s-fold" v-else></i>
+                    </div>
+                    <el-breadcrumb class="breadcrumb" separator-class="el-icon-arrow-right">
+                      <el-breadcrumb-item :key="item.path" v-for="item in matched.slice(1, matched.length)">{{
+                        item.meta.title }}</el-breadcrumb-item>
+                    </el-breadcrumb>
+                  </el-col>
+                  <el-col :xs="12" :md="9" :sm="14" :xl="10" :lg="10">
+                    <div class="fl-right right-box">
+                      <Search />
+                      <Screenfull class="screenfull" :style="{ cursor: 'pointer' }"></Screenfull>
 
-                    <el-dropdown>
-                      <span class="header-avatar">
-                        <CustomPic />
-                        <span style="margin-right: 5px">{{
-                          userInfo.nickName
-                        }}</span>
-                        <i class="el-icon-arrow-down"></i>
-                      </span>
-                      <el-dropdown-menu class="dropdown-group" slot="dropdown">
-                        <el-dropdown-item @click.native="toPerson" icon="el-icon-s-custom">个人设置</el-dropdown-item>
-                        <el-dropdown-item @click.native="LoginOut" icon="el-icon-table-lamp">退出登录</el-dropdown-item>
-                      </el-dropdown-menu>
-                    </el-dropdown>
-                  </div>
-                </el-col>
-              </el-header>
-            </el-row>
-            <!-- 当前面包屑用路由自动生成可根据需求修改 -->
-            <!--
+                      <el-dropdown>
+                        <span class="header-avatar">
+                          <CustomPic />
+                          <span style="margin-right: 5px">{{
+                            userInfo.nickName
+                            }}</span>
+                          <i class="el-icon-arrow-down"></i>
+                        </span>
+                        <el-dropdown-menu class="dropdown-group" slot="dropdown">
+                          <el-dropdown-item @click.native="toPerson" icon="el-icon-s-custom">个人设置</el-dropdown-item>
+                          <el-dropdown-item @click.native="LoginOut" icon="el-icon-table-lamp">退出登录</el-dropdown-item>
+                        </el-dropdown-menu>
+                      </el-dropdown>
+                    </div>
+                  </el-col>
+                </el-header>
+              </el-row>
+              <!-- 当前面包屑用路由自动生成可根据需求修改 -->
+              <!--
             :to="{ path: item.path }" 暂时注释不用-->
-            <HistoryComponent />
-          </div>
-        </transition>
-        <transition mode="out-in" name="el-fade-in-linear">
-          <keep-alive>
-            <router-view v-loading="loadingFlag" element-loading-text="正在加载中" class="admin-box"
-              v-if="$route.meta.keepAlive && reloadFlag"></router-view>
-          </keep-alive>
-        </transition>
-        <transition mode="out-in" name="el-fade-in-linear">
-          <router-view v-loading="loadingFlag" element-loading-text="正在加载中" class="admin-box"
-            v-if="!$route.meta.keepAlive && reloadFlag"></router-view>
-        </transition>
-        <BottomInfo />
-      </el-main>
+              <HistoryComponent />
+            </div>
+          </transition>
+          <transition mode="out-in" name="el-fade-in-linear">
+            <keep-alive>
+              <router-view class="admin-box" v-if="$route.meta.keepAlive && reloadFlag"></router-view>
+            </keep-alive>
+          </transition>
+          <transition mode="out-in" name="el-fade-in-linear">
+            <router-view class="admin-box" v-if="!$route.meta.keepAlive && reloadFlag"></router-view>
+          </transition>
+          <BottomInfo />
+        </el-main>
+      </el-container>
     </el-container>
-  </el-container>
+  </div>
 </template>
 
 <script>
@@ -83,6 +84,7 @@ import Search from "@/view/layout/search/search";
 import BottomInfo from "@/view/layout/bottomInfo/bottomInfo";
 import { mapGetters, mapActions } from "vuex";
 import CustomPic from "@/components/customPic";
+import GlobalLoading from "@/components/common/GlobalLoading";
 
 export default {
   name: "Layout",
@@ -105,6 +107,7 @@ export default {
     Search,
     BottomInfo,
     CustomPic,
+    GlobalLoading
   },
   methods: {
     ...mapActions("user", ["LoginOut"]),

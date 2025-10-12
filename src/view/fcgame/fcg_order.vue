@@ -349,17 +349,17 @@
               <el-input v-model.number="editFormData.bet_amount" placeholder="请输入订单总金额"></el-input>
             </el-form-item>
           </el-col> -->
-          <el-col :span="24">
-            <!-- <el-form-item label="投注内容">
-              <el-input v-model="editFormData.bet_content" disabled></el-input>
-            </el-form-item> -->
-            <div style="text-align: center;">{{ editFormData.bet_content }}</div>
+          <el-col :span="19">
+            <el-form-item label="投注内容">
+              <el-input type="textarea" :rows="2" v-model="editFormData.bet_content"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="5">
+            <el-button style="margin-left: 5px; margin-top: 10px;" type="success" @click="reidentify(editFormData)"
+              size="mini">重新识别</el-button>
           </el-col>
         </el-row>
 
-        <el-row>
-          <el-button type="primary" @click="addOrderDetail" size="mini">添加子订单</el-button>
-        </el-row>
         <div class="dialog-table-container">
           <el-table :data="editFormData.order_details" border style="width: 100%" size="mini" max-height="400"
             highlight-current-row>
@@ -419,6 +419,9 @@
             </el-table-column>
           </el-table>
         </div>
+        <el-row>
+          <el-button style="float: right;" type="primary" @click="addOrderDetail" size="mini">添加子订单</el-button>
+        </el-row>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -587,7 +590,6 @@ export default {
         };
       });
     },
-
   },
   data() {
     return {
@@ -1041,6 +1043,17 @@ export default {
     async exportExcel() {
       this.searchInfo.action = "fcg_order";
       await this.$api.getExcel(this.searchInfo);
+    },
+    async reidentify(row) { //重新识别      
+      const res = await findFcgOrder({ ID: row.ID, bet_content: row.bet_content, action: "reidentify" });
+      if (res.code == 0) {
+        this.$message({
+          type: "success",
+          message: "识别成功",
+        });
+        // 保存订单详情数据
+        this.editFormData = res.data.refcg_order;
+      }
     },
     // 添加子订单
     addOrderDetail() {

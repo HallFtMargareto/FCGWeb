@@ -8,23 +8,23 @@ const service = axios.create({
     baseURL: process.env.VUE_APP_BASE_API,
     timeout: 99999
 })
-let acitveAxios = 0
+let activeAxios = 0
 let timer
 const showLoading = () => {
-    acitveAxios++
+    activeAxios++
     if (timer) {
         clearTimeout(timer)
     }
     timer = setTimeout(() => {
-        if (acitveAxios > 0) {
+        if (activeAxios > 0) {
             context.$bus.emit("showLoading")
         }
     }, 400);
 }
 
 const closeLoading = () => {
-    acitveAxios--
-    if (acitveAxios <= 0) {
+    activeAxios--
+    if (activeAxios <= 0) {
         clearTimeout(timer)
         context.$bus.emit("closeLoading")
     }
