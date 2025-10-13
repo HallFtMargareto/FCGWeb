@@ -1,0 +1,77 @@
+{
+  "code": 0,
+  "data": {
+    "issue_no": "2025-10-13",
+    "sessions": [
+      {
+        "session_id": 1,
+        "nick_name": "群组A"
+      },
+      {
+        "session_id": 2,
+        "nick_name": "群组B"
+      }
+    ],
+    "session_stats": [
+      {
+        "session_id": 1,
+        "nick_name": "群组A",
+        "total_bet_amount": "10000.00",
+        "total_commission": "500.00",
+        "total_win_amount": "3000.00",
+        "total_profit": "6500.00"
+      },
+      {
+        "session_id": 2,
+        "nick_name": "群组B",
+        "total_bet_amount": "8000.00",
+        "total_commission": "400.00",
+        "total_win_amount": "2000.00",
+        "total_profit": "5600.00"
+      }
+    ],
+    "order_status_count": [
+      {
+        "order_status": 1,
+        "order_count": 25
+      },
+      {
+        "order_status": 2,
+        "order_count": 30
+      },
+      {
+        "order_status": 3,
+        "order_count": 15
+      },
+      {
+        "order_status": 4,
+        "order_count": 10
+      }
+    ],
+    "game_type_stats": [
+      {
+        "game_type": 1,
+        "gt_count": 50,
+        "gt_bet_amount": "12000.00"
+      },
+      {
+        "game_type": 2,
+        "gt_count": 30,
+        "gt_bet_amount": "6000.00"
+      }
+    ],
+    "game_category_stats": [
+      {
+        "game_category": 1,
+        "gc_count": 40,
+        "gc_bet_amount": "10000.00"
+      },
+      {
+        "game_category": 2,
+        "gc_count": 40,
+        "gc_bet_amount": "8000.00"
+      }
+    ]
+  },
+  "msg": "操作成功"
+}

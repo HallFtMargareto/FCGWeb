@@ -1,98 +1,123 @@
 <template>
   <div class="dashboard-container">
-    <!-- 欢迎横幅 -->
-    <!-- <el-card class="welcome-banner" shadow="never">
-      <div class="banner-content">
-        <div class="avatar-section">
-          <el-avatar :size="60" :src="Info.logo" class="user-avatar"></el-avatar>
-        </div>
-        <div class="info-section">
-          <h2>{{ greeting }}，欢迎使用 {{ Info.site_name }}</h2>
-          <p class="subtitle">福彩数据分析平台</p>
-        </div>
-        <div class="date-section">
-          <el-date-picker v-model="selectedDate" type="date" placeholder="选择日期" size="small" class="date-picker" />
-        </div>
+    <el-card class="welcome-card" shadow="never">
+      <div class="welcome-info">
+        <h3>{{ getGreeting() }}, 管理员</h3>
+        <p>当前统计期号：{{ summaryData.issue_no }}</p>
       </div>
-    </el-card> -->
-
-    <!-- 全部订单状态 -->
-    <el-card class="section-card" shadow="never">
-      <div slot="header" class="card-header">
-        <span class="section-title">订单状态</span>
+      <div class="quick-nav">
+        <el-select v-model="searchInfo.issue_no" placeholder="请选择彩票期号" style="width: 200px; margin-right: 10px;">
+          <el-option v-for="issue in lotteryIssues" :key="issue.id" :label="issue.issue_no"
+            :value="issue.issue_no"></el-option>
+        </el-select>
+        <el-button type="primary" @click="queryOrderByIssue">查询订单</el-button>
       </div>
-      <el-row :gutter="20">
-        <el-col :span="4" v-for="item in dashboardData.orderSatus" :key="item.key">
-          <el-card shadow="hover" class="stat-card" :class="item.colorClass">
-            <div class="stat-content" @click="navigateToOrder(item.key)">
-              <i :class="['stat-icon', item.icon]"></i>
-              <div class="stat-value">{{ item.value }}</div>
-              <div class="stat-label">{{ item.label }}</div>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
     </el-card>
 
-    <!-- 今日投注信息 -->
-    <el-card class="section-card" shadow="never">
+    <!-- 统计卡片 -->
+    <div class="stat-cards">
+      <el-card class="stat-card" shadow="never" :body-style="{ padding: '16px' }">
+        <div class="stat-item">
+          <div class="stat-label">总投注金额</div>
+          <div class="stat-value">¥{{ totalBetAmount }}</div>
+        </div>
+      </el-card>
+      <el-card class="stat-card" shadow="never" :body-style="{ padding: '16px' }">
+        <div class="stat-item">
+          <div class="stat-label">总佣金</div>
+          <div class="stat-value">¥{{ totalCommission }}</div>
+        </div>
+      </el-card>
+      <el-card class="stat-card" shadow="never" :body-style="{ padding: '16px' }">
+        <div class="stat-item">
+          <div class="stat-label">总中奖金额</div>
+          <div class="stat-value">¥{{ totalWinAmount }}</div>
+        </div>
+      </el-card>
+      <el-card class="stat-card" shadow="never" :body-style="{ padding: '16px' }">
+        <div class="stat-item">
+          <div class="stat-label">总利润</div>
+          <div class="stat-value profit">¥{{ totalProfit }}</div>
+        </div>
+      </el-card>
+    </div>
+
+    <!-- 图表部分 -->
+    <div class="charts-row">
+      <el-card class="chart-card" shadow="never" :body-style="{ padding: '16px' }">
+        <div slot="header" class="card-header">
+          <span>订单状态分布</span>
+        </div>
+        <div class="chart-container">
+          <el-table :data="orderStatusData" size="small" style="width: 100%">
+            <el-table-column prop="statusText" label="订单状态" align="center"></el-table-column>
+            <el-table-column prop="order_count" label="订单数量" align="center"></el-table-column>
+            <el-table-column label="占比" align="center">
+              <template slot-scope="scope">
+                <el-progress :percentage="getOrderStatusPercentage(scope.row.order_count)" :show-text="true"
+                  size="small"></el-progress>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </el-card>
+
+      <el-card class="chart-card" shadow="never" :body-style="{ padding: '16px' }">
+        <div slot="header" class="card-header">
+          <span>彩种分布</span>
+        </div>
+        <div class="chart-container">
+          <el-table :data="gameCategoryData" size="small" style="width: 100%">
+            <el-table-column prop="categoryText" label="彩种" align="center"></el-table-column>
+            <el-table-column prop="gc_count" label="订单数量" align="center"></el-table-column>
+            <el-table-column prop="gc_bet_amount" label="投注金额" align="center">
+              <template slot-scope="scope">¥{{ scope.row.gc_bet_amount }}</template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </el-card>
+    </div>
+
+    <!-- 会话统计表格 -->
+    <el-card class="table-card" shadow="never" :body-style="{ padding: '16px' }">
       <div slot="header" class="card-header">
-        <span class="section-title">今日投注信息</span>
+        <span>会话统计</span>
       </div>
-      <el-row :gutter="20">
-        <el-col :span="8" v-for="item in dashboardData.todayStats" :key="item.key">
-          <el-card shadow="hover" class="detail-card">
-            <div slot="header" class="clearfix detail-card-header" :class="item.colorClass">
-              <span>{{ item.title }}</span>
-            </div>
-            <div class="detail-content">
-              <div class="detail-item" v-for="stat in item.stats" :key="stat.key">
-                <div class="detail-label">{{ stat.label }}</div>
-                <div class="detail-value" :class="item.colorClass">{{ stat.value }}</div>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
+      <div class="table-container">
+        <el-table :data="sessionStatsData" size="small" style="width: 100%">
+          <el-table-column prop="session_id" label="会话ID" align="center"></el-table-column>
+          <el-table-column prop="nick_name" label="会话名称" align="center"></el-table-column>
+          <el-table-column prop="total_bet_amount" label="总投注金额" align="center">
+            <template slot-scope="scope">¥{{ scope.row.total_bet_amount }}</template>
+          </el-table-column>
+          <el-table-column prop="total_commission" label="总佣金" align="center">
+            <template slot-scope="scope">¥{{ scope.row.total_commission }}</template>
+          </el-table-column>
+          <el-table-column prop="total_win_amount" label="总中奖金额" align="center">
+            <template slot-scope="scope">¥{{ scope.row.total_win_amount }}</template>
+          </el-table-column>
+          <el-table-column prop="total_profit" label="总利润" align="center">
+            <template slot-scope="scope">¥{{ scope.row.total_profit }}</template>
+          </el-table-column>
+        </el-table>
+      </div>
     </el-card>
 
-    <!-- 全部投注信息 -->
-    <el-card class="section-card" shadow="never">
+    <!-- 玩法统计表格 -->
+    <el-card class="table-card" shadow="never" :body-style="{ padding: '16px' }">
       <div slot="header" class="card-header">
-        <span class="section-title">全部投注信息</span>
+        <span>玩法统计</span>
       </div>
-      <el-row :gutter="20">
-        <el-col :span="8" v-for="item in dashboardData.totalStats" :key="item.key">
-          <el-card shadow="hover" class="detail-card">
-            <div slot="header" class="clearfix detail-card-header" :class="item.colorClass">
-              <span>{{ item.title }}</span>
-            </div>
-            <div class="detail-content">
-              <div class="detail-item" v-for="stat in item.stats" :key="stat.key">
-                <div class="detail-label">{{ stat.label }}</div>
-                <div class="detail-value" :class="item.colorClass">{{ stat.value }}</div>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
-    </el-card>
-
-    <!-- 中奖派奖 -->
-    <el-card class="section-card" shadow="never">
-      <div slot="header" class="card-header">
-        <span class="section-title">中奖派奖</span>
+      <div class="table-container">
+        <el-table :data="gameTypeData" size="small" style="width: 100%">
+          <el-table-column prop="game_type" label="玩法ID" align="center"></el-table-column>
+          <el-table-column prop="typeText" label="玩法名称" align="center"></el-table-column>
+          <el-table-column prop="gt_count" label="订单数量" align="center"></el-table-column>
+          <el-table-column prop="gt_bet_amount" label="投注金额" align="center">
+            <template slot-scope="scope">¥{{ scope.row.gt_bet_amount }}</template>
+          </el-table-column>
+        </el-table>
       </div>
-      <el-row :gutter="20">
-        <el-col :span="6" v-for="item in dashboardData.awardStats" :key="item.key">
-          <el-card shadow="hover" class="award-card">
-            <div class="award-content">
-              <div class="award-value" :class="item.colorClass">{{ item.value }}</div>
-              <div class="award-label">{{ item.label }}</div>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
     </el-card>
   </div>
 </template>
@@ -102,113 +127,119 @@ import { mapGetters } from "vuex";
 import {
   getFcgOrderSummary
 } from "@/api/fcgame/fcg_order";
+import { getFcgLotteryIssueList } from "@/api/fcgame/fcg_lottery_issue";
 
 export default {
   name: "DashboardPage",
   data() {
     return {
-      // 欢迎信息
-      greeting: this.getGreeting(),
-      selectedDate: new Date(),
-      // 站点信息
-      Info: {
-        site_name: "FCGame管理系统",
-        logo: "https://dgzyx.cn/static/logo.png"
+      summaryData: {
+        issue_no: '',
+        sessions: [],
+        session_stats: [],
+        order_status_count: [],
+        game_type_stats: [],
+        game_category_stats: []
       },
-      dashboardData: {
-
-        // 待处理投注
-        orderSatus: [
-          { key: "all", icon: "el-icon-s-data", value: 0, label: "全部订单", colorClass: "primary" },
-          { key: "pending", icon: "el-icon-loading", value: 0, label: "待识别", colorClass: "warning" },
-          { key: "failed", icon: "el-icon-circle-close", value: 0, label: "识别失败", colorClass: "danger" },
-          { key: "success", icon: "el-icon-check", value: 0, label: "识别成功", colorClass: "success" },
-          { key: "notWin", icon: "el-icon-close", value: 0, label: "未中奖", colorClass: "warning" },
-          { key: "win", icon: "el-icon-success", value: 0, label: "已中奖", colorClass: "success" }
-        ],
-
-        // 今日投注信息
-        todayStats: [
-          {
-            key: "all",
-            title: "全部投注",
-            colorClass: "primary",
-            stats: [
-              { key: "amount", label: "投注金额", value: "¥0.00" },
-              { key: "denomination", label: "投注注数", value: 0 },
-              { key: "order", label: "投注笔数", value: 0 },
-              { key: "profit", label: "利润", value: 0 },
-              { key: "commission", label: "佣金", value: 0 },
-            ]
-          },
-          {
-            key: "opened",
-            title: "已开奖",
-            colorClass: "success",
-            stats: [
-              { key: "amount", label: "投注金额", value: "¥0.00" },
-              { key: "denomination", label: "投注注数", value: 0 },
-              { key: "order", label: "投注笔数", value: 0 }
-            ]
-          },
-          {
-            key: "win",
-            title: "中奖投注",
-            colorClass: "danger",
-            stats: [
-              { key: "amount", label: "中奖金额", value: "¥0.00" },
-              { key: "denomination", label: "中奖注数", value: 0 },
-              { key: "order", label: "中奖笔数", value: 0 }
-            ]
-          }
-        ],
-
-        // 全部投注信息
-        totalStats: [
-          {
-            key: "all",
-            title: "全部投注",
-            colorClass: "primary",
-            stats: [
-              { key: "amount", label: "投注金额", value: "¥0.00" },
-              { key: "denomination", label: "投注注数", value: 0 },
-              { key: "order", label: "投注笔数", value: 0 }
-            ]
-          },
-          {
-            key: "opened",
-            title: "已开奖",
-            colorClass: "success",
-            stats: [
-              { key: "amount", label: "投注金额", value: "¥0.00" },
-              { key: "denomination", label: "投注注数", value: 0 },
-              { key: "order", label: "投注笔数", value: 0 }
-            ]
-          },
-          {
-            key: "win",
-            title: "中奖投注",
-            colorClass: "danger",
-            stats: [
-              { key: "amount", label: "中奖金额", value: "¥0.00" },
-              { key: "denomination", label: "中奖注数", value: 0 },
-              { key: "order", label: "中奖笔数", value: 0 }
-            ]
-          }
-        ],
-
-        // 中奖派奖
-        awardStats: [
-          { key: "totalWin", value: "¥0.00", label: "总中奖金额", colorClass: "success" },
-          { key: "totalUsers", value: 0, label: "总用户数", colorClass: "warning" },
-          { key: "activeUsers", value: 0, label: "活跃用户", colorClass: "primary" },
-          { key: "pendingAward", value: 0, label: "待派奖笔数", colorClass: "danger" }
-        ]
-      }
-    };
+      loading: false,
+      searchInfo: {},
+      lotteryIssues: [],
+      selectedIssue: ''
+    }
   },
   computed: {
     ...mapGetters("common", ["siteInfo"]),
+    // 总投注金额
+    totalBetAmount() {
+      return this.summaryData.session_stats.reduce((sum, item) => {
+        return sum + parseFloat(item.total_bet_amount || 0);
+      }, 0).toFixed(2);
+    },
+    // 总佣金
+    totalCommission() {
+      return this.summaryData.session_stats.reduce((sum, item) => {
+        return sum + parseFloat(item.total_commission || 0);
+      }, 0).toFixed(2);
+    },
+    // 总中奖金额
+    totalWinAmount() {
+      return this.summaryData.session_stats.reduce((sum, item) => {
+        return sum + parseFloat(item.total_win_amount || 0);
+      }, 0).toFixed(2);
+    },
+    // 总利润
+    totalProfit() {
+      return this.summaryData.session_stats.reduce((sum, item) => {
+        return sum + parseFloat(item.total_profit || 0);
+      }, 0).toFixed(2);
+    },
+    // 订单状态数据
+    orderStatusData() {
+      const statusMap = {
+        1: '待支付',
+        2: '已支付',
+        3: '未中奖',
+        4: '已中奖'
+      };
+      return (this.summaryData.order_status_count || []).map(item => {
+        return {
+          ...item,
+          statusText: statusMap[item.order_status] || `状态${item.order_status}`
+        };
+      });
+    },
+    // 彩种数据
+    gameCategoryData() {
+      const categoryMap = {
+        1: '福彩',
+        2: '体彩',
+        3: '排列三'
+      };
+      return (this.summaryData.game_category_stats || []).map(item => {
+        return {
+          ...item,
+          categoryText: categoryMap[item.game_category] || `彩种${item.game_category}`
+        };
+      });
+    },
+    // 玩法数据
+    gameTypeData() {
+      const typeMap = {
+        1: '单选',
+        2: '组三(对子)',
+        3: '组六(无重复)',
+        4: '组六四码',
+        5: '组六五码',
+        6: '组六六码',
+        7: '组六七码',
+        8: '组六八码',
+        9: '组三四码',
+        10: '组三五码',
+        11: '组三六码',
+        12: '组三七码',
+        13: '组三八码',
+        14: '独胆',
+        15: '一码不定位',
+        16: '一码定位',
+        17: '两码不定位(双飞)',
+        18: '两码定位',
+        19: '复试重复号',
+        20: '复试(三不同号)',
+        21: '包对子',
+        22: '包对一',
+        23: '豹子'
+      };
+      return (this.summaryData.game_type_stats || []).map(item => {
+        return {
+          ...item,
+          typeText: typeMap[item.game_type] || `玩法${item.game_type}`
+        };
+      });
+    },
+    // 会话统计数据
+    sessionStatsData() {
+      return this.summaryData.session_stats || [];
+    }
   },
   methods: {
     formattedVal(val) {
@@ -247,20 +278,60 @@ export default {
         name: 'fcg_order',
         query: query
       });
+    },
+
+    getLotteryIssues() {
+      getFcgLotteryIssueList({ page: 1, pageSize: 100 })
+        .then(res => {
+          if (res && res.data && res.data.list) {
+            this.lotteryIssues = res.data.list;
+          }
+        })
+    },
+
+    queryOrderByIssue() {
+      if (!this.searchInfo.issue_no) {
+        this.$message.warning('请先选择彩票期号');
+        return;
+      }
+      this.loadData()
+    },
+    // 获取订单状态占比
+    getOrderStatusPercentage(count) {
+      const totalCount = this.summaryData.order_status_count.reduce((sum, item) => {
+        return sum + item.order_count;
+      }, 0);
+      if (totalCount === 0) return 0;
+      return parseFloat(((count / totalCount) * 100).toFixed(1));
+    },
+    // 加载数据
+    async loadData() {
+      try {
+        this.loading = true;
+        const res = await getFcgOrderSummary(this.searchInfo);
+        if (res.code === 0) {
+          this.summaryData = res.data || {
+            issue_no: '',
+            sessions: [],
+            session_stats: [],
+            order_status_count: [],
+            game_type_stats: [],
+            game_category_stats: []
+          };
+        } else {
+          this.$message.error(res.msg || '获取数据失败');
+        }
+      } catch (error) {
+        this.$message.error('获取数据异常');
+        console.error('Error loading summary data:', error);
+      } finally {
+        this.loading = false;
+      }
     }
   },
   async created() {
-    // 如果有API接口，可以在这里获取真实数据
-    // const res = await getSysRechargeOrderDashboard();
-    // this.dashboardData.day = res.data.day;
-    // this.dashboardData.total = res.data.total;
-    const res = await getFcgOrderSummary(this.searchInfo);
-    this.dashboardData = res.data.summary
-
-    // 更新站点信息
-    if (this.siteInfo) {
-      this.Info = this.siteInfo;
-    }
+    await this.loadData();
+    this.getLotteryIssues();
   }
 };
 </script>
@@ -268,307 +339,137 @@ export default {
 <style scoped lang="scss">
 .dashboard-container {
   padding: 20px;
-  background-color: #f5f7f9;
-  min-height: calc(100vh - 84px);
+  background-color: #f5f5f5;
+  min-height: 100vh;
 }
 
-// 欢迎横幅
-.welcome-banner {
+.welcome-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
   margin-bottom: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
   border-radius: 8px;
-  background: linear-gradient(120deg, #409eff, #64b5f6);
+}
+
+.welcome-info h3 {
+  margin: 0 0 10px 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.welcome-info p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.quick-nav .el-button {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
 
-  .banner-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px;
-
-    .avatar-section {
-      flex: 0 0 auto;
-    }
-
-    .info-section {
-      flex: 1;
-      padding: 0 30px;
-
-      h2 {
-        margin: 0 0 10px 0;
-        font-size: 22px;
-        font-weight: 500;
-      }
-
-      .subtitle {
-        margin: 0;
-        font-size: 14px;
-        opacity: 0.9;
-      }
-    }
-
-    .date-section {
-      flex: 0 0 auto;
-    }
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.4);
   }
 }
 
-.user-avatar {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-.date-picker {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
-  border: none;
-
-  ::v-deep .el-input__inner {
-    background: transparent;
-    border: none;
-    color: white;
-
-    &::placeholder {
-      color: rgba(255, 255, 255, 0.7);
-    }
-  }
-
-  ::v-deep .el-input__icon {
-    color: white;
-  }
-}
-
-// 通用卡片样式
-.section-card {
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
   margin-bottom: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
-
-  ::v-deep .el-card__header {
-    padding: 15px 20px;
-    border-bottom: 1px solid #ebeef5;
-  }
 }
 
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.section-title {
-  font-size: 18px;
-  font-weight: 500;
-  color: #303133;
-}
-
-// 待处理订单卡片
 .stat-card {
-  border: none;
-  border-radius: 6px;
-  height: 120px;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  background-color: white;
+  border-radius: 8px;
+  transition: transform 0.2s;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
+}
 
-  &.primary {
-    background-color: #ecf5ff;
-    color: #409eff;
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #606266;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.stat-value.profit {
+  color: #f56c6c;
+}
+
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.chart-card,
+.table-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  font-weight: 600;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.chart-container,
+.table-container {
+  padding: 16px 0;
+}
+
+/* 响应式布局 */
+@media screen and (max-width: 1200px) {
+  .stat-cards {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  &.success {
-    background-color: #f0f9eb;
-    color: #67c23a;
-  }
-
-  &.warning {
-    background-color: #fdf6ec;
-    color: #e6a23c;
-  }
-
-  &.danger {
-    background-color: #fef0f0;
-    color: #f56c6c;
-  }
-
-  .stat-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-  }
-
-  .stat-icon {
-    font-size: 28px;
-    margin-bottom: 8px;
-  }
-
-  .stat-value {
-    font-size: 22px;
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-
-  .stat-label {
-    font-size: 12px;
-    opacity: 0.8;
+  .charts-row {
+    grid-template-columns: 1fr;
   }
 }
 
-// 详细信息卡片
-.detail-card {
-  border: none;
-  border-radius: 6px;
-
-  .detail-card-header {
-    border-bottom: none;
-    padding: 12px 15px;
-    font-weight: 500;
-
-    &.primary {
-      background-color: #ecf5ff;
-      color: #409eff;
-    }
-
-    &.success {
-      background-color: #f0f9eb;
-      color: #67c23a;
-    }
-
-    &.warning {
-      background-color: #fdf6ec;
-      color: #e6a23c;
-    }
-
-    &.danger {
-      background-color: #fef0f0;
-      color: #f56c6c;
-    }
-  }
-
-  .detail-content {
-    padding: 15px;
-  }
-
-  .detail-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-
-    &:not(:last-child) {
-      border-bottom: 1px solid #f0f2f5;
-    }
-  }
-
-  .detail-label {
-    font-size: 14px;
-    color: #606266;
-  }
-
-  .detail-value {
-    font-size: 16px;
-    font-weight: 500;
-
-    &.primary {
-      color: #409eff;
-    }
-
-    &.success {
-      color: #67c23a;
-    }
-
-    &.warning {
-      color: #e6a23c;
-    }
-
-    &.danger {
-      color: #f56c6c;
-    }
-  }
-}
-
-// 中奖派奖卡片
-.award-card {
-  border: none;
-  border-radius: 6px;
-  height: 100px;
-
-  .award-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-  }
-
-  .award-value {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 6px;
-
-    &.primary {
-      color: #409eff;
-    }
-
-    &.success {
-      color: #67c23a;
-    }
-
-    &.warning {
-      color: #e6a23c;
-    }
-
-    &.danger {
-      color: #f56c6c;
-    }
-  }
-
-  .award-label {
-    font-size: 12px;
-    color: #909399;
-  }
-}
-
-// 响应式设计
-@media (max-width: 1200px) {
-  .el-col-4 {
-    width: 33.333%;
-  }
-
-  .el-col-6 {
-    width: 50%;
-  }
-}
-
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
   .dashboard-container {
-    padding: 15px;
+    padding: 10px;
   }
 
-  .banner-content {
+  .welcome-card {
     flex-direction: column;
     text-align: center;
 
-    .info-section {
-      padding: 15px 0;
+    .quick-nav {
+      margin-top: 15px;
     }
   }
 
-  .el-col-4,
-  .el-col-6,
-  .el-col-8 {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-
-  .stat-card,
-  .award-card {
-    height: auto;
-    min-height: 100px;
+  .stat-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 }
 </style>
