@@ -6,11 +6,12 @@
         <p>当前统计期号：{{ summaryData.issue_no }}</p>
       </div>
       <div class="quick-nav">
-        <el-select v-model="searchInfo.issue_no" placeholder="请选择彩票期号" style="width: 200px; margin-right: 10px;">
+        <el-select v-model="searchInfo.issue_no" placeholder="请选择彩票期号" style="width: 200px; margin-right: 10px;"
+          @change="changeSelect">
           <el-option v-for="issue in lotteryIssues" :key="issue.id" :label="issue.issue_no"
             :value="issue.issue_no"></el-option>
         </el-select>
-        <el-button type="primary" @click="queryOrderByIssue">查询订单</el-button>
+        <!-- <el-button type="primary" @click="queryOrderByIssue">查询订单</el-button> -->
       </div>
     </el-card>
 
@@ -176,8 +177,9 @@ export default {
     // 订单状态数据
     orderStatusData() {
       const statusMap = {
-        1: '待支付',
-        2: '已支付',
+        0: '待识别',
+        1: '识别失败',
+        2: '识别成功',
         3: '未中奖',
         4: '已中奖'
       };
@@ -242,6 +244,10 @@ export default {
     }
   },
   methods: {
+    changeSelect(issue_no) {
+      this.$set(this.searchInfo, 'issue_no', issue_no)
+      this.loadData();
+    },
     formattedVal(val) {
       return (val / 10000).toFixed(2);
     },
@@ -283,8 +289,13 @@ export default {
     getLotteryIssues() {
       getFcgLotteryIssueList({ page: 1, pageSize: 100 })
         .then(res => {
-          if (res && res.data && res.data.list) {
+          if (res && res.data && res.data.list && res.data.list.length > 0) {
             this.lotteryIssues = res.data.list;
+            // 如果是首次加载且没有选中的期号，自动选择第一条期号并加载数据
+            if (!this.searchInfo.issue_no) {
+              this.$set(this.searchInfo, 'issue_no', res.data.list[0].issue_no)
+              this.loadData();
+            }
           }
         })
     },
@@ -329,8 +340,7 @@ export default {
       }
     }
   },
-  async created() {
-    await this.loadData();
+  created() {
     this.getLotteryIssues();
   }
 };
