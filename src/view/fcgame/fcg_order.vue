@@ -35,11 +35,8 @@
         <el-form-item label="订单筛选">
           <el-select v-model="activeFilter" @change="filterOrders">
             <el-option label="全部" value="all"></el-option>
-            <el-option label="待开奖" value="pending"></el-option>
-            <el-option label="已开奖" value="opened"></el-option>
             <el-option label="已中奖" value="won"></el-option>
             <el-option label="未中奖" value="lost"></el-option>
-            <el-option label="已撤单" value="cancelled"></el-option>
           </el-select>
         </el-form-item>
 
@@ -205,7 +202,6 @@
       </el-form>
     </div>
 
-
     <!-- 订单状态标签页 -->
     <div>
       <el-row :gutter="24">
@@ -214,7 +210,7 @@
           <!-- 订单状态标签页 -->
           <el-tabs v-model="statusTabState" @tab-click="handleStatusTabClick">
             <el-tab-pane label="全部订单" name="all"></el-tab-pane>
-            <el-tab-pane label="待识别" name="0"></el-tab-pane>
+            <!-- <el-tab-pane label="待识别" name="0"></el-tab-pane> -->
             <el-tab-pane label="识别失败" name="1"></el-tab-pane>
             <el-tab-pane label="识别成功" name="2"></el-tab-pane>
             <el-tab-pane label="未中奖" name="3"></el-tab-pane>
@@ -240,12 +236,12 @@
 
       <el-card v-for="(orderGroup, index) in groupedTableData" :key="index" class="order-card" shadow="hover">
         <div class="card-title">
-          <div style="flex: 1; text-align: left;">
+          <div class="left-content">
             <span style="margin-right: 5px;">【{{ orderGroup.group_name }}】</span>
             <span style="margin-right: 5px;">{{ orderGroup.user_info }} :</span>
             <span class="chat-content">{{ orderGroup.chat_content }}</span>
           </div>
-          <div style="display: flex; gap: 10px;">
+          <div class="right-content">
             <el-button @click="infoRow(orderGroup)" type="text" size="mini" icon="el-icon-warning-outline">
               订单信息
             </el-button>
@@ -280,10 +276,20 @@
               </el-descriptions-item>
               <el-descriptions-item label="识别耗时">{{ orderGroup.message ? orderGroup.message.llmcons_at : ""
               }}</el-descriptions-item>
-              <el-descriptions-item label="来源">{{ orderGroup.source }}</el-descriptions-item>
               <el-descriptions-item label="期号">{{ orderGroup.issue_no || orderGroup.issue_no_display
               }}</el-descriptions-item>
+              <el-descriptions-item label="订单状态">
+                <el-tag :type="getOrderStatusType(orderGroup.order_status)" size="mini">
+                  {{ getOrderStatusText(orderGroup.order_status) }}
+                </el-tag>
+              </el-descriptions-item>
+              <el-descriptions-item label="中奖金额">
+                <span :class="{ 'win-amount': orderGroup.win_amount > 0 }">
+                  ¥ {{ orderGroup.win_amount }}
+                </span>
+              </el-descriptions-item>
               <el-descriptions-item label="创建时间">{{ orderGroup.created_at }}</el-descriptions-item>
+              <el-descriptions-item label="来源">{{ orderGroup.source }}</el-descriptions-item>
               <el-descriptions-item label="单号">{{ orderGroup.order_no }}</el-descriptions-item>
             </el-descriptions>
           </div>
@@ -300,14 +306,14 @@
                   <div class="bet-number-clear">{{ scope.row.bet_number }}</div>
                 </template>
               </el-table-column>
-              <el-table-column prop="bet_count" label="注数" align="center"></el-table-column>
+              <el-table-column prop="bet_count" label="投注数量" align="center"></el-table-column>
               <el-table-column prop="bet_amount" label="投注金额" align="center">
                 <template slot-scope="scope">
                   ¥ {{ scope.row.bet_amount }}
                 </template>
               </el-table-column>
-              <el-table-column prop="multiple" label="倍数" align="center"></el-table-column>
-              <!-- <el-table-column prop="order_amount" label="订单金额" align="center"></el-table-column> -->
+              <el-table-column prop="multiple" label="倍投" align="center"></el-table-column>
+              <el-table-column prop="odds" label="赔率" align="center"></el-table-column>
               <el-table-column prop="win_amount" label="中奖金额" align="center">
                 <template slot-scope="scope">
                   <span :class="{ 'win-amount': scope.row.win_amount > 0 }">
@@ -317,7 +323,7 @@
               </el-table-column>
               <el-table-column prop="win_status" label="中奖状态" align="center">
                 <template slot-scope="scope">
-                  <el-tag :type="scope.row.win_amount > 0 ? 'success' : 'info'" size="mini">
+                  <el-tag :type="scope.row.win_amount > 0 ? 'danger' : 'info'" size="mini">
                     {{ scope.row.win_amount > 0 ? '中奖' : '未中奖' }}
                   </el-tag>
                 </template>
@@ -328,7 +334,6 @@
       </el-card>
     </div>
 
-    <!-- class="pagination-container" -->
     <div>
       <!-- 数据合计,按需求启用 -->
       <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
@@ -351,7 +356,7 @@
           </el-col> -->
           <el-col :span="19">
             <el-form-item label="投注内容">
-              <el-input type="textarea" :rows="2" v-model="editFormData.bet_content"></el-input>
+              <el-input type="textarea" :rows="5" v-model="editFormData.bet_content"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="5">
@@ -491,7 +496,6 @@
 
     <!-- 风控订单弹窗 -->
     <el-dialog :title="'风控号码'" :visible.sync="riskOrderDialogVisible" width="50%" top="10vh">
-      <!-- 查询表单 -->
       <el-form :inline="true" style="margin-bottom: 20px">
         <el-form-item label="彩票种类">
           <el-select v-model="riskOrderSearchInfo.category" placeholder="彩票种类">
@@ -499,37 +503,31 @@
             <el-option label="体彩" value="2"></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="彩期">
+          <el-select v-model="riskOrderSearchInfo.issue_id" placeholder="请选择彩期">
+            <el-option v-for="item in lotteryIssueList" :key="item.ID" :label="item.issue_no"
+              :value="item.ID"></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="searchRiskOrderList">查询</el-button>
         </el-form-item>
       </el-form>
 
-      <el-table :data="riskOrderList" style="width: 100%" height="500px">
-        <!-- <el-table-column prop="id" label="ID"></el-table-column> -->
-        <el-table-column prop="bet_number" label="号码"></el-table-column>
-        <el-table-column prop="split_number" label="拆分号码"></el-table-column>
-        <el-table-column prop="total_amount" label="金额">
-          <template slot-scope="scope">
-            {{ scope.row.total_amount }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="total_amount_new" label="转出金额">
+      <el-table :data="riskOrderList" style="width: 100%" height="500px" class="risk-order-table"
+        @sort-change="handleRiskOrderSortChange">
+        <el-table-column prop="split_number" label="拆分号码" sortable="custom" align="center"></el-table-column>
+        <el-table-column prop="total_amount_new" label="转出金额" sortable="custom" align="center">
           <template slot-scope="scope">
             {{ scope.row.total_amount_new }}
           </template>
         </el-table-column>
-        <!-- <el-table-column prop="create_time" label="添加时间" width="180">
+        <el-table-column prop="total_amount" label="金额" align="center">
           <template slot-scope="scope">
-            {{ formatTimeToStr(scope.row.create_time) }}
+            {{ scope.row.total_amount }}
           </template>
-        </el-table-column> -->
+        </el-table-column>
       </el-table>
-
-      <!-- 分页组件 -->
-      <!-- <div class="pagination-container" style="margin-top: 20px;">
-        <el-pagination background layout="prev, pager, next, jumper" :total="riskOrderTotal" :page-size="10"
-          @current-change="handleRiskOrderPageChange"></el-pagination>
-      </div> -->
     </el-dialog>
   </div>
 </template>
@@ -544,9 +542,9 @@ import {
   batchFcgOrderOperation,
   getFcgOrderSummary,
 } from "@/api/fcgame/fcg_order";
+import { getFcgLotteryIssueList } from '@/api/fcgame/fcg_lottery_issue.js';
 import infoList from "@/mixins/infoList";
 import { mapGetters } from "vuex";
-import { formatTimeToStr } from "@/utils/date";
 export default {
   name: "fcg_order",
   mixins: [infoList],
@@ -599,8 +597,14 @@ export default {
       riskOrderTotal: 0,
       riskOrderCurrentPage: 1,
       riskOrderSearchInfo: {
-        category: ''
+        category: '',
+        issue_id: ''
       },
+      // 彩期数据
+      lotteryIssueList: [],
+      // 排序相关
+      riskOrderSortField: 'total_amount_new',
+      riskOrderSortOrder: 'desc',
 
       // 订单详情弹窗相关
       orderDetailDialogVisible: false,
@@ -615,35 +619,7 @@ export default {
       activeFilter: 'all',
       // 防抖定时器
       searchDebounceTimer: null,
-      formData: {
-        order_no: "",
-        user_id: undefined,
-        issue_id: undefined,
-        issue_no: "",
-        trace_id: undefined,
-        parent_order_id: undefined,
-        bet_content: "",
-        bet_count: undefined,
-        bet_amount: undefined,
-        multiple: undefined,
-        order_status: true,
-        pay_status: true,
-        pay_channel: "",
-        transaction_id: "",
-        win_amount: undefined,
-        award_status: true,
-        cancel_type: true,
-        refund_amount: undefined,
-        refund_status: true,
-        source: "",
-        client_ip: "",
-        device_id: "",
-        risk_score: undefined,
-        is_locked: true,
-        version: undefined,
-        ext: "",
-
-      },
+      formData: {},
       // 添加编辑订单相关的数据
       editFormData: {
         ID: undefined,
@@ -704,10 +680,28 @@ export default {
     },
 
     // 打开风控订单弹窗
-    openRiskOrderDialog() {
+    async openRiskOrderDialog() {
       this.riskOrderDialogVisible = true;
       this.riskOrderCurrentPage = 1;
-      // this.loadRiskOrderList();
+      // 加载彩期数据
+      await this.loadLotteryIssueList();
+    },
+
+    // 加载彩期数据
+    async loadLotteryIssueList() {
+      try {
+        const res = await getFcgLotteryIssueList({ page: 1, pageSize: 100 });
+        if (res.code === 0) {
+          this.lotteryIssueList = res.data.list || [];
+          // 默认选中第一条数据
+          if (this.lotteryIssueList.length > 0) {
+            this.riskOrderSearchInfo.issue_id = this.lotteryIssueList[0].ID;
+          }
+        }
+      } catch (error) {
+        console.error('获取彩期数据失败:', error);
+        this.$message.error('获取彩期数据失败');
+      }
     },
 
     // 加载风控订单列表
@@ -722,7 +716,10 @@ export default {
           page: 1,
           pageSize: 10000,
           action: 'risk_management',
-          ...this.riskOrderSearchInfo
+          ...this.riskOrderSearchInfo,
+          // 添加排序参数
+          sortField: this.riskOrderSortField,
+          sortOrder: this.riskOrderSortOrder
         };
 
         const res = await getFcgOrderList(searchParams);
@@ -737,12 +734,12 @@ export default {
       }
     },
 
-    // 风控订单分页变化
-    handleRiskOrderPageChange(page) {
-      this.riskOrderCurrentPage = page;
-      this.loadRiskOrderList();
+    // 处理风控订单表格排序变化
+    handleRiskOrderSortChange({ prop, order }) {
+      this.riskOrderSortField = prop;
+      this.riskOrderSortOrder = order === 'ascending' ? 'asc' : order === 'descending' ? 'desc' : '';
+      this.searchRiskOrderList();
     },
-
     // 获取风险级别文本
     getRiskLevelText(score) {
       const numScore = parseInt(score) || 0;
@@ -808,30 +805,25 @@ export default {
       }
       this.getTableData();
     },
-    // 格式化时间戳为标准时间格式
-    formatTimestamp(timestamp) {
-      if (!timestamp || timestamp === "0001-01-01 00:00:00") return '';
-      // 如果是时间戳（数字），转换为毫秒
-      const time = typeof timestamp === 'number' ? timestamp * 1000 : timestamp;
-      return formatTimeToStr(time, "yyyy-MM-dd hh:mm:ss");
-    },
     // 获取订单状态类型
     getOrderStatusType(status) {
       const statusMap = {
         0: 'warning', // 待支付
-        1: 'info',    // 待开奖  
-        2: 'success', // 已开奖
-        3: 'danger'   // 已取消
+        1: 'warning',    //识别失败  
+        2: 'success', //识别成功
+        3: 'success',  // 未中奖
+        4: 'danger'   //已中奖
       };
       return statusMap[status] || 'info';
     },
     // 获取订单状态文本
     getOrderStatusText(status) {
       const statusMap = {
-        0: '待支付',
-        1: '待开奖',
-        2: '已开奖',
-        3: '已取消'
+        0: '待识别',
+        1: '识别失败',
+        2: '识别成功',
+        3: '未中奖',
+        4: '已中奖'
       };
       return statusMap[status] || '待开奖';
     },
@@ -1023,19 +1015,6 @@ export default {
       }
       this.showSummary = true;
     },
-    getSummaries(param) {
-      const sums = [];
-      const { columns } = param;
-      let that = this;
-      columns.forEach((column, index) => {
-        sums[index] =
-          that.summary[column.property] != null
-            ? that.summary[column.property]
-            : null;
-      });
-      // sums[0] = "合计";
-      return sums;
-    },
     importExcel() {
       //触发upLoad组件内部点击事件，弹出文件选择框
       this.$refs.uploadexcel.chooseFile();
@@ -1135,444 +1114,5 @@ export default {
 
 
 <style scoped>
-/* 右侧漂浮操作按钮样式 */
-.float-operations {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  z-index: 999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-/* 漂浮按钮通用样式 */
-.float-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.float-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.2);
-}
-
-/* 特定按钮样式 */
-.top-btn {
-  background-color: #409EFF;
-}
-
-.top-btn:hover {
-  background-color: #66b1ff;
-}
-
-.risk-btn {
-  background-color: #DE776F;
-}
-
-.risk-btn:hover {
-  background-color: #DE776F;
-}
-
-.card-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 5px;
-  margin-top: -20px;
-}
-
-.kl_content {
-  background-color: #409eff !important;
-}
-
-.btg {
-  width: 80px;
-  height: 35px;
-  border-bottom: none;
-  margin-right: 3px !important;
-}
-
-.btg {
-  width: 80px;
-  height: 35px;
-  border-bottom: none;
-  margin-right: 3px !important;
-}
-
-/* 搜索区域样式 */
-.search-term {
-  padding: 20px 20px 0 20px;
-  margin-bottom: 20px;
-  border-radius: 8px;
-}
-
-.btn-form-inline {
-  margin-top: 15px;
-  padding-top: 15px;
-  border-top: 1px solid #e4e7ed;
-}
-
-.search-term .el-form-item {
-  margin-bottom: 18px;
-}
-
-.search-term .el-form-item__label {
-  font-weight: 600;
-  color: #606266;
-}
-
-/* 标签样式优化 */
-.el-tag {
-  font-weight: 500;
-}
-
-/* 风险级别标签样式 */
-.risk-level-tag {
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* 分页样式 */
-.el-pagination {
-  margin-top: 30px;
-  text-align: right;
-}
-
-/* Excel风格表格样式 */
-.excel-table-container {
-  margin: 20px 0;
-  width: 100%;
-  overflow-x: auto;
-}
-
-.excel-table {
-  border-collapse: collapse !important;
-  width: 100%;
-  font-size: 12px;
-  min-width: 100%;
-  /* 防止表格太小 */
-  max-width: 100%;
-  /* 防止表格过宽 */
-}
-
-.excel-table .el-table__header th {
-  background-color: #f5f7fa;
-  color: #303133;
-  font-weight: 600;
-  font-size: 12px;
-  padding: 8px;
-  border: 1px solid #e4e7ed;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.excel-table .el-table__body td {
-  padding: 6px 8px;
-  border: 1px solid #e4e7ed;
-  font-size: 12px;
-  vertical-align: middle;
-}
-
-/* 确保所有列都有边框 */
-.excel-table .el-table th,
-.excel-table .el-table td {
-  border-right: 1px solid #e4e7ed !important;
-}
-
-.excel-table .el-table th:last-child,
-.excel-table .el-table td:last-child {
-  border-right: 1px solid #e4e7ed !important;
-}
-
-/* 群信息区域样式 */
-.group-info {
-  font-weight: 600;
-  color: #409eff;
-  word-break: break-all;
-}
-
-.user-info {
-  font-weight: 500;
-  color: hsl(220, 86%, 39%);
-  word-break: break-all;
-}
-
-.chat-content {
-  color: #446CF9;
-}
-
-/* 投注号码样式 - 更清晰的显示 */
-.bet-number-clear {
-  font-family: 'Arial', 'Microsoft YaHei', sans-serif;
-  font-weight: 600;
-  /* background-color: #f0f9ff; */
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 13px;
-  color: #1f2937;
-  border: 1px solid #e1f5fe;
-  word-break: break-all;
-  line-height: 1.4;
-}
-
-/* 操作按钮区域 */
-.operation-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  align-items: center;
-}
-
-.operation-buttons .el-button {
-  margin: 0;
-  padding: 4px 8px;
-  font-size: 12px;
-}
-
-/* 中奖金额样式 */
-.win-amount {
-  color: #67c23a !important;
-  font-weight: 600;
-}
-
-/* 文本溢出处理 */
-.excel-table .el-table__body td {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.excel-table .el-table__body td:hover {
-  background-color: #f5f7fa;
-}
-
-/* 操作按钮样式 */
-.danger-btn {
-  color: #f56c6c !important;
-}
-
-.danger-btn:hover {
-  background-color: #fef0f0 !important;
-}
-
-/* 空状态样式 */
-.empty-state {
-  padding: 60px 0;
-  text-align: center;
-  color: #909399;
-  font-size: 14px;
-}
-
-/* Card布局样式 */
-.card-container {
-  margin: 20px 0;
-}
-
-.order-card {
-  margin-bottom: 20px;
-  width: 100%;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 15px;
-  border-bottom: 1px solid #ebeef5;
-  background-color: #f5f7fa;
-  font-weight: 600;
-  color: #303133;
-}
-
-.card-header .el-button {
-  padding: 6px 12px;
-  font-size: 12px;
-}
-
-.card-content {
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-/* 固定描述列表label宽度 */
-.left-panel ::v-deep .el-descriptions__label {
-  width: 100px !important;
-  min-width: 100px !important;
-  max-width: 100px !important;
-  text-align: center;
-}
-
-.left-panel {
-  width: 700px;
-  min-width: 600px;
-  height: 300px;
-  overflow-y: auto;
-}
-
-.right-panel {
-  flex: 1;
-  min-width: 400px;
-  height: 300px;
-  overflow-y: auto;
-}
-
-/* 响应式设计 */
-@media screen and (max-width: 1400px) {
-  .left-panel {
-    width: 500px;
-    min-width: 500px;
-    max-height: 350px;
-    overflow-y: auto;
-  }
-
-  .right-panel {
-    min-width: 300px;
-    max-height: 350px;
-    overflow-y: auto;
-  }
-}
-
-@media screen and (max-width: 1200px) {
-  .card-content {
-    flex-direction: row;
-  }
-
-  .left-panel {
-    width: 400px;
-    min-width: 400px;
-    height: 350px;
-    overflow-y: auto;
-  }
-
-  .right-panel {
-    min-width: 350px;
-    height: 350px;
-    overflow-y: auto;
-  }
-}
-
-@media screen and (max-width: 992px) {
-  .card-content {
-    flex-direction: column;
-  }
-
-  .left-panel,
-  .right-panel {
-    width: 100%;
-    min-width: 100%;
-    height: auto;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-}
-
-/* 订单编辑弹窗样式 */
-.order-dialog {
-  display: flex;
-  flex-direction: column;
-  margin-top: 5%;
-}
-
-.order-dialog ::v-deep .el-dialog {
-  display: flex;
-  flex-direction: column;
-  margin: 0 auto !important;
-  max-height: calc(100vh - 30px);
-}
-
-.order-dialog ::v-deep .el-dialog__body {
-  flex: 1;
-  overflow-y: auto;
-  max-height: calc(100vh - 200px);
-}
-
-.dialog-table-container {
-  max-width: 100%;
-  overflow-x: auto;
-}
-
-.dialog-table-container ::v-deep .el-table {
-  width: 100%;
-  min-width: 800px;
-}
-
-@media screen and (max-width: 768px) {
-  .order-dialog ::v-deep .el-dialog {
-    width: 95% !important;
-    max-height: calc(100vh - 20px);
-  }
-
-  .order-dialog ::v-deep .el-dialog__body {
-    max-height: calc(100vh - 150px);
-  }
-}
-
-
-.detail-section {
-  margin-bottom: 20px;
-  padding: 10px;
-  background-color: #fafafa;
-  border-radius: 4px;
-}
-
-.detail-section h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  color: #303133;
-  font-size: 16px;
-}
-
-.detail-section h4 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  color: #606266;
-  font-size: 14px;
-}
-
-.order-info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.info-item {
-  display: flex;
-  align-items: center;
-}
-
-.info-label {
-  color: #606266;
-  margin-right: 5px;
-}
-
-.info-value {
-  color: #303133;
-  font-weight: 500;
-}
-
-.orders-section {
-  margin-top: 15px;
-}
-
-.split-numbers {
-  word-break: break-all;
-  white-space: normal;
-}
-
-.no-data {
-  text-align: center;
-  color: #909399;
-  padding: 40px 0;
-}
+@import './fcg_order.css';
 </style>
