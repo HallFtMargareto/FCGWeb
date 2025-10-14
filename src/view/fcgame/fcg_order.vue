@@ -4,7 +4,7 @@
       <searchform size="mini" :maxShow="4" @search="onQuery">
 
         <el-form-item label="彩期">
-          <el-select v-model="searchInfo.issue_id" placeholder="请选择彩期">
+          <el-select v-model="searchInfo.issue_id" placeholder="请选择彩期" @change="handleIssueChange">
             <el-option v-for="item in lotteryIssueList" :key="item.ID" :label="item.issue_no"
               :value="item.ID"></el-option>
           </el-select>
@@ -26,6 +26,10 @@
           <el-input v-model="searchInfo.bet_number" placeholder="投注号码" clearable></el-input>
         </el-form-item>
 
+        <el-form-item label="订单ID">
+          <el-input v-model="searchInfo.ID" placeholder="投注号码" clearable></el-input>
+        </el-form-item>
+
         <el-form-item label="识别难度">
           <el-select v-model="searchInfo.risk_level" placeholder="请选择识别难度">
             <el-option label="容易" value="1"></el-option>
@@ -35,17 +39,17 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="订单筛选">
+        <!-- <el-form-item label="订单筛选">
           <el-select v-model="activeFilter" @change="filterOrders">
             <el-option label="全部" value="all"></el-option>
             <el-option label="已中奖" value="won"></el-option>
             <el-option label="未中奖" value="lost"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
 
-        <el-form-item label="期号">
+        <!-- <el-form-item label="期号">
           <el-input v-model="searchInfo.issue_no" placeholder="冗余的期号，便于查询" clearable></el-input>
-        </el-form-item>
+        </el-form-item> -->
 
         <el-form-item label="投注数量">
           <el-input v-model.number="searchInfo.bet_count" placeholder="请输入" clearable></el-input>
@@ -323,6 +327,7 @@
       </el-card>
     </div>
 
+    <!-- 分页 -->
     <div>
       <!-- 数据合计,按需求启用 -->
       <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
@@ -474,8 +479,6 @@
 
     <!-- 右侧漂浮操作按钮 -->
     <div class="float-operations">
-
-      <!-- 查看风控订单按钮 -->
       <el-button style="margin-left: 0 !important;" class="float-btn risk-btn" type="primary" icon="el-icon-s-marketing"
         circle @click="openRiskOrderDialog" title="风控订单"></el-button>
 
@@ -647,6 +650,11 @@ export default {
     };
   },
   methods: {
+    handleIssueChange() {
+      this.onQuery()
+      //  this.$set(this.searchInfo, 'issue_no', issue_no)
+      // this.loadData();
+    },
     async infoRow(row) {
       const orderId = row.order_id || row.ID;
       const res = await findFcgOrder({ ID: orderId, action: "split_info" });
@@ -682,8 +690,10 @@ export default {
           this.lotteryIssueList = res.data.list || [];
           // 默认选中第一条数据
           if (this.lotteryIssueList.length > 0) {
-            this.riskOrderSearchInfo.issue_id = this.lotteryIssueList[0].ID;
-            this.searchInfo.issue_id = this.lotteryIssueList[0].ID;
+            // this.riskOrderSearchInfo.issue_id = this.lotteryIssueList[0].ID;
+            // this.searchInfo.issue_id = this.lotteryIssueList[0].ID;
+            this.$set(this.riskOrderSearchInfo, 'issue_id', this.lotteryIssueList[0].ID)
+            this.$set(this.searchInfo, 'issue_id', this.lotteryIssueList[0].ID)
           }
         }
       } catch (error) {
