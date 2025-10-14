@@ -1,7 +1,14 @@
 <template>
   <div>
     <div class="search-term">
-      <searchform size="mini" :maxShow="5" @search="onQuery">
+      <searchform size="mini" :maxShow="4" @search="onQuery">
+
+        <el-form-item label="彩期">
+          <el-select v-model="searchInfo.issue_id" placeholder="请选择彩期">
+            <el-option v-for="item in lotteryIssueList" :key="item.ID" :label="item.issue_no"
+              :value="item.ID"></el-option>
+          </el-select>
+        </el-form-item>
 
         <el-form-item label="用户名称">
           <el-input v-model="searchInfo.nick_name" placeholder="用户名称" clearable></el-input>
@@ -11,17 +18,13 @@
           <el-input v-model="searchInfo.group_name" placeholder="群组名称" clearable></el-input>
         </el-form-item>
 
+        <el-form-item label="投注内容">
+          <el-input v-model="searchInfo.bet_content" placeholder="投注内容" clearable></el-input>
+        </el-form-item>
+
         <el-form-item label="投注号码">
           <el-input v-model="searchInfo.bet_number" placeholder="投注号码" clearable></el-input>
         </el-form-item>
-
-        <el-form-item label="原始内容">
-          <el-input v-model="searchInfo.bet_content" placeholder="原始内容" clearable></el-input>
-        </el-form-item>
-
-        <!-- <el-form-item label="期号ID">
-          <el-input v-model="searchInfo.issue_id" placeholder="期号ID" clearable></el-input>
-        </el-form-item> -->
 
         <el-form-item label="识别难度">
           <el-select v-model="searchInfo.risk_level" placeholder="请选择识别难度">
@@ -40,18 +43,10 @@
           </el-select>
         </el-form-item>
 
-
         <el-form-item label="期号">
           <el-input v-model="searchInfo.issue_no" placeholder="冗余的期号，便于查询" clearable></el-input>
         </el-form-item>
 
-        <!-- <el-form-item label="追号组ID（若属于追号则有值）">
-          <el-input v-model="searchInfo.trace_id" placeholder="追号组ID（若属于追号则有值）" clearable></el-input>
-        </el-form-item> -->
-
-        <!-- <el-form-item label="若为组合/拆单的顶层单，可记录父ID">
-          <el-input v-model="searchInfo.parent_order_id" placeholder="若为组合/拆单的顶层单，可记录父ID" clearable></el-input>
-        </el-form-item> -->
         <el-form-item label="投注数量">
           <el-input v-model.number="searchInfo.bet_count" placeholder="请输入" clearable></el-input>
         </el-form-item>
@@ -68,39 +63,36 @@
           <el-input v-model="searchInfo.bet_amount" placeholder="投注总金额" clearable></el-input>
         </el-form-item>
 
-        <!-- <el-form-item label="倍数">
-          <el-input v-model.number="searchInfo.multiple" placeholder="请输入" clearable></el-input>
+        <!-- <el-form-item label="订单状态" prop="order_status">
+          <el-select v-model="searchInfo.order_status" placeholder="请选择">
+            <el-option label="待识别" value="0"></el-option>
+            <el-option label="识别失败" value="1"></el-option>
+            <el-option label="识别成功" value="2"></el-option>
+            <el-option label="未中奖" value="3"></el-option>
+            <el-option label="已中奖" value="3"></el-option>
+          </el-select>
         </el-form-item> -->
 
-        <el-form-item label="订单状态" prop="order_status">
-          <el-select v-model="searchInfo.order_status" placeholder="请选择">
-            <el-option label="待支付" value="0"></el-option>
-            <el-option label="待开奖" value="1"></el-option>
-            <el-option label="已开奖" value="2"></el-option>
-            <el-option label="已取消" value="3"></el-option>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="支付状态" prop="pay_status">
+        <!-- <el-form-item label="支付状态" prop="pay_status">
           <el-select v-model="searchInfo.pay_status" placeholder="请选择">
             <el-option label="未支付" value="0"></el-option>
             <el-option label="已支付" value="1"></el-option>
             <el-option label="支付失败" value="2"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
 
-        <el-form-item label="支付渠道">
+        <!-- <el-form-item label="支付渠道">
           <el-input v-model="searchInfo.pay_channel" placeholder="支付渠道(余额/微信/支付宝/第三方)" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="支付流水号">
           <el-input v-model="searchInfo.transaction_id" placeholder="支付流水号" clearable></el-input>
-        </el-form-item>
+        </el-form-item> -->
 
-        <el-form-item label="支付时间">
+        <!-- <el-form-item label="支付时间">
           <datepicker v-model="searchInfo.payment_time" type="datetime" placeholder="选择日期" style="width: 100%"
             clearable />
-        </el-form-item>
+        </el-form-item> -->
 
         <el-form-item label="中奖总金额">
           <el-input v-model="searchInfo.win_amount" placeholder="中奖总金额" clearable></el-input>
@@ -120,28 +112,28 @@
         </el-form-item> -->
 
 
-        <el-form-item label="撤单类型" prop="cancel_type">
+        <!-- <el-form-item label="撤单类型" prop="cancel_type">
           <el-select v-model="searchInfo.cancel_type" placeholder="请选择">
             <el-option label="用户取消" :value="0"></el-option>
             <el-option label="系统超时" :value="1"></el-option>
             <el-option label="风控" :value="2"></el-option>
             <el-option label="人工" :value="3"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
 
 
         <!-- <el-form-item label="退款金额（分）">
           <el-input v-model="searchInfo.refund_amount" placeholder="退款金额（分）" clearable></el-input>
         </el-form-item> -->
 
-        <el-form-item label="退款状态" prop="refund_status">
+        <!-- <el-form-item label="退款状态" prop="refund_status">
           <el-select v-model="searchInfo.refund_status" placeholder="请选择">
             <el-option label="无退款" :value="0"></el-option>
             <el-option label="退款中" :value="1"></el-option>
             <el-option label="已退款" :value="2"></el-option>
             <el-option label="退款失败" :value="3"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
 
 
         <el-form-item label="下单来源">
@@ -490,7 +482,7 @@
         @click="handleBackToTop" title="返回顶部"></el-button> -->
 
       <!-- 查看风控订单按钮 -->
-      <el-button style="margin-left: 0 !important;" class="float-btn risk-btn" type="primary" icon="el-icon-s-release"
+      <el-button style="margin-left: 0 !important;" class="float-btn risk-btn" type="primary" icon="el-icon-s-marketing"
         circle @click="openRiskOrderDialog" title="风控订单"></el-button>
     </div>
 
@@ -683,8 +675,6 @@ export default {
     async openRiskOrderDialog() {
       this.riskOrderDialogVisible = true;
       this.riskOrderCurrentPage = 1;
-      // 加载彩期数据
-      await this.loadLotteryIssueList();
     },
 
     // 加载彩期数据
@@ -696,6 +686,7 @@ export default {
           // 默认选中第一条数据
           if (this.lotteryIssueList.length > 0) {
             this.riskOrderSearchInfo.issue_id = this.lotteryIssueList[0].ID;
+            this.searchInfo.issue_id = this.lotteryIssueList[0].ID;
           }
         }
       } catch (error) {
@@ -1091,11 +1082,13 @@ export default {
       // 设置搜索条件
       this.searchInfo.order_status = status;
     }
-
+    // 加载彩期数据
+    await this.loadLotteryIssueList();
     await this.getTableData();
     if (process.env.NODE_ENV === 'development') {
       console.timeEnd('fcg_order component created');
     }
+
   },
   beforeDestroy() {
     // 清理缓存，避免内存泄漏
