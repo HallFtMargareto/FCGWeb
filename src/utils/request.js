@@ -29,6 +29,7 @@ const closeLoading = () => {
         context.$bus.emit("closeLoading")
     }
 }
+
 //http request 拦截器
 service.interceptors.request.use(
     config => {
@@ -56,40 +57,39 @@ service.interceptors.request.use(
     }
 );
 
-
-//http response 拦截器
+// ✅ 修复后的 response 拦截器
 service.interceptors.response.use(
     response => {
-        closeLoading()
-        if (response.headers["new-token"]) {
-            store.commit('user/setToken', response.headers["new-token"])
+        closeLoading();
+        // 👇 关键：如果是文件下载（blob/arraybuffer），直接返回完整 response 对象！
+        if (response.config.responseType === 'blob' || response.config.responseType === 'arraybuffer') {
+            return response; // ← 让调用者能访问 headers、status、data(Blob)
         }
-        if (response.data.code == 0 || response.headers.success === "true") {
-            return response.data
+        // 👇 其他情况：按原来业务逻辑处理
+        if (response.headers["new-token"]) {
+            store.commit('user/setToken', response.headers["new-token"]);
+        }
+        if (response.data.code === 0 || response.headers.success === "true") {
+            return response.data; // 普通请求返回数据
         } else {
-            if (response.data.msg != undefined && response.data.msg != "") {
+            if (response.data.msg) {
                 Message({
                     showClose: true,
                     message: response.data.msg || decodeURI(response.headers.msg),
                     type: response.headers.msgtype || 'error',
-                })
+                });
             }
             if (response.data.data && response.data.data.reload) {
-                store.commit('user/LoginOut')
+                store.commit('user/LoginOut');
             }
-            return response.data.msg ? response.data : response
-            //router.push({ name: "init" })
+            return response.data.msg ? response.data : response;
         }
     },
     error => {
-        closeLoading()
-        Message({
-            showClose: true,
-            message: error,
-            type: 'error'
-        })
-        return error
+        closeLoading();
+        Message({ showClose: true, message: error, type: 'error' });
+        return Promise.reject(error);
     }
-)
+);
 
 export default service

@@ -179,10 +179,7 @@
           <datepicker v-model="searchInfo.endTime" type="datetime" />
         </el-form-item>
 
-        <el-form-item label="导出">
-          <el-button v-if="userInfo.perm['system.export']" @click="exportExcel"
-            icon="el-icon-sold-out">导出EXCEL</el-button>
-        </el-form-item>
+
       </searchform>
 
       <el-form size="mini" :inline="true" class="btn-form-inline">
@@ -477,13 +474,13 @@
 
     <!-- 右侧漂浮操作按钮 -->
     <div class="float-operations">
-      <!-- 返回顶部按钮 -->
-      <!-- <el-button class="float-btn top-btn" type="primary" icon="el-icon-top" circle size="small"
-        @click="handleBackToTop" title="返回顶部"></el-button> -->
 
       <!-- 查看风控订单按钮 -->
       <el-button style="margin-left: 0 !important;" class="float-btn risk-btn" type="primary" icon="el-icon-s-marketing"
         circle @click="openRiskOrderDialog" title="风控订单"></el-button>
+
+      <el-button style="margin-left: 0 !important;" class="float-btn risk-btn" type="primary" icon="el-icon-bottom"
+        circle @click="exportExcel" title="导出订单"></el-button>
     </div>
 
     <!-- 风控订单弹窗 -->

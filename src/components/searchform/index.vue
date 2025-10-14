@@ -1,12 +1,6 @@
 <template>
-  <el-form
-    ref="form"
-    class="demo-form-inline"
-    :inline="true"
-    :label-width="labelWidth"
-    :size="size"
-    label-position="right"
-  >
+  <el-form ref="form" class="demo-form-inline" :inline="true" :label-width="labelWidth" :size="size"
+    label-position="right">
     <div id="searchFilter">
       <slot></slot>
 
