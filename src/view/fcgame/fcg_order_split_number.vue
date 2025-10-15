@@ -12,17 +12,17 @@
 
         <el-form-item label="彩票类型">
           <el-select v-model="game_category" placeholder="彩票类型">
-            <el-option label="福彩" value="1"></el-option>
-            <el-option label="体彩" value="2"></el-option>
+            <el-option label="福彩" :value="1"></el-option>
+            <el-option label="体彩" :value="2"></el-option>
           </el-select>
         </el-form-item>
 
-        <el-form-item label="添加时间">
+        <!-- <el-form-item label="添加时间">
           <datepicker v-model="searchInfo.startTime" type="datetime" />
         </el-form-item>
         <el-form-item label="结束时间">
           <datepicker v-model="searchInfo.endTime" type="datetime" />
-        </el-form-item>
+        </el-form-item> -->
       </searchform>
       <!-- <el-form size="mini" :inline="true" class="btn-form-inline">
         <el-button v-if="userInfo.perm['system.create']" @click="createRow" icon="el-icon-plus"
@@ -41,7 +41,7 @@
     <!-- 图表区域 -->
     <div class="chart-container" style="margin: 20px 0;">
       <div ref="chart" class="chart"
-        :style="{ height: '600px', overflowX: 'auto', border: '1px solid #e4e7ed', borderRadius: '12px', padding: '20px', backgroundColor: '#fafafa', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)' }"
+        :style="{ height: '400px', overflowX: 'auto', border: '1px solid #e4e7ed', borderRadius: '12px', padding: '20px', backgroundColor: '#fafafa', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)' }"
         v-loading="chartLoading">
       </div>
     </div>
@@ -105,27 +105,11 @@ export default {
       dialogTitle: "",
       type: "",
       multipleSelection: [],
-      formData: {
-        order_id: undefined,
-        order_detail_id: undefined,
-        bet_number: "",
-        split_number: "",
-        split_amount: undefined,
-        game_type: undefined,
-        game_category: undefined,
-        issue_id: undefined,
-      },
-      formRules: {
-        order_id: [{ required: true, message: "请选择项目", trigger: "change" }],
-        order_detail_id: [{ required: true, message: "请选择项目", trigger: "change" }],
-        bet_number: [{ required: true, message: "请填写数据", trigger: "blur" }], split_number: [{ required: true, message: "请填写数据", trigger: "blur" }],
-        split_amount: [{ required: true, message: "请选择项目", trigger: "change" }],
-        game_type: [{ required: true, message: "请填写数据", trigger: "blur" }], game_category: [{ required: true, message: "请填写数据", trigger: "blur" }], issue_id: [{ required: true, message: "请填写数据", trigger: "blur" }],
-      },
       // 图表相关数据
       chartData: null,
       chartLoading: false, // 图表加载状态
-      chartIssueId: '',
+      chartIssueId: 0,
+      game_category: 1,    // 默认福彩
       chartInstance: null,
       maxValue: 0,
       // 期号列表
@@ -153,13 +137,12 @@ export default {
         const res = await getFcgLotteryIssueList({ page: 1, pageSize: 100 });
         if (res.code === 0 && res.data && res.data.list) {
           this.lotteryIssueList = res.data.list;
-          console.log(this.lotteryIssueList);
           // 获取到列表后默认取第一条期号作为参数
           if (this.lotteryIssueList.length > 0) {
-            this.chartIssueId = this.lotteryIssueList[0].issue_id
+            this.chartIssueId = this.lotteryIssueList[0].ID
+            console.log(this.chartIssueId)
             this.getChartData()
           }
-          console.log(this.chartIssueId)
         }
       } catch (error) {
         console.error('获取期号列表失败:', error);
@@ -222,13 +205,13 @@ export default {
 
     // 获取图表数据
     async getChartData() {
-      if (!this.chartIssueId) {
+      if (this.chartIssueId == 0) {
         this.$message.warning('请输入期号');
         return;
       }
       this.chartLoading = true;
       try {
-        const res = await getFcgOrderSplitNumberList({ issue_id: this.chartIssueId });
+        const res = await getFcgOrderSplitNumberList({ game_category: this.game_category, issue_id: this.chartIssueId });
         if (res.code === 0 && res.data) {
           this.chartData = res.data;
           this.renderChart();
@@ -250,9 +233,16 @@ export default {
       if (!this.chartInstance || !this.chartData) return;
 
       const { x, series, lines, unit } = this.chartData;
+      console.log(lines);
 
       // 计算最大值，用于设置Y轴范围
-      this.maxValue = Math.max(...series);
+      let maxValue = 0;
+      series.forEach(s => {
+        const maxInSeries = Math.max(...s.data);
+        if (maxInSeries > maxValue) maxValue = maxInSeries;
+      });
+      // 为了让图表显示更美观，给最大值增加一些余量
+      this.maxValue = Math.ceil(maxValue * 1.1);
 
       const option = {
         backgroundColor: '#fff', // 设置图表背景色
@@ -261,8 +251,9 @@ export default {
           color: '#333'
         },
         title: {
-          text: '拆分号码统计',
+          text: '风控号码统计',
           left: 'center',
+          top: 0,
           textStyle: {
             fontSize: 18,
             fontWeight: 'bold',
@@ -270,10 +261,10 @@ export default {
           }
         },
         legend: {
-          data: ['出现次数'],
-          top: '10%',
-          // 在小屏幕上调整图例位置
-          left: 'center',
+          data: series.map(s => s.name),
+          top: '3%',
+          right: '6%',
+          // left: 'right',
           textStyle: {
             color: '#333'
           }
@@ -284,8 +275,11 @@ export default {
             type: 'shadow'
           },
           formatter: function (params) {
-            const data = params[0];
-            return `${data.name}<br/>${data.value} ${unit}`;
+            let result = `${params[0].name}<br/>`;
+            params.forEach(param => {
+              result += `${param.seriesName}: ${param.value} ${unit}<br/>`;
+            });
+            return result;
           },
           backgroundColor: 'rgba(255, 255, 255, 0.9)',
           borderColor: '#ccc',
@@ -315,7 +309,7 @@ export default {
             type: 'shadow'
           },
           splitLine: {
-            show: false, // 默认不显示X轴网格线
+            show: true, // 显示X轴网格线
             lineStyle: {
               color: '#e0e0e0'
             }
@@ -323,7 +317,7 @@ export default {
         },
         yAxis: {
           type: 'value',
-          name: `投注金额（${unit}）`,
+          name: `金额（${unit}）`,
           splitLine: {
             lineStyle: {
               type: 'dashed',
@@ -351,9 +345,9 @@ export default {
             xAxisIndex: [0],
             // 当数据量大时，默认只显示前30个数据点
             start: 0,
-            end: 3, // 默认显示数据
+            end: 10, // 默认显示数据
             height: 30, // 设置dataZoom高度
-            bottom: 30, // 调整dataZoom距离底部的距离，使其更靠近图表
+            bottom: 20, // 调整dataZoom距离底部的距离，使其更靠近图表
             fillerColor: 'rgba(167, 183, 204, 0.4)', // 设置选中区域的颜色
             borderColor: '#ddd', // 设置边框颜色
             textStyle: {
@@ -368,86 +362,64 @@ export default {
             end: 100
           }
         ],
-        series: [{
-          data: series,
-          type: 'bar',
-          barWidth: '20%',  // 设置固定柱条宽度为20像素
-          barGap: '20%',    // 设置柱条间隔
-          itemStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#83bff6' },
-              { offset: 0.5, color: '#188df0' },
-              { offset: 1, color: '#188df0' }
-            ]),
-            borderRadius: [4, 4, 0, 0]  // 添加圆角效果
-          },
-          emphasis: {
+        series: series.map((s, index) => {
+          // 定义颜色数组，按照用户要求指定颜色
+          const colors = ['#5070DD', '#B2CD46'];
+          const color = colors[index] || '#83bff6'; // 如果索引超出颜色数组，则使用默认颜色
+
+          return {
+            ...s,
+            barWidth: '20%',  // 设置固定柱条宽度为20像素
+            barGap: '20%',    // 设置柱条间隔
             itemStyle: {
-              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                { offset: 0, color: '#2378f7' },
-                { offset: 1, color: '#188df0' }
-              ]),
-              shadowBlur: 10,
-              shadowColor: 'rgba(0, 0, 0, 0.3)'
+              color: color,
+              borderRadius: [4, 4, 0, 0]  // 添加圆角效果
+            },
+            emphasis: {
+              itemStyle: {
+                color: color,
+                shadowBlur: 10,
+                shadowColor: 'rgba(0, 0, 0, 0.3)'
+              }
+            },
+            // 添加数据标签
+            label: {
+              show: false,
+              position: 'top',
+              textStyle: {
+                color: '#333',
+                fontSize: 12
+              }
             }
-          },
-          // 添加数据标签
-          label: {
-            show: false,
-            position: 'top',
-            textStyle: {
-              color: '#333',
-              fontSize: 12
-            }
-          }
-        }],
-        // 添加参考线
-        markLine: {
+          };
+        })
+      };
+
+      // 添加参考线
+      if (lines && lines.warr) {
+        option.series[0].markLine = {
           silent: true,
           lineStyle: {
             type: 'dashed',
-            width: 1
+            width: 2,
           },
           data: [
             {
-              yAxis: lines.max,
+              yAxis: lines.warr,
               lineStyle: {
-                color: '#91cc75'
+                color: '#ee6666',
+                width: 2,
               },
               label: {
-                formatter: `最大值: ${lines.max}${unit}`,
-                position: 'insideEndTop',
-                color: '#91cc75',
-                fontSize: 12
-              }
-            },
-            {
-              yAxis: lines.avg,
-              lineStyle: {
-                color: '#fac858'
-              },
-              label: {
-                formatter: `平均值: ${lines.avg}${unit}`,
-                position: 'insideEndTop',
-                color: '#fac858',
-                fontSize: 12
-              }
-            },
-            {
-              yAxis: lines.min,
-              lineStyle: {
-                color: '#ee6666'
-              },
-              label: {
-                formatter: `最小值: ${lines.min}${unit}`,
+                formatter: `风控警戒金额: ${lines.warr}${unit}`,
                 position: 'insideEndTop',
                 color: '#ee6666',
                 fontSize: 12
               }
             }
           ]
-        }
-      };
+        };
+      }
 
       this.chartInstance.setOption(option, true); // 使用 true 参数避免合并配置
     },
