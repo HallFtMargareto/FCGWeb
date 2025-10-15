@@ -1,27 +1,11 @@
 <template>
   <div>
     <el-scrollbar style="height: calc(100vh - 64px)">
-      <transition
-        :duration="{ enter: 800, leave: 100 }"
-        mode="out-in"
-        name="el-fade-in-linear"
-      >
-        <el-menu
-          :collapse="isCollapse"
-          :collapse-transition="true"
-          :default-active="active"
-          @select="selectMenuItem"
-          active-text-color="#fff"
-          class="el-menu-vertical"
-          text-color="rgb(191, 203, 217)"
-          unique-opened
-        >
+      <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
+        <el-menu :collapse="isCollapse" :collapse-transition="true" :default-active="active" @select="selectMenuItem"
+          active-text-color="#fff" class="el-menu-vertical" text-color="rgb(191, 203, 217)">
           <template v-for="item in asyncRouters[0].children">
-            <aside-component
-              :key="item.name"
-              :routerInfo="item"
-              v-if="!item.hidden"
-            />
+            <aside-component :key="item.name" :routerInfo="item" v-if="!item.hidden" />
           </template>
         </el-menu>
       </transition>
@@ -95,6 +79,7 @@ export default {
     height: 100%;
   }
 }
+
 .menu-info {
   .menu-contorl {
     line-height: 52px;

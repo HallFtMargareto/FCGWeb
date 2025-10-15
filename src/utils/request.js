@@ -9,23 +9,32 @@ const service = axios.create({
     timeout: 99999
 })
 let activeAxios = 0
-let timer
+let loadingTimeout = null
+
+// 优化后的 showLoading 函数
 const showLoading = () => {
     activeAxios++
-    if (timer) {
-        clearTimeout(timer)
+    // 清除之前的定时器
+    if (loadingTimeout) {
+        clearTimeout(loadingTimeout)
     }
-    timer = setTimeout(() => {
+    
+    // 对于快速请求(小于400ms)，确保也能显示loading
+    loadingTimeout = setTimeout(() => {
         if (activeAxios > 0) {
             context.$bus.emit("showLoading")
         }
-    }, 400);
+    }, 100); // 降低延迟时间，提高用户体验
 }
 
+// 优化后的 closeLoading 函数
 const closeLoading = () => {
-    activeAxios--
+    activeAxios = Math.max(0, activeAxios - 1); // 防止计数器变为负数
+    
     if (activeAxios <= 0) {
-        clearTimeout(timer)
+        if (loadingTimeout) {
+            clearTimeout(loadingTimeout)
+        }
         context.$bus.emit("closeLoading")
     }
 }
