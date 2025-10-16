@@ -18,13 +18,17 @@
                     </el-select>
                 </el-form-item>
 
-                <el-form-item label="阈值比例">
+                <el-form-item label="预亏损金额">
+                    <el-input v-model="ks_amount" placeholder="请输入预赔付金额"></el-input>
+                </el-form-item>
+
+                <!-- <el-form-item label="阈值比例">
                     <el-input v-model="alpha" :min="0" :max="1" :step="0.1" placeholder="请输入阈值比例"></el-input>
                 </el-form-item>
 
                 <el-form-item label="目标线比例">
                     <el-input v-model="beta" :min="0" :max="1" :step="0.1" placeholder="请输入目标线比例"></el-input>
-                </el-form-item>
+                </el-form-item> -->
 
                 <!-- <el-form-item label="添加时间">
           <datepicker v-model="searchInfo.startTime" type="datetime" />
@@ -50,30 +54,41 @@
         <div class="rick-data-info"
             v-if="rickDataInfo && rickDataInfo.rick_order && rickDataInfo.rick_order.length > 0">
             <div class="total-info">
-                <el-descriptions title="总计信息" :column="3" border>
+                <el-descriptions title="风控信息" :column="3" border>
                     <el-descriptions-item label="总投注">{{ rickDataInfo.total_info.totalBet }}</el-descriptions-item>
                     <el-descriptions-item label="总佣金">{{ rickDataInfo.total_info.totalCommission
-                        }}</el-descriptions-item>
+                    }}</el-descriptions-item>
                     <el-descriptions-item label="净盘值">{{ rickDataInfo.total_info.netBank }}</el-descriptions-item>
-                    <el-descriptions-item label="阈值">{{ rickDataInfo.total_info.threshold }}</el-descriptions-item>
-                    <el-descriptions-item label="目标线">{{ rickDataInfo.total_info.targetLimit }}</el-descriptions-item>
-                    <el-descriptions-item label="总转移赔付">{{ rickDataInfo.total_info.totalTransferPayout
-                        }}</el-descriptions-item>
+                    <!-- <el-descriptions-item label="阈值">{{ rickDataInfo.total_info.threshold }}</el-descriptions-item> -->
+                    <!-- <el-descriptions-item label="目标线">{{ rickDataInfo.total_info.targetLimit }}</el-descriptions-item> -->
+                    <!-- <el-descriptions-item label="总转移赔付">{{ rickDataInfo.total_info.totalTransferPayout
+                    }}</el-descriptions-item>
                     <el-descriptions-item label="总转投金额">{{ rickDataInfo.total_info.totaltransferStake
-                        }}</el-descriptions-item>
+                    }}</el-descriptions-item> -->
                 </el-descriptions>
             </div>
-            <el-table :data="rickDataInfo.rick_order" style="width: 100%" border>
+            <el-table :data="rickDataInfo.rick_order" style="width: 100%" border
+                @selection-change="handleSelectionChange">
+                <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column prop="split_number" label="拆单号码" align="center"></el-table-column>
-                <el-table-column prop="split_count" label="数量" align="center"></el-table-column>
+                <el-table-column prop="split_count" label="号码数量" align="center"></el-table-column>
                 <el-table-column prop="exposure_amount" label="风险金额" align="center"></el-table-column>
-                <el-table-column prop="potential_payout" label="潜在赔付" align="center"></el-table-column>
+                <el-table-column prop="potential_payout" label="中奖赔付" align="center">
+                    <template slot-scope="scope">
+                        -{{ scope.row.potential_payout }}
+                    </template>
+                </el-table-column>
+                <el-table-column prop="ks_amount" label="预亏损金额" align="center">
+                    <template slot-scope="scope">
+                        -{{ scope.row.ks_amount }}
+                    </template>
+                </el-table-column>
                 <el-table-column prop="risk_ratio" label="风险比例" align="center"></el-table-column>
                 <!-- <el-table-column prop="threshold" label="阈值"></el-table-column> -->
                 <!-- <el-table-column prop="target_limit" label="目标限额"></el-table-column> -->
-                <el-table-column prop="transfer_payout" label="转移赔付金额" align="center"></el-table-column>
-                <el-table-column prop="transfer_stake_hint" label="建议转投金额" align="center"></el-table-column>
-                <el-table-column prop="avg_odds" label="平均赔率" align="center"></el-table-column>
+                <!-- <el-table-column prop="transfer_payout" label="转移赔付额度" align="center"></el-table-column>
+                <el-table-column prop="transfer_stake_hint" label="建议转投金额" align="center"></el-table-column> -->
+                <!-- <el-table-column prop="avg_odds" label="平均赔率" align="center"></el-table-column> -->
                 <el-table-column prop="trans_count" label="转出单量" align="center"></el-table-column>
                 <el-table-column prop="risk_level" label="风险等级" align="center">
                     <template slot-scope="scope">
@@ -129,6 +144,7 @@ export default {
             // 期号列表
             lotteryIssueList: [],
             rickDataInfo: {},
+            ks_amount: undefined,
         };
     },
     methods: {
@@ -165,8 +181,9 @@ export default {
                     action: "rick_odds",
                     game_category: this.game_category,
                     issue_id: this.chartIssueId,
-                    alpha: this.alpha,
-                    beta: this.beta
+                    // alpha: this.alpha,
+                    // beta: this.beta,
+                    ks_amount: this.ks_amount
                 });
                 if (res.code === 0 && res.data) {
                     this.rickDataInfo = res.data;
@@ -186,6 +203,9 @@ export default {
             this.page = 1
             this.pageSize = 10
             this.getTableData()
+        },
+        handleSelectionChange(val) {
+            this.multipleSelection = val;
         },
     },
 

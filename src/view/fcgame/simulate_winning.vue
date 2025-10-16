@@ -26,7 +26,6 @@
                 <el-descriptions title="模拟中奖信息" :column="3" border>
                     <el-descriptions-item label="订单数量">{{ rickDataInfo.win_order_count }}</el-descriptions-item>
                     <el-descriptions-item label="总奖金">{{ rickDataInfo.total_win_amount }}</el-descriptions-item>
-
                 </el-descriptions>
             </div>
             <el-table :data="rickDataInfo.orders" style="width: 100%" border>
@@ -37,13 +36,31 @@
         </div>
 
         <div class="split-info" v-if="rickDataInfo && rickDataInfo.split_list">
-            <div class="split-item" v-for="item in rickDataInfo.split_list" :key="item.split_number">
-                <div class="split-number">{{ item.split_number }}</div>
-                <div class="split-price">
-                    <el-tag class="split-tag">
-                        ¥{{ item.total_amount }}
-                    </el-tag>
-                </div>
+            <div class="split-grid-header">
+                <div class="split-grid-cell header">拆分号码</div>
+                <div class="split-grid-cell header">出现次数</div>
+                <div class="split-grid-cell header">总投注金额</div>
+                <div class="split-grid-cell header">预计总奖金</div>
+                <div class="split-grid-cell header">福彩投注金额</div>
+                <div class="split-grid-cell header">体彩投注金额</div>
+                <div class="split-grid-cell header">福彩预计奖金</div>
+                <div class="split-grid-cell header">体彩预计奖金</div>
+                <div class="split-grid-cell header">全场总盈亏</div>
+                <div class="split-grid-cell header">福彩盈亏</div>
+                <div class="split-grid-cell header">体彩盈亏</div>
+            </div>
+            <div class="split-grid-row" v-for="item in rickDataInfo.split_list" :key="item.SplitNumber">
+                <div class="split-grid-cell">{{ item.SplitNumber }}</div>
+                <div class="split-grid-cell">{{ item.Total }}</div>
+                <div class="split-grid-cell">{{ item.TotalAmount }}</div>
+                <div class="split-grid-cell">{{ item.ForecastReward }}</div>
+                <div class="split-grid-cell">{{ item.FuCaiAmount }}</div>
+                <div class="split-grid-cell">{{ item.TiCaiAmount }}</div>
+                <div class="split-grid-cell">{{ item.FuCaiReward }}</div>
+                <div class="split-grid-cell">{{ item.TiCaiReward }}</div>
+                <div class="split-grid-cell">{{ item.PnLTotal }}</div>
+                <div class="split-grid-cell">{{ item.PnLFuCai }}</div>
+                <div class="split-grid-cell">{{ item.PnLTiCai }}</div>
             </div>
         </div>
 
@@ -229,49 +246,28 @@ export default {
 }
 
 .split-info {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
     margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
 }
 
-.split-item {
-    border: 1px solid #ebeef5;
-    border-radius: 4px;
-    padding: 15px;
-    width: calc(10% - 15px);
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-}
-
-.split-number {
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-.split-price {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.split-details {
-    display: flex;
-    flex-direction: column;
+.split-grid-header,
+.split-grid-row {
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
     gap: 5px;
 }
 
-.detail-item {
-    display: flex;
-    justify-content: space-between;
+.split-grid-cell {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #ebeef5;
+    background-color: #f5f7fa;
 }
 
-.label {
+.split-grid-cell.header {
     font-weight: bold;
-}
-
-.value {
-    text-align: right;
+    background-color: #e4e7ed;
 }
 </style>
