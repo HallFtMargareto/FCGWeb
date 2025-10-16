@@ -16,6 +16,6 @@
 #app {
   background: #eee;
   height: 100vh;
-  overflow: hidden;
+  overflow: auto;
 }
 </style>

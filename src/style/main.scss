@@ -1289,7 +1289,7 @@ $mainHight: 100vh;
 
             // background: #fff;
             &::-webkit-scrollbar {
-                display: none;
+                // display: none; /* 恢复滚动条显示 */
             }
         }
 
@@ -1315,7 +1315,7 @@ $mainHight: 100vh;
         }
 
         &::-webkit-scrollbar {
-            display: none;
+            // display: none; /* 恢复滚动条显示 */
         }
 
         &.main-left {

@@ -21,40 +21,30 @@
             </searchform>
         </div>
 
-        <div class="rick-data-info"
-            v-if="rickDataInfo && rickDataInfo.rick_order && rickDataInfo.rick_order.length > 0">
+        <div class="rick-data-info" v-if="rickDataInfo && rickDataInfo.orders">
             <div class="total-info">
-                <el-descriptions title="总计信息" :column="3" border>
-                    <el-descriptions-item label="总投注">{{ rickDataInfo.total_info.totalBet }}</el-descriptions-item>
-                    <el-descriptions-item label="总佣金">{{ rickDataInfo.total_info.totalCommission
-                        }}</el-descriptions-item>
-                    <el-descriptions-item label="净盘值">{{ rickDataInfo.total_info.netBank }}</el-descriptions-item>
-                    <el-descriptions-item label="阈值">{{ rickDataInfo.total_info.threshold }}</el-descriptions-item>
-                    <el-descriptions-item label="目标线">{{ rickDataInfo.total_info.targetLimit }}</el-descriptions-item>
-                    <el-descriptions-item label="总转移赔付">{{ rickDataInfo.total_info.totalTransferPayout
-                        }}</el-descriptions-item>
-                    <el-descriptions-item label="总转投金额">{{ rickDataInfo.total_info.totaltransferStake
-                        }}</el-descriptions-item>
+                <el-descriptions title="模拟中奖信息" :column="3" border>
+                    <el-descriptions-item label="订单数量">{{ rickDataInfo.win_order_count }}</el-descriptions-item>
+                    <el-descriptions-item label="总奖金">{{ rickDataInfo.total_win_amount }}</el-descriptions-item>
+
                 </el-descriptions>
             </div>
-            <el-table :data="rickDataInfo.rick_order" style="width: 100%" border>
-                <el-table-column prop="split_number" label="拆单号码" align="center"></el-table-column>
-                <el-table-column prop="split_count" label="数量" align="center"></el-table-column>
-                <el-table-column prop="exposure_amount" label="风险金额" align="center"></el-table-column>
-                <el-table-column prop="potential_payout" label="潜在赔付" align="center"></el-table-column>
-                <el-table-column prop="risk_ratio" label="风险比例" align="center"></el-table-column>
-                <!-- <el-table-column prop="threshold" label="阈值"></el-table-column> -->
-                <!-- <el-table-column prop="target_limit" label="目标限额"></el-table-column> -->
-                <el-table-column prop="transfer_payout" label="转移赔付金额" align="center"></el-table-column>
-                <el-table-column prop="transfer_stake_hint" label="建议转投金额" align="center"></el-table-column>
-                <el-table-column prop="avg_odds" label="平均赔率" align="center"></el-table-column>
-                <el-table-column prop="trans_count" label="转出单量" align="center"></el-table-column>
-                <el-table-column prop="risk_level" label="风险等级" align="center">
-                    <template slot-scope="scope">
-                        <span :class="'risk-level-' + scope.row.risk_level">{{ scope.row.risk_level }}</span>
-                    </template>
-                </el-table-column>
+            <el-table :data="rickDataInfo.orders" style="width: 100%" border>
+                <el-table-column prop="ID" label="ID" align="center"></el-table-column>
+                <el-table-column prop="bet_content" label="投注内容" align="center"></el-table-column>
+                <el-table-column prop="win_amount" label="奖金" align="center"></el-table-column>
             </el-table>
+        </div>
+
+        <div class="split-info" v-if="rickDataInfo && rickDataInfo.split_list">
+            <div class="split-item" v-for="item in rickDataInfo.split_list" :key="item.split_number">
+                <div class="split-number">{{ item.split_number }}</div>
+                <div class="split-price">
+                    <el-tag class="split-tag">
+                        ¥{{ item.total_amount }}
+                    </el-tag>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -103,6 +93,8 @@ export default {
             // 期号列表
             lotteryIssueList: [],
             rickDataInfo: {},
+            fc_draw_number: "",
+            tc_draw_number: ""
         };
     },
     methods: {
@@ -136,11 +128,11 @@ export default {
             this.chartLoading = true;
             try {
                 const res = await getFcgOrderSplitNumberList({
-                    action: "rick_odds",
-                    game_category: this.game_category,
+                    action: "simulate_winning",
+                    // game_category: this.game_category,
                     issue_id: this.chartIssueId,
-                    alpha: this.alpha,
-                    beta: this.beta
+                    fc_draw_number: this.fc_draw_number,
+                    tc_draw_number: this.tc_draw_number
                 });
                 if (res.code === 0 && res.data) {
                     this.rickDataInfo = res.data;
@@ -170,6 +162,14 @@ export default {
 </script>
 
 <style scoped>
+.split-tag {
+    color: #EE4445;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+    width: 100%;
+}
+
 .chart-container {
     margin: 20px 0;
 }
@@ -226,5 +226,52 @@ export default {
     padding: 10px;
     border: 1px solid #ebeef5;
     border-radius: 4px;
+}
+
+.split-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.split-item {
+    border: 1px solid #ebeef5;
+    border-radius: 4px;
+    padding: 15px;
+    width: calc(10% - 15px);
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.split-number {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.split-price {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.split-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+}
+
+.label {
+    font-weight: bold;
+}
+
+.value {
+    text-align: right;
 }
 </style>
