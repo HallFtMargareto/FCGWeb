@@ -7,7 +7,9 @@ export const common = {
     state: {
         baseInfo: {},
         siteInfo: {},
-        commonData: {}
+        commonData: {},
+        alpha: 0.8, // 默认阈值比例
+        beta: 0.5   // 默认目标线比例
     },
     mutations: {
         setBaseInfo(state, list) {
@@ -18,6 +20,12 @@ export const common = {
         },
         setSiteInfo(state, list) {
             state.siteInfo = list
+        },
+        setAlpha(state, value) {
+            state.alpha = value
+        },
+        setBeta(state, value) {
+            state.beta = value
         }
     },
     actions: {
