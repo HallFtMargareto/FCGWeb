@@ -479,8 +479,8 @@
 
     <!-- 右侧漂浮操作按钮 -->
     <div class="float-operations">
-      <el-button style="margin-left: 0 !important;" class="float-btn risk-btn" type="primary" icon="el-icon-s-marketing"
-        circle @click="openRiskOrderDialog" title="风控订单"></el-button>
+      <!-- <el-button style="margin-left: 0 !important;" class="float-btn risk-btn" type="primary" icon="el-icon-s-marketing"
+        circle @click="openRiskOrderDialog" title="风控订单"></el-button> -->
 
       <el-button style="margin-left: 0 !important;" class="float-btn risk-btn" type="primary" icon="el-icon-bottom"
         circle @click="exportExcel" title="导出订单"></el-button>

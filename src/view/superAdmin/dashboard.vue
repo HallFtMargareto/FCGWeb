@@ -47,7 +47,7 @@
     <div class="charts-row">
       <el-card class="chart-card" shadow="never" :body-style="{ padding: '16px' }">
         <div slot="header" class="card-header">
-          <span>订单状态分布</span>
+          <span><span>订单状态分布</span><span>{{ totalOrderCount }}</span></span>
         </div>
         <div class="chart-container">
           <el-table :data="orderStatusData" size="small" style="width: 100%">
@@ -65,7 +65,7 @@
 
       <el-card class="chart-card" shadow="never" :body-style="{ padding: '16px' }">
         <div slot="header" class="card-header">
-          <span>彩种分布</span>
+          <span><span>彩种分布</span><span>{{ totalGameCategoryCount }}</span></span>
         </div>
         <div class="chart-container">
           <el-table :data="gameCategoryData" size="small" style="width: 100%">
@@ -190,6 +190,12 @@ export default {
         };
       });
     },
+    // 订单状态总数合计
+    totalOrderCount() {
+      return (this.summaryData.order_status_count || []).reduce((sum, item) => {
+        return sum + item.order_count;
+      }, 0);
+    },
     // 彩种数据
     gameCategoryData() {
       const categoryMap = {
@@ -203,6 +209,12 @@ export default {
           categoryText: categoryMap[item.game_category] || `彩种${item.game_category}`
         };
       });
+    },
+    // 彩种分布总数合计
+    totalGameCategoryCount() {
+      return (this.summaryData.game_category_stats || []).reduce((sum, item) => {
+        return sum + item.gc_count;
+      }, 0);
     },
     // 玩法数据
     gameTypeData() {
@@ -445,6 +457,17 @@ export default {
   padding: 12px 16px;
   font-weight: 600;
   border-bottom: 1px solid #ebeef5;
+}
+
+.card-header>span {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header>span>span:last-child {
+  text-align: right;
 }
 
 .chart-container,

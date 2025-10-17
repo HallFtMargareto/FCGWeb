@@ -24,45 +24,52 @@
         <div class="rick-data-info" v-if="rickDataInfo && rickDataInfo.orders">
             <div class="total-info">
                 <el-descriptions title="模拟中奖信息" :column="3" border>
-                    <el-descriptions-item label="订单数量">{{ rickDataInfo.win_order_count }}</el-descriptions-item>
+                    <el-descriptions-item label="中奖单量">{{ rickDataInfo.win_order_count }}</el-descriptions-item>
                     <el-descriptions-item label="总奖金">{{ rickDataInfo.total_win_amount }}</el-descriptions-item>
                 </el-descriptions>
             </div>
             <el-table :data="rickDataInfo.orders" style="width: 100%" border>
-                <el-table-column prop="ID" label="ID" align="center"></el-table-column>
-                <el-table-column prop="bet_content" label="投注内容" align="center"></el-table-column>
-                <el-table-column prop="win_amount" label="奖金" align="center"></el-table-column>
+                <el-table-column prop="ID" label="订单ID" align="center" width="80"></el-table-column>
+                <el-table-column prop="ID" label="会话" align="center">
+                    <template slot-scope="scope">
+                        <div>{{ scope.row.message.session_name }}</div>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="ID" label="用户" align="center">
+                    <template slot-scope="scope">
+                        <div>{{ scope.row.user.nickname }}</div>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="bet_content" label="投注内容" align="center" width="500"></el-table-column>
+                <!-- <el-table-column prop="bet_amount" label="投注金额" align="center"></el-table-column> -->
+                <el-table-column prop="win_amount" label="奖金" align="center">
+                    <template slot-scope="scope">
+                        <div style="color:#F56C6C">{{ scope.row.win_amount }}</div>
+                    </template>
+                </el-table-column>
             </el-table>
         </div>
 
-        <div class="split-info" v-if="rickDataInfo && rickDataInfo.split_list">
-            <div class="split-grid-header">
-                <div class="split-grid-cell header">拆分号码</div>
-                <div class="split-grid-cell header">出现次数</div>
-                <div class="split-grid-cell header">总投注金额</div>
-                <div class="split-grid-cell header">预计总奖金</div>
-                <div class="split-grid-cell header">福彩投注金额</div>
-                <div class="split-grid-cell header">体彩投注金额</div>
-                <div class="split-grid-cell header">福彩预计奖金</div>
-                <div class="split-grid-cell header">体彩预计奖金</div>
-                <div class="split-grid-cell header">全场总盈亏</div>
-                <div class="split-grid-cell header">福彩盈亏</div>
-                <div class="split-grid-cell header">体彩盈亏</div>
+        <!-- <div class="split-info" v-if="rickDataInfo && rickDataInfo.split_list">
+            <el-table ref="splitTable" :data="rickDataInfo.split_list" style="width: 100%" border
+                @selection-change="handleSelectionChange">
+                <el-table-column type="selection" width="55"></el-table-column>
+                <el-table-column prop="SplitNumber" label="拆分号码" sortable align="center"></el-table-column>
+                <el-table-column prop="Total" label="出现次数" sortable align="center"></el-table-column>
+                <el-table-column prop="TotalAmount" label="总投注金额" sortable align="center"></el-table-column>
+                <el-table-column prop="FuCaiAmount" label="福彩投注金额" sortable align="center"></el-table-column>
+                <el-table-column prop="TiCaiAmount" label="体彩投注金额" sortable align="center"></el-table-column>
+                <el-table-column prop="ForecastReward" label="预计总奖金" sortable align="center"></el-table-column>
+                <el-table-column prop="FuCaiReward" label="福彩预计奖金" sortable align="center"></el-table-column>
+                <el-table-column prop="TiCaiReward" label="体彩预计奖金" sortable align="center"></el-table-column>
+                <el-table-column prop="PnLTotal" label="全场总盈亏" sortable align="center"></el-table-column>
+                <el-table-column prop="PnLFuCai" label="福彩盈亏" sortable align="center"></el-table-column>
+                <el-table-column prop="PnLTiCai" label="体彩盈亏" sortable align="center"></el-table-column>
+            </el-table>
+            <div style="margin-top: 10px;">
+                <el-button @click="toggleSelectAll">{{ isAllSelected ? '取消全选' : '全选' }}</el-button>
             </div>
-            <div class="split-grid-row" v-for="item in rickDataInfo.split_list" :key="item.SplitNumber">
-                <div class="split-grid-cell">{{ item.SplitNumber }}</div>
-                <div class="split-grid-cell">{{ item.Total }}</div>
-                <div class="split-grid-cell">{{ item.TotalAmount }}</div>
-                <div class="split-grid-cell">{{ item.ForecastReward }}</div>
-                <div class="split-grid-cell">{{ item.FuCaiAmount }}</div>
-                <div class="split-grid-cell">{{ item.TiCaiAmount }}</div>
-                <div class="split-grid-cell">{{ item.FuCaiReward }}</div>
-                <div class="split-grid-cell">{{ item.TiCaiReward }}</div>
-                <div class="split-grid-cell">{{ item.PnLTotal }}</div>
-                <div class="split-grid-cell">{{ item.PnLFuCai }}</div>
-                <div class="split-grid-cell">{{ item.PnLTiCai }}</div>
-            </div>
-        </div>
+        </div> -->
 
     </div>
 </template>
@@ -111,7 +118,8 @@ export default {
             lotteryIssueList: [],
             rickDataInfo: {},
             fc_draw_number: "",
-            tc_draw_number: ""
+            tc_draw_number: "",
+            isAllSelected: false
         };
     },
     methods: {
@@ -169,6 +177,25 @@ export default {
             this.page = 1
             this.pageSize = 10
             this.getTableData()
+        },
+
+        handleSelectionChange(selection) {
+            this.multipleSelection = selection;
+            // 更新全选状态
+            this.isAllSelected = selection.length === this.rickDataInfo.split_list.length;
+        },
+
+        toggleSelectAll() {
+            if (this.isAllSelected) {
+                // 取消全选
+                this.$refs.splitTable.clearSelection();
+            } else {
+                // 全选
+                this.rickDataInfo.split_list.forEach(row => {
+                    this.$refs.splitTable.toggleRowSelection(row, true);
+                });
+            }
+            this.isAllSelected = !this.isAllSelected;
         },
     },
 

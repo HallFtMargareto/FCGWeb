@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="search-term">
-            <searchform size="mini" :maxShow="5" @search="getChartData">
+            <searchform size="mini" :maxShow="6" @search="getChartData">
 
                 <el-form-item label="期号">
                     <el-select v-model="chartIssueId" placeholder="请选择期号" @change="getChartData" clearable>
@@ -22,6 +22,9 @@
                     <el-input v-model="ks_amount" placeholder="请输入预赔付金额"></el-input>
                 </el-form-item>
 
+                <el-form-item label=" ">
+                    <el-button type="success" @click="generateContent">生成内容</el-button>
+                </el-form-item>
                 <!-- <el-form-item label="阈值比例">
                     <el-input v-model="alpha" :min="0" :max="1" :step="0.1" placeholder="请输入阈值比例"></el-input>
                 </el-form-item>
@@ -46,9 +49,7 @@
         <el-button v-if="userInfo.perm['system.export']" @click="exportExcel" icon="el-icon-sold-out">导出</el-button>
       </el-form> -->
 
-            <!-- <div class="issue-selector">
-        <el-button type="primary" @click="getChartData" :loading="chartLoading">刷新数据</el-button>
-      </div> -->
+
         </div>
 
         <div class="rick-data-info"
@@ -56,9 +57,9 @@
             <div class="total-info">
                 <el-descriptions title="风控信息" :column="3" border>
                     <el-descriptions-item label="总投注">{{ rickDataInfo.total_info.totalBet }}</el-descriptions-item>
-                    <el-descriptions-item label="总佣金">{{ rickDataInfo.total_info.totalCommission
-                    }}</el-descriptions-item>
-                    <el-descriptions-item label="净盘值">{{ rickDataInfo.total_info.netBank }}</el-descriptions-item>
+                    <el-descriptions-item label="总佣金">{{
+                        rickDataInfo.total_info.totalCommission }}</el-descriptions-item>
+                    <el-descriptions-item label="净盘值"> {{ rickDataInfo.total_info.netBank }} </el-descriptions-item>
                     <!-- <el-descriptions-item label="阈值">{{ rickDataInfo.total_info.threshold }}</el-descriptions-item> -->
                     <!-- <el-descriptions-item label="目标线">{{ rickDataInfo.total_info.targetLimit }}</el-descriptions-item> -->
                     <!-- <el-descriptions-item label="总转移赔付">{{ rickDataInfo.total_info.totalTransferPayout
@@ -93,6 +94,16 @@
                 <el-table-column prop="risk_level" label="风险等级" align="center">
                     <template slot-scope="scope">
                         <span :class="'risk-level-' + scope.row.risk_level">{{ scope.row.risk_level }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="bet_content" label="转出内容" align="center" width="250">
+                    <template slot="header">
+                        <span>转出内容</span>
+                        <i class="el-icon-document-copy" style="margin-left: 5px; cursor: pointer;"
+                            @click="copyColumn"></i>
+                    </template>
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.bet_content }}</span>
                     </template>
                 </el-table-column>
             </el-table>
@@ -207,6 +218,48 @@ export default {
         handleSelectionChange(val) {
             this.multipleSelection = val;
         },
+
+        // 生成内容按钮点击事件
+        generateContent() {
+            // 判断是否有选择数据
+            if (this.multipleSelection.length === 0) {
+                this.$message.warning('请选择数据');
+                return;
+            }
+
+            // 按照规则定开头文字
+            let prefix = this.game_category === 1 ? '福' : '体';
+
+            // 遍历选中的数据，生成 bet_content
+            this.multipleSelection.forEach(item => {
+                // item.bet_content = `${prefix} ${item.split_number} ${item.trans_count}单`;
+                this.$set(item, 'bet_content', `${prefix} ${item.split_number} ${item.trans_count}单`);
+            });
+        },
+
+        // 复制内容按钮点击事件
+        copyColumn() {
+            // 过滤掉 bet_content 为空的数据
+            const validData = this.multipleSelection.filter(item => item.bet_content);
+
+            // 如果没有有效数据，提示用户
+            if (validData.length === 0) {
+                this.$message.warning('没有可复制的内容');
+                return;
+            }
+
+            // 拼接所有有效的 bet_content
+            const contentToCopy = validData.map(item => item.bet_content).join('\n');
+
+            // 复制到剪贴板
+            navigator.clipboard.writeText(contentToCopy).then(() => {
+                this.$message.success('复制成功');
+            }).catch(err => {
+                this.$message.error('复制失败');
+                console.error('复制失败:', err);
+            });
+        },
+
     },
 
     async created() {
