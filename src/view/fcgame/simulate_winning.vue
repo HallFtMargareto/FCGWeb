@@ -50,26 +50,29 @@
             </el-table>
         </div>
 
-        <!-- <div class="split-info" v-if="rickDataInfo && rickDataInfo.split_list">
+        <div class="split-info" v-if="rickDataInfo && rickDataInfo.split_list">
+            <el-descriptions title="号码信息" :column="3" border>
+            </el-descriptions>
             <el-table ref="splitTable" :data="rickDataInfo.split_list" style="width: 100%" border
-                @selection-change="handleSelectionChange">
+                @selection-change="handleSelectionChange" @sort-change="handleSortChange">
                 <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column prop="SplitNumber" label="拆分号码" sortable align="center"></el-table-column>
-                <el-table-column prop="Total" label="出现次数" sortable align="center"></el-table-column>
-                <el-table-column prop="TotalAmount" label="总投注金额" sortable align="center"></el-table-column>
-                <el-table-column prop="FuCaiAmount" label="福彩投注金额" sortable align="center"></el-table-column>
-                <el-table-column prop="TiCaiAmount" label="体彩投注金额" sortable align="center"></el-table-column>
-                <el-table-column prop="ForecastReward" label="预计总奖金" sortable align="center"></el-table-column>
-                <el-table-column prop="FuCaiReward" label="福彩预计奖金" sortable align="center"></el-table-column>
-                <el-table-column prop="TiCaiReward" label="体彩预计奖金" sortable align="center"></el-table-column>
-                <el-table-column prop="PnLTotal" label="全场总盈亏" sortable align="center"></el-table-column>
+                <el-table-column prop="split_number" label="拆分号码" sortable align="center"></el-table-column>
+                <el-table-column prop="total" label="出现次数" sortable align="center"></el-table-column>
+                <el-table-column prop="total_amount" label="总投注金额" sortable="custom" align="center"></el-table-column>
+                <el-table-column prop="fu_cai_amount" label="福彩投注金额" sortable="custom" align="center"></el-table-column>
+                <el-table-column prop="ti_cai_amount" label="体彩投注金额" sortable="custom" align="center"></el-table-column>
+                <el-table-column prop="fu_cai_reward" label="福彩预计奖金" sortable="custom" align="center"></el-table-column>
+                <el-table-column prop="ti_cai_reward" label="体彩预计奖金" sortable="custom" align="center"></el-table-column>
+                <el-table-column prop="forecast_reward" label="预计总奖金" sortable="custom"
+                    align="center"></el-table-column>
+                <!-- <el-table-column prop="PnLTotal" label="全场总盈亏" sortable align="center"></el-table-column>
                 <el-table-column prop="PnLFuCai" label="福彩盈亏" sortable align="center"></el-table-column>
-                <el-table-column prop="PnLTiCai" label="体彩盈亏" sortable align="center"></el-table-column>
+                <el-table-column prop="PnLTiCai" label="体彩盈亏" sortable align="center"></el-table-column> -->
             </el-table>
             <div style="margin-top: 10px;">
                 <el-button @click="toggleSelectAll">{{ isAllSelected ? '取消全选' : '全选' }}</el-button>
             </div>
-        </div> -->
+        </div>
 
     </div>
 </template>
@@ -196,6 +199,47 @@ export default {
                 });
             }
             this.isAllSelected = !this.isAllSelected;
+        },
+
+        // 处理表格排序
+        handleSortChange({ column, prop, order }) {
+            console.log(column);
+            if (order === null) {
+                // 如果没有排序，恢复原始数据
+                this.getChartData();
+                return;
+            }
+
+            // 获取需要排序的数据
+            const data = this.rickDataInfo.split_list;
+
+            // 定义排序方法
+            const sortMethod = (a, b) => {
+                // 获取要比较的值
+                const valueA = a[prop];
+                const valueB = b[prop];
+
+                // 处理数字类型的排序
+                if (typeof valueA === 'number' && typeof valueB === 'number') {
+                    return order === 'ascending' ? valueA - valueB : valueB - valueA;
+                }
+
+                // 处理字符串类型的排序
+                if (typeof valueA === 'string' && typeof valueB === 'string') {
+                    return order === 'ascending' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+                }
+
+                // 其他情况，转换为字符串比较
+                return order === 'ascending' ?
+                    String(valueA).localeCompare(String(valueB)) :
+                    String(valueB).localeCompare(String(valueA));
+            };
+
+            // 对数据进行排序
+            data.sort(sortMethod);
+
+            // 更新数据
+            this.$set(this.rickDataInfo, 'split_list', [...data]);
         },
     },
 
