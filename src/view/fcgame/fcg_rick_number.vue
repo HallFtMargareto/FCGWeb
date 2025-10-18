@@ -47,6 +47,7 @@
         class="el-table"
         border
         height="700px"
+        highlight-current-row
         @selection-change="handleSelectionChange"
         @sort-change="handleSortChange"
       >

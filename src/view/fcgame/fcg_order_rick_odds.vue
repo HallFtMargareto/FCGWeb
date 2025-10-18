@@ -106,6 +106,7 @@
         style="width: 100%"
         border
         height="600px"
+        highlight-current-row
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55"></el-table-column>
