@@ -1,25 +1,46 @@
 <template>
   <div>
     <GlobalLoading :loadingFlag="loadingFlag" text="正在加载中" />
+    <StatisticsDisplay
+      :visible="showStatistics"
+      :floating="true"
+      @close="closeStatistics"
+    />
+    <FloatingStatisticsIcon @toggle-statistics="toggleStatistics" />
     <el-container class="layout-cont">
-      <el-container :class="[isSider ? 'openside' : 'hideside', isMobile ? 'mobile' : '']">
-        <el-row :class="[isShadowBg ? 'shadowBg' : '']" @click.native="changeShadow()"></el-row>
+      <el-container
+        :class="[isSider ? 'openside' : 'hideside', isMobile ? 'mobile' : '']"
+      >
+        <el-row
+          :class="[isShadowBg ? 'shadowBg' : '']"
+          @click.native="changeShadow()"
+        ></el-row>
         <el-aside class="main-cont main-left">
           <div class="tilte">
             <!-- <img alt class="logoimg" :src="~@/assets/nav_logo.png" /> -->
             <img alt class="logoimg" :src="siteInfo.logo_action" />
-            <h2 class="tit-text" v-if="isSider && siteInfo">{{ siteInfo.site_name }}</h2>
+            <h2 class="tit-text" v-if="isSider && siteInfo">
+              {{ siteInfo.site_name }}
+            </h2>
           </div>
           <Aside class="aside" />
         </el-aside>
 
         <!-- 分块滑动功能 -->
         <el-main class="main-cont main-right">
-          <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
-            <div :style="{
-            width: `calc(100% - ${isMobile ? '0px' : isCollapse ? '54px' : '220px'
-              })`,
-          }" class="topfix">
+          <transition
+            :duration="{ enter: 800, leave: 100 }"
+            mode="out-in"
+            name="el-fade-in-linear"
+          >
+            <div
+              :style="{
+                width: `calc(100% - ${
+                  isMobile ? '0px' : isCollapse ? '54px' : '220px'
+                })`,
+              }"
+              class="topfix"
+            >
               <el-row>
                 <!-- :xs="8" :sm="6" :md="4" :lg="3" :xl="1" -->
                 <el-header class="header-cont">
@@ -28,27 +49,47 @@
                       <i class="el-icon-s-unfold" v-if="isCollapse"></i>
                       <i class="el-icon-s-fold" v-else></i>
                     </div>
-                    <el-breadcrumb class="breadcrumb" separator-class="el-icon-arrow-right">
-                      <el-breadcrumb-item :key="item.path" v-for="item in matched.slice(1, matched.length)">{{
-                        item.meta.title }}</el-breadcrumb-item>
+                    <el-breadcrumb
+                      class="breadcrumb"
+                      separator-class="el-icon-arrow-right"
+                    >
+                      <el-breadcrumb-item
+                        :key="item.path"
+                        v-for="item in matched.slice(1, matched.length)"
+                        >{{ item.meta.title }}</el-breadcrumb-item
+                      >
                     </el-breadcrumb>
                   </el-col>
                   <el-col :xs="12" :md="9" :sm="14" :xl="10" :lg="10">
                     <div class="fl-right right-box">
                       <Search />
-                      <Screenfull class="screenfull" :style="{ cursor: 'pointer' }"></Screenfull>
+                      <Screenfull
+                        class="screenfull"
+                        :style="{ cursor: 'pointer' }"
+                      ></Screenfull>
 
                       <el-dropdown>
                         <span class="header-avatar">
                           <CustomPic />
                           <span style="margin-right: 5px">{{
                             userInfo.nickName
-                            }}</span>
+                          }}</span>
                           <i class="el-icon-arrow-down"></i>
                         </span>
-                        <el-dropdown-menu class="dropdown-group" slot="dropdown">
-                          <el-dropdown-item @click.native="toPerson" icon="el-icon-s-custom">个人设置</el-dropdown-item>
-                          <el-dropdown-item @click.native="LoginOut" icon="el-icon-table-lamp">退出登录</el-dropdown-item>
+                        <el-dropdown-menu
+                          class="dropdown-group"
+                          slot="dropdown"
+                        >
+                          <el-dropdown-item
+                            @click.native="toPerson"
+                            icon="el-icon-s-custom"
+                            >个人设置</el-dropdown-item
+                          >
+                          <el-dropdown-item
+                            @click.native="LoginOut"
+                            icon="el-icon-table-lamp"
+                            >退出登录</el-dropdown-item
+                          >
                         </el-dropdown-menu>
                       </el-dropdown>
                     </div>
@@ -63,11 +104,17 @@
           </transition>
           <transition mode="out-in" name="el-fade-in-linear">
             <keep-alive>
-              <router-view class="admin-box" v-if="$route.meta.keepAlive && reloadFlag"></router-view>
+              <router-view
+                class="admin-box"
+                v-if="$route.meta.keepAlive && reloadFlag"
+              ></router-view>
             </keep-alive>
           </transition>
           <transition mode="out-in" name="el-fade-in-linear">
-            <router-view class="admin-box" v-if="!$route.meta.keepAlive && reloadFlag"></router-view>
+            <router-view
+              class="admin-box"
+              v-if="!$route.meta.keepAlive && reloadFlag"
+            ></router-view>
           </transition>
           <BottomInfo />
         </el-main>
@@ -85,6 +132,8 @@ import BottomInfo from "@/view/layout/bottomInfo/bottomInfo";
 import { mapGetters, mapActions } from "vuex";
 import CustomPic from "@/components/customPic";
 import GlobalLoading from "@/components/common/GlobalLoading";
+import StatisticsDisplay from "@/components/statistics/StatisticsDisplay";
+import FloatingStatisticsIcon from "@/components/statistics/FloatingStatisticsIcon";
 
 export default {
   name: "Layout",
@@ -98,6 +147,7 @@ export default {
       loadingFlag: false,
       reloadFlag: true,
       value: "",
+      showStatistics: false,
     };
   },
   components: {
@@ -107,7 +157,9 @@ export default {
     Search,
     BottomInfo,
     CustomPic,
-    GlobalLoading
+    GlobalLoading,
+    StatisticsDisplay,
+    FloatingStatisticsIcon,
   },
   methods: {
     ...mapActions("user", ["LoginOut"]),
@@ -134,6 +186,14 @@ export default {
       this.isShadowBg = !this.isShadowBg;
       this.isSider = !!this.isCollapse;
       this.totalCollapse();
+    },
+    // 切换统计数据显示
+    toggleStatistics() {
+      this.showStatistics = !this.showStatistics;
+    },
+    // 关闭统计数据
+    closeStatistics() {
+      this.showStatistics = false;
     },
     windowInit() {
       let screenWidth = document.body.clientWidth;
@@ -200,9 +260,11 @@ export default {
     this.$store.dispatch("common/updateCommonData");
     this.$store.dispatch("common/updateSiteData");
     // 获取期号统计数据
-    this.$store.dispatch("statistics/fetchLatestIssueStatistics").catch(error => {
-      console.warn('获取期号统计数据失败:', error);
-    });
+    this.$store
+      .dispatch("statistics/fetchLatestIssueStatistics")
+      .catch((error) => {
+        console.warn("获取期号统计数据失败:", error);
+      });
     // this.$store.dispatch("websocets/webSocketInit");
   },
   created() {
@@ -210,3 +272,6 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+</style>
