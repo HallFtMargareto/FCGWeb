@@ -27,200 +27,200 @@
       </div>
     </div>
 
-    <!-- 期号信息 -->
-    <div v-if="currentIssue" class="issue-info">
-      <div class="issue-card">
-        <div class="issue-header">
-          <span class="issue-title">期号信息</span>
+    <!-- 主要内容区域 - 左右布局 -->
+    <div class="main-content">
+      <!-- 左侧：统计数据 -->
+      <div v-if="statistics" class="stats-container">
+        <div class="stats-row">
+          <!-- 总体统计 -->
+          <div class="stats-group">
+            <span class="group-title">总体</span>
+            <div class="stats-inline">
+              <span class="stat-inline">
+                <span class="stat-label">订单:</span>
+                <span class="stat-value primary">{{
+                  statistics.total_order_count || 0
+                }}</span>
+              </span>
+              <span class="stat-inline">
+                <span class="stat-label">投注:</span>
+                <span class="stat-value success"
+                  >¥{{ formatAmount(statistics.total_bet_amount) }}</span
+                >
+              </span>
+              <span class="stat-inline">
+                <span class="stat-label">佣金:</span>
+                <span class="stat-value warning"
+                  >¥{{ formatAmount(statistics.total_commission) }}</span
+                >
+              </span>
+              <span class="stat-inline">
+                <span class="stat-label">中奖:</span>
+                <span class="stat-value danger"
+                  >¥{{ formatAmount(statistics.total_win_amount) }}</span
+                >
+              </span>
+              <span class="stat-inline">
+                <span class="stat-label">中奖单:</span>
+                <span class="stat-value info">{{
+                  statistics.total_win_order_count || 0
+                }}</span>
+              </span>
+              <span class="stat-inline">
+                <span class="stat-label">中奖率:</span>
+                <span class="stat-value">{{ calculateWinRate() }}%</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- 福彩统计 -->
+          <div class="stats-group">
+            <span class="group-title">福彩</span>
+            <div class="stats-inline">
+              <span class="stat-inline">
+                <span class="stat-label">订单:</span>
+                <span class="stat-value primary">{{
+                  statistics.fu_cai_order_count || 0
+                }}</span>
+              </span>
+              <span class="stat-inline">
+                <span class="stat-label">投注:</span>
+                <span class="stat-value success"
+                  >¥{{ formatAmount(statistics.fu_cai_bet_amount) }}</span
+                >
+              </span>
+              <span class="stat-inline">
+                <span class="stat-label">佣金:</span>
+                <span class="stat-value warning"
+                  >¥{{ formatAmount(statistics.fu_cai_commission) }}</span
+                >
+              </span>
+              <span class="stat-inline">
+                <span class="stat-label">中奖:</span>
+                <span class="stat-value danger"
+                  >¥{{ formatAmount(statistics.fu_cai_win_amount) }}</span
+                >
+              </span>
+              <span class="stat-inline">
+                <span class="stat-label">中奖单:</span>
+                <span class="stat-value info">{{
+                  statistics.fu_cai_win_order_count || 0
+                }}</span>
+              </span>
+              <span class="stat-inline">
+                <span class="stat-label">中奖率:</span>
+                <span class="stat-value">{{ calculateFuCaiWinRate() }}%</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- 体彩统计 -->
+          <div class="stats-group">
+            <span class="group-title">体彩</span>
+            <div class="stats-inline">
+              <span class="stat-inline">
+                <span class="stat-label">订单:</span>
+                <span class="stat-value primary">{{
+                  statistics.ti_cai_order_count || 0
+                }}</span>
+              </span>
+              <span class="stat-inline">
+                <span class="stat-label">投注:</span>
+                <span class="stat-value success"
+                  >¥{{ formatAmount(statistics.ti_cai_bet_amount) }}</span
+                >
+              </span>
+              <span class="stat-inline">
+                <span class="stat-label">佣金:</span>
+                <span class="stat-value warning"
+                  >¥{{ formatAmount(statistics.ti_cai_commission) }}</span
+                >
+              </span>
+              <span class="stat-inline">
+                <span class="stat-label">中奖:</span>
+                <span class="stat-value danger"
+                  >¥{{ formatAmount(statistics.ti_cai_win_amount) }}</span
+                >
+              </span>
+              <span class="stat-inline">
+                <span class="stat-label">中奖单:</span>
+                <span class="stat-value info">{{
+                  statistics.ti_cai_win_order_count || 0
+                }}</span>
+              </span>
+              <span class="stat-inline">
+                <span class="stat-label">中奖率:</span>
+                <span class="stat-value">{{ calculateTiCaiWinRate() }}%</span>
+              </span>
+            </div>
+          </div>
         </div>
-        <div class="issue-content">
-          <div class="info-row">
-            <div class="info-item">
-              <span class="info-label">期号:</span>
-              <span class="info-value">{{ currentIssue.issue_number }}</span>
+      </div>
+
+      <!-- 右侧：期号信息 -->
+      <div v-if="currentIssue" class="issue-info">
+        <div class="issue-card">
+          <!-- <div class="issue-header">
+            <span class="issue-title">期号信息</span>
+          </div> -->
+          <div class="issue-content">
+            <div class="info-row">
+              <div class="info-item">
+                <span class="info-label">期号:</span>
+                <span class="info-value">{{ currentIssue.issue_no }}</span>
+              </div>
+              <!-- <div class="info-item">
+                <span class="info-label">类型:</span>
+                <span class="info-value">{{
+                  formatLotteryType(currentIssue.lottery_type)
+                }}</span>
+              </div> -->
+              <div class="info-item">
+                <span class="info-label">状态:</span>
+                <el-tag :type="getStatusType(currentIssue.status)" size="mini">
+                  {{ formatStatus(currentIssue.status) }}
+                </el-tag>
+              </div>
             </div>
-            <div class="info-item">
-              <span class="info-label">类型:</span>
-              <span class="info-value">{{
-                formatLotteryType(currentIssue.lottery_type)
-              }}</span>
+            <!-- <div class="info-row">
+              <div class="info-item">
+                <span class="info-label">开奖时间:</span>
+                <span class="info-value">{{
+                  formatDateTime(currentIssue.draw_time)
+                }}</span>
+              </div>
+            </div> -->
+            <div class="info-row">
+              <div class="info-item">
+                <span class="info-label">福彩:</span>
+                <span
+                  class="draw-number fucai"
+                  v-html="formatDrawNumber(currentIssue.fc_draw_number)"
+                ></span>
+              </div>
             </div>
-            <div class="info-item">
-              <span class="info-label">状态:</span>
-              <el-tag :type="getStatusType(currentIssue.status)" size="mini">
-                {{ formatStatus(currentIssue.status) }}
-              </el-tag>
-            </div>
-          </div>
-          <div class="info-row">
-            <div class="info-item">
-              <span class="info-label">开奖时间:</span>
-              <span class="info-value">{{
-                formatDateTime(currentIssue.draw_time)
-              }}</span>
-            </div>
-          </div>
-          <div class="info-row">
-            <div class="info-item">
-              <span class="info-label">福彩:</span>
-              <span
-                class="draw-number fucai"
-                v-html="formatDrawNumber(currentIssue.fc_draw_number)"
-              ></span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">体彩:</span>
-              <span
-                class="draw-number ticai"
-                v-html="formatDrawNumber(currentIssue.tc_draw_number)"
-              ></span>
+            <div class="info-row">
+              <div class="info-item">
+                <span class="info-label">体彩:</span>
+                <span
+                  class="draw-number ticai"
+                  v-html="formatDrawNumber(currentIssue.tc_draw_number)"
+                ></span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 统计数据 -->
-    <div v-if="statistics" class="stats-container">
-      <!-- 总体统计 -->
-      <div class="stats-section">
-        <div class="stats-card">
-          <div class="card-header">
-            <span class="card-title">总体统计</span>
-          </div>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <div class="stat-value primary">
-                {{ statistics.total_order_count || 0 }}
-              </div>
-              <div class="stat-label">总订单</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value success">
-                ¥{{ formatAmount(statistics.total_bet_amount) }}
-              </div>
-              <div class="stat-label">总投注</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value warning">
-                ¥{{ formatAmount(statistics.total_commission) }}
-              </div>
-              <div class="stat-label">总佣金</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value danger">
-                ¥{{ formatAmount(statistics.total_win_amount) }}
-              </div>
-              <div class="stat-label">总中奖</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value info">
-                {{ statistics.total_win_order_count || 0 }}
-              </div>
-              <div class="stat-label">中奖单</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">{{ calculateWinRate() }}%</div>
-              <div class="stat-label">中奖率</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 福彩统计 -->
-      <div class="stats-section">
-        <div class="stats-card">
-          <div class="card-header">
-            <span class="card-title">福彩统计</span>
-          </div>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <div class="stat-value primary">
-                {{ statistics.fu_cai_order_count || 0 }}
-              </div>
-              <div class="stat-label">福彩订单</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value success">
-                ¥{{ formatAmount(statistics.fu_cai_bet_amount) }}
-              </div>
-              <div class="stat-label">福彩投注</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value warning">
-                ¥{{ formatAmount(statistics.fu_cai_commission) }}
-              </div>
-              <div class="stat-label">福彩佣金</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value danger">
-                ¥{{ formatAmount(statistics.fu_cai_win_amount) }}
-              </div>
-              <div class="stat-label">福彩中奖</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value info">
-                {{ statistics.fu_cai_win_order_count || 0 }}
-              </div>
-              <div class="stat-label">福彩中奖单</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">{{ calculateFuCaiWinRate() }}%</div>
-              <div class="stat-label">福彩中奖率</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 体彩统计 -->
-      <div class="stats-section">
-        <div class="stats-card">
-          <div class="card-header">
-            <span class="card-title">体彩统计</span>
-          </div>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <div class="stat-value primary">
-                {{ statistics.ti_cai_order_count || 0 }}
-              </div>
-              <div class="stat-label">体彩订单</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value success">
-                ¥{{ formatAmount(statistics.ti_cai_bet_amount) }}
-              </div>
-              <div class="stat-label">体彩投注</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value warning">
-                ¥{{ formatAmount(statistics.ti_cai_commission) }}
-              </div>
-              <div class="stat-label">体彩佣金</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value danger">
-                ¥{{ formatAmount(statistics.ti_cai_win_amount) }}
-              </div>
-              <div class="stat-label">体彩中奖</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value info">
-                {{ statistics.ti_cai_win_order_count || 0 }}
-              </div>
-              <div class="stat-label">体彩中奖单</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">{{ calculateTiCaiWinRate() }}%</div>
-              <div class="stat-label">体彩中奖率</div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- 单独显示的情况 -->
+    <div v-if="!statistics && !currentIssue && loading" class="loading-text">
+      正在加载统计数据...
     </div>
 
-    <div v-else-if="loading" class="loading-text">正在加载统计数据...</div>
-
-    <div v-else class="no-data-text">暂无统计数据</div>
+    <div v-if="!statistics && !currentIssue && !loading" class="no-data-text">
+      暂无统计数据
+    </div>
   </div>
 </template>
 
@@ -394,14 +394,14 @@ export default {
 
 <style scoped>
 /* 紧凑布局样式 */
-/* 浮动样式 */
+/* 浮动样式 - 顶部居中 */
 .statistics-display.floating {
   position: fixed;
-  top: 80px;
-  right: 20px;
-  width: 400px;
-  max-height: 80vh;
-  overflow-y: auto;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 1200px;
   padding: 12px;
   background: white;
   border-radius: 8px;
@@ -584,62 +584,81 @@ export default {
   box-shadow: 0 1px 2px rgba(64, 158, 255, 0.3);
 }
 
-/* 统计数据容器 */
+/* 主要内容区域 - 左右布局 */
+.main-content {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+/* 统计数据容器 - 左侧布局 */
 .stats-container {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  flex: 1;
+  min-width: 0; /* 防止flex子项溢出 */
 }
 
-/* 统计卡片样式 - 紧凑版 */
-.stats-section {
+/* 期号信息 - 右侧布局 */
+.issue-info {
   margin-bottom: 0;
+  width: 280px;
+  flex-shrink: 0;
 }
 
-.stats-card {
+.stats-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   background: white;
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 10px;
+  padding: 8px 12px;
 }
 
-.card-header {
+.stats-group {
   display: flex;
   align-items: center;
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
-.card-title {
-  font-size: 13px;
-  color: #303133;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
   gap: 8px;
 }
 
-.stat-item {
+.group-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #303133;
+  min-width: 30px;
   text-align: center;
-  padding: 8px 4px;
-  background: #f8f9fa;
-  border-radius: 4px;
-  border: 1px solid #e4e7ed;
-  transition: all 0.2s ease;
+  padding: 2px 6px;
+  background: #f0f2f5;
+  border-radius: 3px;
+  border: 1px solid #dcdfe6;
 }
 
-.stat-item:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  border-color: #409eff;
+.stats-inline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.stat-inline {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  width: 100px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #606266;
+  font-weight: 500;
 }
 
 .stat-value {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
-  margin-bottom: 4px;
   line-height: 1.2;
 }
 
@@ -663,13 +682,6 @@ export default {
   color: #909399;
 }
 
-.stat-label {
-  font-size: 10px;
-  color: #606266;
-  font-weight: 500;
-  line-height: 1.2;
-}
-
 /* 加载和无数据状态 - 紧凑版 */
 .loading-text,
 .no-data-text {
@@ -679,23 +691,31 @@ export default {
   font-size: 12px;
 }
 
-/* 响应式设计 */
+/* 响应式设计 - 适配左右布局 */
 @media (max-width: 1200px) {
-  .stats-grid {
-    grid-template-columns: repeat(3, 1fr);
+  .statistics-display.floating {
+    width: 95%;
+    max-width: 1000px;
+  }
+
+  .main-content {
+    gap: 10px;
+  }
+
+  .issue-info {
+    width: 260px;
+  }
+
+  .stats-inline {
+    gap: 8px;
   }
 
   .stat-value {
-    font-size: 13px;
+    font-size: 11px;
   }
 
   .stat-label {
-    font-size: 9px;
-  }
-
-  .statistics-display.floating {
-    width: 350px;
-    right: 10px;
+    font-size: 10px;
   }
 }
 
@@ -705,10 +725,20 @@ export default {
   }
 
   .statistics-display.floating {
-    width: 320px;
-    right: 5px;
-    top: 70px;
-    max-height: 85vh;
+    width: 98%;
+    max-width: none;
+    top: 10px;
+    padding: 8px;
+  }
+
+  .main-content {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .issue-info {
+    width: 100%;
+    order: -1; /* 期号信息放在上面 */
   }
 
   .control-bar {
@@ -722,48 +752,89 @@ export default {
     gap: 8px;
   }
 
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .stats-row {
+    gap: 4px;
+    padding: 6px 8px;
+  }
+
+  .stats-group {
+    flex-wrap: wrap;
     gap: 6px;
   }
 
-  .stat-item {
-    padding: 6px 3px;
+  .stats-inline {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .stat-inline {
+    gap: 3px;
+    width: 100px;
   }
 
   .stat-value {
-    font-size: 12px;
+    font-size: 10px;
   }
 
   .stat-label {
     font-size: 9px;
   }
+
+  .group-title {
+    font-size: 11px;
+    min-width: 25px;
+    padding: 1px 4px;
+  }
 }
 
 @media (max-width: 480px) {
   .statistics-display.floating {
-    width: 95%;
-    right: 2.5%;
-    left: 2.5%;
-    top: 60px;
-    max-height: 90vh;
+    width: 99%;
+    top: 5px;
+    padding: 6px;
   }
 
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .main-content {
+    gap: 6px;
+  }
+
+  .stats-row {
+    gap: 3px;
+    padding: 4px 6px;
+  }
+
+  .stats-group {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 4px;
   }
 
-  .stat-item {
-    padding: 4px 2px;
+  .stats-inline {
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .stat-inline {
+    gap: 2px;
+    width: 100px;
   }
 
   .stat-value {
-    font-size: 11px;
+    font-size: 9px;
   }
 
   .stat-label {
     font-size: 8px;
+  }
+
+  .group-title {
+    font-size: 10px;
+    min-width: 20px;
+    padding: 1px 3px;
+  }
+
+  .issue-card {
+    padding: 8px;
   }
 }
 </style>

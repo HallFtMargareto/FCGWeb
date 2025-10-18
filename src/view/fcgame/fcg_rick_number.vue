@@ -1,108 +1,225 @@
 <template>
-  <div
-    class="split-info"
-    style="height: 100%"
-    v-if="splitList && splitList.length > 0"
-  >
-    <el-descriptions title="号码信息" :column="3" border> </el-descriptions>
-    <el-table
-      ref="splitTable"
-      :data="splitList"
-      class="el-table"
-      border
-      height="800px"
-      @selection-change="handleSelectionChange"
-      @sort-change="handleSortChange"
+  <div>
+    <div class="search-term">
+      <searchform size="mini" :maxShow="5" @search="getChartData">
+        <el-form-item label="期号">
+          <el-select
+            v-model="chartIssueId"
+            placeholder="请选择期号"
+            @change="getChartData"
+            clearable
+          >
+            <el-option
+              v-for="item in lotteryIssueList"
+              :key="item.ID"
+              :label="item.issue_no"
+              :value="item.ID"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="福彩开奖号码">
+          <el-input
+            v-model="fc_draw_number"
+            placeholder="请输入福彩模拟开奖号码"
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item label="体彩开奖号码">
+          <el-input
+            v-model="tc_draw_number"
+            placeholder="请输入体彩模拟开奖号码"
+          ></el-input>
+        </el-form-item>
+      </searchform>
+    </div>
+
+    <div
+      class="split-info"
+      style="height: 100%"
+      v-if="splitList && splitList.length > 0"
     >
-      <el-table-column type="selection" width="55"></el-table-column>
-      <el-table-column
-        prop="split_number"
-        label="拆分号码"
-        sortable
-        align="center"
-      ></el-table-column>
-      <el-table-column
-        prop="total"
-        label="出现次数"
-        sortable
-        align="center"
-      ></el-table-column>
-      <el-table-column
-        prop="total_amount"
-        label="总投注金额"
-        sortable="custom"
-        align="center"
-      ></el-table-column>
-      <el-table-column
-        prop="fu_cai_amount"
-        label="福彩投注金额"
-        sortable="custom"
-        align="center"
-      ></el-table-column>
-      <el-table-column
-        prop="ti_cai_amount"
-        label="体彩投注金额"
-        sortable="custom"
-        align="center"
-      ></el-table-column>
-      <el-table-column
-        prop="fu_cai_reward"
-        label="福彩预计奖金"
-        sortable="custom"
-        align="center"
-      ></el-table-column>
-      <el-table-column
-        prop="fu_cai_profit"
-        label="福彩预计利润"
-        sortable="custom"
-        align="center"
-      ></el-table-column>
-      <el-table-column
-        prop="ti_cai_reward"
-        label="体彩预计奖金"
-        sortable="custom"
-        align="center"
-      ></el-table-column>
-      <el-table-column
-        prop="ti_cai_profit"
-        label="体彩预计利润"
-        sortable="custom"
-        align="center"
-      ></el-table-column>
-      <el-table-column
-        prop="forecast_reward"
-        label="预计总奖金"
-        sortable="custom"
-        align="center"
-      ></el-table-column>
-      <!-- <el-table-column prop="PnLTotal" label="全场总盈亏" sortable align="center"></el-table-column>
-            <el-table-column prop="PnLFuCai" label="福彩盈亏" sortable align="center"></el-table-column>
-            <el-table-column prop="PnLTiCai" label="体彩盈亏" sortable align="center"></el-table-column> -->
-    </el-table>
-    <div style="margin-top: 10px">
-      <el-button @click="toggleSelectAll">{{
-        isAllSelected ? "取消全选" : "全选"
-      }}</el-button>
+      <el-descriptions title="号码信息" :column="3" border> </el-descriptions>
+      <el-table
+        ref="splitTable"
+        :data="splitList"
+        class="el-table"
+        border
+        height="700px"
+        @selection-change="handleSelectionChange"
+        @sort-change="handleSortChange"
+      >
+        <el-table-column type="selection" width="55"></el-table-column>
+        <el-table-column
+          prop="split_number"
+          label="拆分号码"
+          sortable
+          align="center"
+        ></el-table-column>
+        <el-table-column
+          prop="total"
+          label="出现次数"
+          sortable
+          align="center"
+        ></el-table-column>
+        <el-table-column
+          prop="total_amount"
+          label="总投注金额"
+          sortable="custom"
+          align="center"
+        ></el-table-column>
+        <el-table-column
+          prop="fu_cai_amount"
+          label="福彩投注金额"
+          sortable="custom"
+          align="center"
+        ></el-table-column>
+        <el-table-column
+          prop="ti_cai_amount"
+          label="体彩投注金额"
+          sortable="custom"
+          align="center"
+        ></el-table-column>
+        <el-table-column
+          prop="fu_cai_reward"
+          label="福彩预计奖金"
+          sortable="custom"
+          align="center"
+        ></el-table-column>
+        <el-table-column
+          prop="fu_cai_profit"
+          label="福彩预计利润"
+          sortable="custom"
+          align="center"
+        ></el-table-column>
+        <el-table-column
+          prop="ti_cai_reward"
+          label="体彩预计奖金"
+          sortable="custom"
+          align="center"
+        ></el-table-column>
+        <el-table-column
+          prop="ti_cai_profit"
+          label="体彩预计利润"
+          sortable="custom"
+          align="center"
+        ></el-table-column>
+        <el-table-column
+          prop="forecast_reward"
+          label="预计总奖金"
+          sortable="custom"
+          align="center"
+        ></el-table-column>
+      </el-table>
+      <div style="margin-top: 10px">
+        <el-button @click="toggleSelectAll">{{
+          isAllSelected ? "取消全选" : "全选"
+        }}</el-button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import { getFcgOrderSplitNumberList } from "@/api/fcgame/fcg_order_split_number";
+import { getFcgLotteryIssueList } from "@/api/fcgame/fcg_lottery_issue";
+import infoList from "@/mixins/infoList";
+import { mapGetters, mapMutations } from "vuex";
+
 export default {
   name: "fcg_rick_number",
-  props: {
-    splitList: {
-      type: Array,
-      default: () => []
-    }
+  mixins: [infoList],
+  computed: {
+    ...mapGetters("user", ["userInfo"]),
+    // 创建双向绑定的计算属性
+    alpha: {
+      get() {
+        return this.$store.state.common.alpha;
+      },
+      set(value) {
+        this.setAlpha(value);
+      },
+    },
+    beta: {
+      get() {
+        return this.$store.state.common.beta;
+      },
+      set(value) {
+        this.setBeta(value);
+      },
+    },
+    // 获取拆分列表数据
+    splitList() {
+      return this.rickDataInfo.split_list || [];
+    },
   },
   data() {
     return {
+      listApi: getFcgOrderSplitNumberList,
+      openDialog: false,
+      dialogTitle: "",
+      type: "",
+      chartIssueId: 0,
+      game_category: 1, // 默认福彩
+      maxValue: 0,
+      // 期号列表
+      lotteryIssueList: [],
+      rickDataInfo: {},
+      fc_draw_number: "",
+      tc_draw_number: "",
+      // 表格相关数据
       multipleSelection: [],
       isAllSelected: false,
     };
   },
   methods: {
+    ...mapMutations("common", ["setAlpha", "setBeta"]),
+    // 获取期号列表
+    async getLotteryIssueList() {
+      try {
+        const res = await getFcgLotteryIssueList({ page: 1, pageSize: 100 });
+        if (res.code === 0 && res.data && res.data.list) {
+          this.lotteryIssueList = res.data.list;
+          // 获取到列表后默认取第一条期号作为参数
+          if (this.lotteryIssueList.length > 0) {
+            this.chartIssueId = this.lotteryIssueList[0].ID;
+            console.log(this.chartIssueId);
+            this.getChartData();
+          }
+        }
+      } catch (error) {
+        console.error("获取期号列表失败:", error);
+        this.$message.error("获取期号列表失败");
+      }
+    },
+
+    // 获取图表数据
+    async getChartData() {
+      if (this.chartIssueId == 0) {
+        this.$message.warning("请输入期号");
+        return;
+      }
+      this.chartLoading = true;
+      try {
+        const res = await getFcgOrderSplitNumberList({
+          action: "rick_split_num",
+          // game_category: this.game_category,
+          issue_id: this.chartIssueId,
+          fc_draw_number: this.fc_draw_number,
+          tc_draw_number: this.tc_draw_number,
+        });
+        if (res.code === 0 && res.data) {
+          this.rickDataInfo = res.data;
+        } else {
+          this.chartData = null;
+          this.$message.error(res.msg || "获取数据失败");
+        }
+      } finally {
+        this.chartLoading = false;
+      }
+    },
+
     handleSelectionChange(selection) {
       this.multipleSelection = selection;
       // 更新全选状态
@@ -127,12 +244,12 @@ export default {
       console.log(column);
       if (order === null) {
         // 如果没有排序，恢复原始数据
-        this.$emit("reset-data");
+        this.getChartData();
         return;
       }
 
       // 获取需要排序的数据
-      const data = this.splitList;
+      const data = [...this.splitList];
 
       // 定义排序方法
       const sortMethod = (a, b) => {
@@ -162,8 +279,12 @@ export default {
       data.sort(sortMethod);
 
       // 更新数据
-      this.$emit("update-data", [...data]);
+      this.$set(this.rickDataInfo, "split_list", data);
     },
+  },
+
+  async created() {
+    await this.getLotteryIssueList();
   },
 };
 </script>

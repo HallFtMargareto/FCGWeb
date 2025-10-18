@@ -58,7 +58,7 @@
         :data="rickDataInfo.orders"
         style="width: 100%"
         border
-        height="400"
+        height="600"
       >
         <el-table-column
           prop="ID"
@@ -90,13 +90,6 @@
         </el-table-column>
       </el-table>
     </div>
-
-    <!-- 号码信息组件 -->
-    <fcg-rick-number
-      :split-list="rickDataInfo.split_list"
-      @reset-data="resetSplitListData"
-      @update-data="updateSplitListData"
-    />
   </div>
 </template>
 
@@ -105,13 +98,9 @@ import { getFcgOrderSplitNumberList } from "@/api/fcgame/fcg_order_split_number"
 import { getFcgLotteryIssueList } from "@/api/fcgame/fcg_lottery_issue";
 import infoList from "@/mixins/infoList";
 import { mapGetters, mapMutations } from "vuex";
-import FcgRickNumber from "./fcg_rick_number.vue";
 export default {
   name: "fcg_order_split_number",
   mixins: [infoList],
-  components: {
-    FcgRickNumber,
-  },
   computed: {
     ...mapGetters("user", ["userInfo"]),
     // 创建双向绑定的计算属性
@@ -202,16 +191,6 @@ export default {
       this.page = 1;
       this.pageSize = 10;
       this.getTableData();
-    },
-
-    // 重置拆分列表数据
-    resetSplitListData() {
-      this.getChartData();
-    },
-
-    // 更新拆分列表数据
-    updateSplitListData(newData) {
-      this.$set(this.rickDataInfo, "split_list", newData);
     },
   },
 

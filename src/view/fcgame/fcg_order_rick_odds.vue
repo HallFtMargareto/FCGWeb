@@ -64,6 +64,7 @@
     </div>
 
     <div
+      style="height: 100%"
       class="rick-data-info"
       v-if="
         rickDataInfo &&
@@ -104,6 +105,7 @@
         :data="rickDataInfo.rick_order"
         style="width: 100%"
         border
+        height="600px"
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55"></el-table-column>
