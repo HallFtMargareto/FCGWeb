@@ -246,7 +246,16 @@
           </el-tabs>
         </el-col>
 
-        <el-col :span="17">
+        <el-col :span="4">
+          <!-- 订单状态标签页 -->
+          <el-tabs v-model="mark_state" @tab-click="handleMarkStateTabClick">
+            <el-tab-pane label="全部状态" name="all"></el-tab-pane>
+            <el-tab-pane label="未标记" name="1"></el-tab-pane>
+            <el-tab-pane label="已标记" name="2"></el-tab-pane>
+          </el-tabs>
+        </el-col>
+
+        <el-col :span="13">
           <!-- 玩法类型标签页 -->
           <el-tabs v-model="tabState" @tab-click="handleClick">
             <el-tab-pane
@@ -335,9 +344,28 @@
               <el-descriptions-item label="ID">{{
                 orderGroup.ID
               }}</el-descriptions-item>
+
               <el-descriptions-item label="总金额">
-                ¥ {{ orderGroup.total_bet_amount }}
+                <span
+                  :style="{
+                    fontWeight: 'bold',
+                    color: getAmountColor(orderGroup.mark_state),
+                  }"
+                >
+                  ¥ {{ orderGroup.total_bet_amount }}
+                </span>
+                <el-link
+                  :style="{
+                    color: orderGroup.mark_state === 2 ? '#67c23a' : '#f56c6c',
+                    fontSize: '12px',
+                    float: 'right',
+                  }"
+                  @click="handleMarkClick(orderGroup)"
+                >
+                  {{ getMarkStateText(orderGroup.mark_state) }}
+                </el-link>
               </el-descriptions-item>
+
               <el-descriptions-item label="识别次数">{{
                 orderGroup.version
               }}</el-descriptions-item>
@@ -898,6 +926,7 @@ export default {
       },
       tabState: "0",
       statusTabState: "all",
+      mark_state: "all",
       gameTypes: [
         { value: 0, label: "全部玩法" },
         { value: 1, label: "单选" },
@@ -1034,6 +1063,16 @@ export default {
       }
       this.getTableData();
     },
+
+    // 处理标记状态标签页点击
+    handleMarkStateTabClick(tab) {
+      if (tab.name === "all") {
+        delete this.searchInfo.mark_state;
+      } else {
+        this.searchInfo.mark_state = tab.name;
+      }
+      this.getTableData();
+    },
     // 获取订单状态类型
     getOrderStatusType(status) {
       const statusMap = {
@@ -1073,6 +1112,61 @@ export default {
         2: "支付失败",
       };
       return statusMap[status] || "已支付";
+    },
+    // 获取总金额颜色
+    getAmountColor(markState) {
+      // 值为0、1时显示危险红色，值为2时显示绿色
+      if (markState === 0 || markState === 1) {
+        return "#f56c6c"; // 危险红色
+      } else if (markState === 2) {
+        return "#67c23a"; // 绿色
+      }
+      return "#606266"; // 默认灰色
+    },
+    // 获取标记状态文字
+    getMarkStateText(markState) {
+      if (markState === 2) {
+        return "已标记";
+      } else {
+        return "未标记";
+      }
+    },
+    // 处理标记点击事件
+    async handleMarkClick(orderGroup) {
+      // 只有未标记状态才能点击
+      if (orderGroup.mark_state == 2) {
+        return;
+      }
+
+      try {
+        const orderId = orderGroup.order_id || orderGroup.ID;
+        const res = await batchFcgOrderOperation({
+          command: "mark_order",
+          ids: [orderId],
+        });
+
+        if (res.code === 0) {
+          this.$message({
+            type: "success",
+            message: "标记成功",
+          });
+          // 更新本地数据状态
+          orderGroup.mark_state = 2;
+          // 重新获取数据以确保状态同步
+          this.getTableData();
+        } else {
+          this.$message({
+            type: "error",
+            message: res.msg || "标记失败",
+          });
+        }
+      } catch (error) {
+        console.error("标记订单失败:", error);
+        this.$message({
+          type: "error",
+          message: "标记订单失败",
+        });
+      }
     },
     onQuery() {
       // 清除之前的定时器
