@@ -734,9 +734,6 @@
 
     <!-- 右侧漂浮操作按钮 -->
     <div class="float-operations">
-      <!-- <el-button style="margin-left: 0 !important;" class="float-btn risk-btn" type="primary" icon="el-icon-s-marketing"
-        circle @click="openRiskOrderDialog" title="风控订单"></el-button> -->
-
       <el-button
         style="margin-left: 0 !important"
         class="float-btn risk-btn"
@@ -757,74 +754,6 @@
         title="导出订单"
       ></el-button>
     </div>
-
-    <!-- 风控订单弹窗 -->
-    <el-dialog
-      :title="'风控号码'"
-      :visible.sync="riskOrderDialogVisible"
-      width="50%"
-      top="10vh"
-    >
-      <el-form :inline="true" style="margin-bottom: 20px">
-        <el-form-item label="彩票种类">
-          <el-select
-            v-model="riskOrderSearchInfo.category"
-            placeholder="彩票种类"
-          >
-            <el-option label="福彩" value="1"></el-option>
-            <el-option label="体彩" value="2"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="彩期">
-          <el-select
-            v-model="riskOrderSearchInfo.issue_id"
-            placeholder="请选择彩期"
-          >
-            <el-option
-              v-for="item in lotteryIssueList"
-              :key="item.ID"
-              :label="item.issue_no"
-              :value="item.ID"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="searchRiskOrderList"
-            >查询</el-button
-          >
-        </el-form-item>
-      </el-form>
-
-      <el-table
-        :data="riskOrderList"
-        style="width: 100%"
-        height="500px"
-        class="risk-order-table"
-        @sort-change="handleRiskOrderSortChange"
-      >
-        <el-table-column
-          prop="split_number"
-          label="拆分号码"
-          sortable="custom"
-          align="center"
-        ></el-table-column>
-        <el-table-column
-          prop="total_amount_new"
-          label="转出金额"
-          sortable="custom"
-          align="center"
-        >
-          <template slot-scope="scope">
-            {{ scope.row.total_amount_new }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="total_amount" label="金额" align="center">
-          <template slot-scope="scope">
-            {{ scope.row.total_amount }}
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-dialog>
 
     <!-- 导入订单弹窗 -->
     <el-dialog
@@ -937,20 +866,8 @@ export default {
       uploadExtraParams: {
         contactId: "", // 选中的会话ID
       },
-      // 风控订单弹窗相关
-      riskOrderDialogVisible: false,
-      riskOrderList: [],
-      riskOrderTotal: 0,
-      riskOrderCurrentPage: 1,
-      riskOrderSearchInfo: {
-        category: "",
-        issue_id: "",
-      },
       // 彩期数据
       lotteryIssueList: [],
-      // 排序相关
-      riskOrderSortField: "total_amount_new",
-      riskOrderSortOrder: "desc",
 
       // 订单详情弹窗相关
       orderDetailDialogVisible: false,
@@ -1036,12 +953,6 @@ export default {
       });
     },
 
-    // 打开风控订单弹窗
-    async openRiskOrderDialog() {
-      this.riskOrderDialogVisible = true;
-      this.riskOrderCurrentPage = 1;
-    },
-
     // 加载彩期数据
     async loadLotteryIssueList() {
       try {
@@ -1050,13 +961,6 @@ export default {
           this.lotteryIssueList = res.data.list || [];
           // 默认选中第一条数据
           if (this.lotteryIssueList.length > 0) {
-            // this.riskOrderSearchInfo.issue_id = this.lotteryIssueList[0].ID;
-            // this.searchInfo.issue_id = this.lotteryIssueList[0].ID;
-            this.$set(
-              this.riskOrderSearchInfo,
-              "issue_id",
-              this.lotteryIssueList[0].ID
-            );
             this.$set(this.searchInfo, "issue_id", this.lotteryIssueList[0].ID);
           }
         }
@@ -1064,44 +968,6 @@ export default {
         console.error("获取彩期数据失败:", error);
         this.$message.error("获取彩期数据失败");
       }
-    },
-
-    // 加载风控订单列表
-    loadRiskOrderList() {
-      this.searchRiskOrderList();
-    },
-
-    // 搜索风控订单列表
-    async searchRiskOrderList() {
-      try {
-        const searchParams = {
-          page: 1,
-          pageSize: 10000,
-          action: "risk_management",
-          ...this.riskOrderSearchInfo,
-          // 添加排序参数
-          sortField: this.riskOrderSortField,
-          sortOrder: this.riskOrderSortOrder,
-        };
-
-        const res = await getFcgOrderList(searchParams);
-        if (res.code === 0) {
-          this.riskOrderList = res.data.order_list || [];
-        } else {
-          this.$message.error("获取风控订单列表失败");
-        }
-      } catch (error) {
-        console.error("获取风控订单列表异常:", error);
-        this.$message.error("获取风控订单列表异常");
-      }
-    },
-
-    // 处理风控订单表格排序变化
-    handleRiskOrderSortChange({ prop, order }) {
-      this.riskOrderSortField = prop;
-      this.riskOrderSortOrder =
-        order === "ascending" ? "asc" : order === "descending" ? "desc" : "";
-      this.searchRiskOrderList();
     },
     // 获取风险级别文本
     getRiskLevelText(score) {
