@@ -2,7 +2,7 @@
   <div>
     <!-- 隐藏的el-upload组件 -->
     <el-upload
-      :action="`${path}/common/uploadexcel`"
+      :action="uploadUrl"
       :headers="{ 'x-token': token }"
       :data="data"
       ref="upload"
@@ -26,6 +26,16 @@ export default {
       type: String,
       default: "",
     },
+    // 额外的GET参数
+    extraParams: {
+      type: Object,
+      default: () => ({}),
+    },
+    // 自定义上传路径，如果不提供则使用默认路径
+    customUploadUrl: {
+      type: String,
+      default: "",
+    },
   },
   data() {
     return {
@@ -37,6 +47,27 @@ export default {
   },
   computed: {
     ...mapGetters("user", ["userInfo", "token"]),
+    // 构建完整的上传URL，包含额外的GET参数
+    uploadUrl() {
+      let baseUrl = this.customUploadUrl || `${this.path}/common/uploadexcel`;
+      
+      // 如果有额外的GET参数，将其添加到URL中
+      if (this.extraParams && Object.keys(this.extraParams).length > 0) {
+        const params = new URLSearchParams();
+        Object.keys(this.extraParams).forEach(key => {
+          if (this.extraParams[key] !== undefined && this.extraParams[key] !== null) {
+            params.append(key, this.extraParams[key]);
+          }
+        });
+        
+        const paramString = params.toString();
+        if (paramString) {
+          baseUrl += (baseUrl.includes('?') ? '&' : '?') + paramString;
+        }
+      }
+      
+      return baseUrl;
+    },
   },
   methods: {
     // 公开方法，用于外部调用以触发文件选择对话框

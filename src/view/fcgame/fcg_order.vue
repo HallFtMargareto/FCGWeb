@@ -1,42 +1,72 @@
 <template>
   <div>
     <div class="search-term">
-      <searchform size="mini" :maxShow="4" @search="onQuery">
-
+      <searchform size="mini" :maxShow="3" @search="onQuery">
         <el-form-item label="彩期">
-          <el-select v-model="searchInfo.issue_id" placeholder="请选择彩期" @change="handleIssueChange">
-            <el-option v-for="item in lotteryIssueList" :key="item.ID" :label="item.issue_no"
-              :value="item.ID"></el-option>
+          <el-select
+            v-model="searchInfo.issue_id"
+            placeholder="请选择彩期"
+            @change="handleIssueChange"
+          >
+            <el-option
+              v-for="item in lotteryIssueList"
+              :key="item.ID"
+              :label="item.issue_no"
+              :value="item.ID"
+            ></el-option>
           </el-select>
         </el-form-item>
 
-        <el-form-item label="用户名称">
-          <el-input v-model="searchInfo.nick_name" placeholder="用户名称" clearable></el-input>
-        </el-form-item>
-
         <el-form-item label="会话名称">
-          <el-input v-model="searchInfo.group_name" placeholder="群组名称" clearable></el-input>
+          <el-input
+            v-model="searchInfo.group_name"
+            placeholder="群组名称"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="投注内容">
-          <el-input v-model="searchInfo.bet_content" placeholder="投注内容" clearable></el-input>
+          <el-input
+            v-model="searchInfo.bet_content"
+            placeholder="投注内容"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="投注号码">
-          <el-input v-model="searchInfo.bet_number" placeholder="投注号码" clearable></el-input>
+          <el-input
+            v-model="searchInfo.bet_number"
+            placeholder="投注号码"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="订单ID">
-          <el-input v-model="searchInfo.ID" placeholder="投注号码" clearable></el-input>
+          <el-input
+            v-model="searchInfo.ID"
+            placeholder="投注号码"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="识别难度">
-          <el-select v-model="searchInfo.risk_level" placeholder="请选择识别难度">
+          <el-select
+            v-model="searchInfo.risk_level"
+            placeholder="请选择识别难度"
+          >
             <el-option label="容易" value="1"></el-option>
             <el-option label="一般" value="2"></el-option>
             <el-option label="困难" value="3"></el-option>
             <el-option label="极难" value="4"></el-option>
           </el-select>
+        </el-form-item>
+
+        <el-form-item label="用户名称">
+          <el-input
+            v-model="searchInfo.nick_name"
+            placeholder="用户名称"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <!-- <el-form-item label="订单筛选">
@@ -52,19 +82,35 @@
         </el-form-item> -->
 
         <el-form-item label="投注数量">
-          <el-input v-model.number="searchInfo.bet_count" placeholder="请输入" clearable></el-input>
+          <el-input
+            v-model.number="searchInfo.bet_count"
+            placeholder="请输入"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="用户账号">
-          <el-input v-model="searchInfo.user_name" placeholder="用户账号" clearable></el-input>
+          <el-input
+            v-model="searchInfo.user_name"
+            placeholder="用户账号"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="业务单号">
-          <el-input v-model="searchInfo.order_no" placeholder="业务单号" clearable></el-input>
+          <el-input
+            v-model="searchInfo.order_no"
+            placeholder="业务单号"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="投注金额">
-          <el-input v-model="searchInfo.bet_amount" placeholder="投注总金额" clearable></el-input>
+          <el-input
+            v-model="searchInfo.bet_amount"
+            placeholder="投注总金额"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <!-- <el-form-item label="订单状态" prop="order_status">
@@ -99,7 +145,11 @@
         </el-form-item> -->
 
         <el-form-item label="中奖总金额">
-          <el-input v-model="searchInfo.win_amount" placeholder="中奖总金额" clearable></el-input>
+          <el-input
+            v-model="searchInfo.win_amount"
+            placeholder="中奖总金额"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <!-- <el-form-item label="派奖状态（0=未派奖,1=待派奖,2=派奖中,3=已派奖,4=派奖失败）" prop="award_status">
@@ -109,12 +159,10 @@
           </el-select>
         </el-form-item> -->
 
-
         <!-- <el-form-item label="实际派奖时间">
           <datepicker v-model="searchInfo.award_time" type="datetime" placeholder="选择日期" style="width: 100%"
             clearable />
         </el-form-item> -->
-
 
         <!-- <el-form-item label="撤单类型" prop="cancel_type">
           <el-select v-model="searchInfo.cancel_type" placeholder="请选择">
@@ -124,7 +172,6 @@
             <el-option label="人工" :value="3"></el-option>
           </el-select>
         </el-form-item> -->
-
 
         <!-- <el-form-item label="退款金额（分）">
           <el-input v-model="searchInfo.refund_amount" placeholder="退款金额（分）" clearable></el-input>
@@ -139,16 +186,17 @@
           </el-select>
         </el-form-item> -->
 
-
         <el-form-item label="下单来源">
-          <el-input v-model="searchInfo.source" placeholder="下单来源(APP,WEB,第三方渠道等)" clearable></el-input>
+          <el-input
+            v-model="searchInfo.source"
+            placeholder="下单来源(APP,WEB,第三方渠道等)"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <!-- <el-form-item label="clientIp">
           <el-input v-model="searchInfo.client_ip" placeholder="clientIp" clearable></el-input>
         </el-form-item> -->
-
-
 
         <!-- <el-form-item label="deviceId">
           <el-input v-model="searchInfo.device_id" placeholder="deviceId" clearable></el-input>
@@ -170,8 +218,6 @@
           <el-input v-model.number="searchInfo.version" placeholder="请输入" clearable></el-input>
         </el-form-item> -->
 
-
-
         <!-- <el-form-item label="扩展字段（备用）">
           <el-input v-model="searchInfo.ext" placeholder="扩展字段（备用）" clearable></el-input>
         </el-form-item> -->
@@ -182,23 +228,12 @@
         <el-form-item label="结束时间">
           <datepicker v-model="searchInfo.endTime" type="datetime" />
         </el-form-item>
-
-
       </searchform>
-
-      <el-form size="mini" :inline="true" class="btn-form-inline">
-        <!-- <el-button v-if="userInfo.perm['system.create']" @click="createRow" icon="el-icon-plus"
-          type="primary">新增</el-button>
-        <el-button v-if="userInfo.perm['system.batch_delete'] && multipleSelection.length > 0"
-          @click="handleCommand('remove')" icon="el-icon-delete" type="danger" plain>批量删除</el-button> -->
-        <!-- <el-button v-if="userInfo.perm['system.import']" @click="importExcel" icon="el-icon-sell">导入</el-button> -->
-      </el-form>
     </div>
 
     <!-- 订单状态标签页 -->
     <div>
       <el-row :gutter="24">
-
         <el-col :span="7">
           <!-- 订单状态标签页 -->
           <el-tabs v-model="statusTabState" @tab-click="handleStatusTabClick">
@@ -214,8 +249,12 @@
         <el-col :span="17">
           <!-- 玩法类型标签页 -->
           <el-tabs v-model="tabState" @tab-click="handleClick">
-            <el-tab-pane v-for="item in gameTypes" :key="item.value" :label="item.label"
-              :name="String(item.value)"></el-tab-pane>
+            <el-tab-pane
+              v-for="item in gameTypes"
+              :key="item.value"
+              :label="item.label"
+              :name="String(item.value)"
+            ></el-tab-pane>
           </el-tabs>
         </el-col>
       </el-row>
@@ -223,28 +262,61 @@
 
     <!-- table -->
     <div class="card-container" v-if="groupedTableData">
-      <div v-if="!groupedTableData || groupedTableData.length === 0" class="empty-state">
+      <div
+        v-if="!groupedTableData || groupedTableData.length === 0"
+        class="empty-state"
+      >
         暂无订单数据
       </div>
 
-      <el-card v-for="(orderGroup, index) in groupedTableData" :key="index" class="order-card" shadow="hover">
+      <el-card
+        v-for="(orderGroup, index) in groupedTableData"
+        :key="index"
+        class="order-card"
+        shadow="hover"
+      >
         <div class="card-title">
           <div class="left-content">
-            <span style="margin-right: 5px;">【{{ orderGroup.group_name }}】</span>
-            <span style="margin-right: 5px;">{{ orderGroup.user_info }} :</span>
+            <span style="margin-right: 5px"
+              >【{{ orderGroup.group_name }}】</span
+            >
+            <span style="margin-right: 5px">{{ orderGroup.user_info }} :</span>
             <span class="chat-content">{{ orderGroup.chat_content }}</span>
           </div>
           <div class="right-content">
-            <el-button @click="infoRow(orderGroup)" type="text" size="mini" icon="el-icon-warning-outline">
+            <el-button
+              @click="infoRow(orderGroup)"
+              type="text"
+              size="mini"
+              icon="el-icon-warning-outline"
+            >
               订单信息
             </el-button>
-            <el-button v-if="userInfo.perm['system.update']" @click="editRow(orderGroup)" type="text" size="mini"
-              icon="el-icon-edit">
+            <el-button
+              v-if="userInfo.perm['system.update']"
+              @click="editRow(orderGroup)"
+              type="text"
+              size="mini"
+              icon="el-icon-edit"
+            >
               编辑
             </el-button>
-            <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
-              title="确定要撤销这个订单吗？" @confirm="deleteRow(orderGroup)" v-if="userInfo.perm['system.delete']">
-              <el-button type="text" size="mini" icon="el-icon-delete" slot="reference" style="color: red;">
+            <el-popconfirm
+              confirm-button-text="确定"
+              cancel-button-text="取消"
+              icon="el-icon-info"
+              icon-color="red"
+              title="确定要撤销这个订单吗？"
+              @confirm="deleteRow(orderGroup)"
+              v-if="userInfo.perm['system.delete']"
+            >
+              <el-button
+                type="text"
+                size="mini"
+                icon="el-icon-delete"
+                slot="reference"
+                style="color: red"
+              >
                 撤单
               </el-button>
             </el-popconfirm>
@@ -254,25 +326,41 @@
           <!-- 左侧：订单信息 -->
           <!-- <el-tag size="small"></el-tag> -->
           <div class="left-panel">
-            <el-descriptions :column="2" size="mini" border :labelStyle="{ width: '100px' }">
-              <el-descriptions-item label="ID">{{ orderGroup.ID }}</el-descriptions-item>
+            <el-descriptions
+              :column="2"
+              size="mini"
+              border
+              :labelStyle="{ width: '100px' }"
+            >
+              <el-descriptions-item label="ID">{{
+                orderGroup.ID
+              }}</el-descriptions-item>
               <el-descriptions-item label="总金额">
                 ¥ {{ orderGroup.total_bet_amount }}
               </el-descriptions-item>
-              <el-descriptions-item label="识别次数">{{ orderGroup.version }}</el-descriptions-item>
-              <el-descriptions-item label="代理佣金">¥ {{ orderGroup.commission }}</el-descriptions-item>
+              <el-descriptions-item label="识别次数">{{
+                orderGroup.version
+              }}</el-descriptions-item>
+              <el-descriptions-item label="代理佣金"
+                >¥ {{ orderGroup.commission }}</el-descriptions-item
+              >
               <el-descriptions-item label="识别难度">
                 {{ getRiskLevelText(orderGroup.risk_score) }}
               </el-descriptions-item>
               <el-descriptions-item label="总投注">
                 {{ orderGroup.total_bet_count }}
               </el-descriptions-item>
-              <el-descriptions-item label="识别耗时">{{ orderGroup.message ? orderGroup.message.llmcons_at : ""
+              <el-descriptions-item label="识别耗时">{{
+                orderGroup.message ? orderGroup.message.llmcons_at : ""
               }}</el-descriptions-item>
-              <el-descriptions-item label="期号">{{ orderGroup.issue_no || orderGroup.issue_no_display
+              <el-descriptions-item label="期号">{{
+                orderGroup.issue_no || orderGroup.issue_no_display
               }}</el-descriptions-item>
               <el-descriptions-item label="订单状态">
-                <el-tag :type="getOrderStatusType(orderGroup.order_status)" size="mini">
+                <el-tag
+                  :type="getOrderStatusType(orderGroup.order_status)"
+                  size="mini"
+                >
                   {{ getOrderStatusText(orderGroup.order_status) }}
                 </el-tag>
               </el-descriptions-item>
@@ -281,43 +369,100 @@
                   ¥ {{ orderGroup.win_amount }}
                 </span>
               </el-descriptions-item>
-              <el-descriptions-item label="创建时间">{{ orderGroup.created_at }}</el-descriptions-item>
-              <el-descriptions-item label="来源">{{ orderGroup.source }}</el-descriptions-item>
-              <el-descriptions-item label="单号">{{ orderGroup.order_no }}</el-descriptions-item>
+              <el-descriptions-item label="创建时间">{{
+                orderGroup.created_at
+              }}</el-descriptions-item>
+              <el-descriptions-item label="来源">{{
+                orderGroup.source
+              }}</el-descriptions-item>
+              <el-descriptions-item label="单号">{{
+                orderGroup.order_no
+              }}</el-descriptions-item>
             </el-descriptions>
           </div>
 
           <!-- 右侧：子订单表格 -->
           <div class="right-panel">
-            <el-table :data="orderGroup.order_details" size="small" border style="width: 100%" highlight-current-row>
-              <el-table-column prop="seq" label="序号" align="center"></el-table-column>
-              <el-table-column prop="game_category_name" label="游戏类型" align="center"
-                show-overflow-tooltip></el-table-column>
-              <el-table-column prop="game_type_name" label="玩法" align="center" show-overflow-tooltip></el-table-column>
-              <el-table-column prop="bet_number" label="投注号码" align="center" show-overflow-tooltip>
+            <el-table
+              :data="orderGroup.order_details"
+              size="small"
+              border
+              style="width: 100%"
+              highlight-current-row
+            >
+              <el-table-column
+                prop="seq"
+                label="序号"
+                align="center"
+              ></el-table-column>
+              <el-table-column
+                prop="game_category_name"
+                label="游戏类型"
+                align="center"
+                show-overflow-tooltip
+              ></el-table-column>
+              <el-table-column
+                prop="game_type_name"
+                label="玩法"
+                align="center"
+                show-overflow-tooltip
+              ></el-table-column>
+              <el-table-column
+                prop="bet_number"
+                label="投注号码"
+                align="center"
+                show-overflow-tooltip
+              >
                 <template slot-scope="scope">
                   <div class="bet-number-clear">{{ scope.row.bet_number }}</div>
                 </template>
               </el-table-column>
-              <el-table-column prop="bet_count" label="投注数量" align="center"></el-table-column>
-              <el-table-column prop="bet_amount" label="投注金额" align="center">
+              <el-table-column
+                prop="bet_count"
+                label="投注数量"
+                align="center"
+              ></el-table-column>
+              <el-table-column
+                prop="bet_amount"
+                label="投注金额"
+                align="center"
+              >
                 <template slot-scope="scope">
                   ¥ {{ scope.row.bet_amount }}
                 </template>
               </el-table-column>
-              <el-table-column prop="multiple" label="倍投" align="center"></el-table-column>
-              <el-table-column prop="odds" label="赔率" align="center"></el-table-column>
-              <el-table-column prop="win_amount" label="中奖金额" align="center">
+              <el-table-column
+                prop="multiple"
+                label="倍投"
+                align="center"
+              ></el-table-column>
+              <el-table-column
+                prop="odds"
+                label="赔率"
+                align="center"
+              ></el-table-column>
+              <el-table-column
+                prop="win_amount"
+                label="中奖金额"
+                align="center"
+              >
                 <template slot-scope="scope">
                   <span :class="{ 'win-amount': scope.row.win_amount > 0 }">
                     {{ scope.row.win_amount }}
                   </span>
                 </template>
               </el-table-column>
-              <el-table-column prop="win_status" label="中奖状态" align="center">
+              <el-table-column
+                prop="win_status"
+                label="中奖状态"
+                align="center"
+              >
                 <template slot-scope="scope">
-                  <el-tag :type="scope.row.win_amount > 0 ? 'danger' : 'info'" size="mini">
-                    {{ scope.row.win_amount > 0 ? '中奖' : '未中奖' }}
+                  <el-tag
+                    :type="scope.row.win_amount > 0 ? 'danger' : 'info'"
+                    size="mini"
+                  >
+                    {{ scope.row.win_amount > 0 ? "中奖" : "未中奖" }}
                   </el-tag>
                 </template>
               </el-table-column>
@@ -331,17 +476,33 @@
     <div>
       <!-- 数据合计,按需求启用 -->
       <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
-      <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 20, 30, 50]"
-        :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
-        @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
+      <el-pagination
+        :current-page="page"
+        :page-size="pageSize"
+        :page-sizes="[10, 20, 30, 50]"
+        :style="{ float: 'right', padding: '20px' }"
+        :total="total"
+        @current-change="handleCurrentChange"
+        @size-change="handleSizeChange"
+        layout="total, sizes, prev, pager, next, jumper"
+        background
+      ></el-pagination>
     </div>
 
-    <uploadexcel ref="uploadexcel" action="FcgOrder"></uploadexcel>
-
     <!-- 订单修改弹窗 -->
-    <el-dialog :title="dialogTitle" :visible.sync="openDialog" width="60%" @close="handleDialogClose"
-      class="order-dialog">
-      <el-form ref="editForm" :model="editFormData" label-width="100px" size="mini">
+    <el-dialog
+      :title="dialogTitle"
+      :visible.sync="openDialog"
+      width="60%"
+      @close="handleDialogClose"
+      class="order-dialog"
+    >
+      <el-form
+        ref="editForm"
+        :model="editFormData"
+        label-width="100px"
+        size="mini"
+      >
         <el-row>
           <!-- <el-col :span="12">
             <el-form-item label="订单总金额">
@@ -350,22 +511,45 @@
           </el-col> -->
           <el-col :span="19">
             <el-form-item label="投注内容">
-              <el-input type="textarea" :rows="5" v-model="editFormData.bet_content"></el-input>
+              <el-input
+                type="textarea"
+                :rows="5"
+                v-model="editFormData.bet_content"
+              ></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="5">
-            <el-button style="margin-left: 5px; margin-top: 10px;" type="success" @click="reidentify(editFormData)"
-              size="mini">重新识别</el-button>
+            <el-button
+              style="margin-left: 5px; margin-top: 10px"
+              type="success"
+              @click="reidentify(editFormData)"
+              size="mini"
+              >重新识别</el-button
+            >
           </el-col>
         </el-row>
 
         <div class="dialog-table-container">
-          <el-table :data="editFormData.order_details" border style="width: 100%" size="mini" max-height="400"
-            highlight-current-row>
+          <el-table
+            :data="editFormData.order_details"
+            border
+            style="width: 100%"
+            size="mini"
+            max-height="400"
+            highlight-current-row
+          >
             <el-table-column label="游戏类型">
               <template slot-scope="scope">
-                <el-select v-model="scope.row.game_type" placeholder="请选择游戏类型">
-                  <el-option v-for="item in gameTypes" :key="item.value" :label="item.label" :value="item.value">
+                <el-select
+                  v-model="scope.row.game_type"
+                  placeholder="请选择游戏类型"
+                >
+                  <el-option
+                    v-for="item in gameTypes"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  >
                   </el-option>
                 </el-select>
               </template>
@@ -373,7 +557,10 @@
 
             <el-table-column label="玩法">
               <template slot-scope="scope">
-                <el-select v-model="scope.row.game_category" placeholder="请选择玩法">
+                <el-select
+                  v-model="scope.row.game_category"
+                  placeholder="请选择玩法"
+                >
                   <el-option label="福彩" :value="1"></el-option>
                   <el-option label="体彩" :value="2"></el-option>
                   <el-option label="排列三" :value="3"></el-option>
@@ -383,25 +570,37 @@
 
             <el-table-column label="投注号码">
               <template slot-scope="scope">
-                <el-input v-model="scope.row.bet_number" placeholder="投注号码"></el-input>
+                <el-input
+                  v-model="scope.row.bet_number"
+                  placeholder="投注号码"
+                ></el-input>
               </template>
             </el-table-column>
 
             <el-table-column label="注数">
               <template slot-scope="scope">
-                <el-input v-model.number="scope.row.bet_count" placeholder="注数"></el-input>
+                <el-input
+                  v-model.number="scope.row.bet_count"
+                  placeholder="注数"
+                ></el-input>
               </template>
             </el-table-column>
 
             <el-table-column label="投注金额">
               <template slot-scope="scope">
-                <el-input v-model="scope.row.bet_amount" placeholder="投注金额"></el-input>
+                <el-input
+                  v-model="scope.row.bet_amount"
+                  placeholder="投注金额"
+                ></el-input>
               </template>
             </el-table-column>
 
             <el-table-column label="倍数">
               <template slot-scope="scope">
-                <el-input v-model.number="scope.row.multiple" placeholder="倍数"></el-input>
+                <el-input
+                  v-model.number="scope.row.multiple"
+                  placeholder="倍数"
+                ></el-input>
               </template>
             </el-table-column>
 
@@ -413,24 +612,42 @@
 
             <el-table-column label="操作">
               <template slot-scope="scope">
-                <el-button type="danger" @click="removeOrderDetail(scope.$index)" size="mini">删除</el-button>
+                <el-button
+                  type="danger"
+                  @click="removeOrderDetail(scope.$index)"
+                  size="mini"
+                  >删除</el-button
+                >
               </template>
             </el-table-column>
           </el-table>
         </div>
         <el-row>
-          <el-button style="float: right;" type="primary" @click="addOrderDetail" size="mini">添加子订单</el-button>
+          <el-button
+            style="float: right"
+            type="primary"
+            @click="addOrderDetail"
+            size="mini"
+            >添加子订单</el-button
+          >
         </el-row>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="openDialog = false" size="small">取 消</el-button>
-        <el-button type="primary" @click="saveOrderEdit" size="small">确 定</el-button>
+        <el-button type="primary" @click="saveOrderEdit" size="small"
+          >确 定</el-button
+        >
       </span>
     </el-dialog>
 
     <!-- 订单拆分详情弹窗 -->
-    <el-dialog title="订单信息" :visible.sync="orderDetailDialogVisible" width="60%" center>
+    <el-dialog
+      title="订单信息"
+      :visible.sync="orderDetailDialogVisible"
+      width="60%"
+      center
+    >
       <div class="detail-section">
         <h3>投注文本</h3>
         <code>{{ orderDetailData.content }}</code>
@@ -442,22 +659,52 @@
       </div>
 
       <!-- 显示split数据 -->
-      <div v-if="orderDetailData.split && orderDetailData.split.length > 0" class="detail-section">
+      <div
+        v-if="orderDetailData.split && orderDetailData.split.length > 0"
+        class="detail-section"
+      >
         <h3>拆分信息</h3>
-        <el-table :data="orderDetailData.split" size="small" border style="width: 100%">
-          <el-table-column prop="bet_number" label="投注号码" align="center"></el-table-column>
-          <el-table-column prop="game_category" label="彩种" align="center" width="100">
+        <el-table
+          :data="orderDetailData.split"
+          size="small"
+          border
+          style="width: 100%"
+        >
+          <el-table-column
+            prop="bet_number"
+            label="投注号码"
+            align="center"
+          ></el-table-column>
+          <el-table-column
+            prop="game_category"
+            label="彩种"
+            align="center"
+            width="100"
+          >
             <template slot-scope="scope">
               {{ getGameCategoryName(scope.row.game_category) }}
             </template>
           </el-table-column>
-          <el-table-column prop="game_type" label="玩法" align="center" width="100">
+          <el-table-column
+            prop="game_type"
+            label="玩法"
+            align="center"
+            width="100"
+          >
             <template slot-scope="scope">
               {{ getGameTypeName(scope.row.game_type) }}
             </template>
           </el-table-column>
-          <el-table-column prop="bet_num" label="投注数量" align="center"></el-table-column>
-          <el-table-column prop="bet_amount" label="投注金额" align="center"></el-table-column>
+          <el-table-column
+            prop="bet_num"
+            label="投注数量"
+            align="center"
+          ></el-table-column>
+          <el-table-column
+            prop="bet_amount"
+            label="投注金额"
+            align="center"
+          ></el-table-column>
           <el-table-column prop="split_number" label="拆分信息" align="center">
             <template slot-scope="scope">
               <div class="split-numbers">
@@ -465,8 +712,16 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column prop="average_amount" label="平均金额" align="center"></el-table-column>
-          <el-table-column prop="split_count" label="拆分数量" align="center"></el-table-column>
+          <el-table-column
+            prop="average_amount"
+            label="平均金额"
+            align="center"
+          ></el-table-column>
+          <el-table-column
+            prop="split_count"
+            label="拆分数量"
+            align="center"
+          ></el-table-column>
           <!-- <el-table-column prop="ava_amount" label="单个号码金额" align="center"></el-table-column> -->
         </el-table>
       </div>
@@ -482,34 +737,83 @@
       <!-- <el-button style="margin-left: 0 !important;" class="float-btn risk-btn" type="primary" icon="el-icon-s-marketing"
         circle @click="openRiskOrderDialog" title="风控订单"></el-button> -->
 
-      <el-button style="margin-left: 0 !important;" class="float-btn risk-btn" type="primary" icon="el-icon-bottom"
-        circle @click="exportExcel" title="导出订单"></el-button>
+      <el-button
+        style="margin-left: 0 !important"
+        class="float-btn risk-btn"
+        type="primary"
+        icon="el-icon-top"
+        circle
+        @click="importExcel"
+        title="导入订单"
+      ></el-button>
+
+      <el-button
+        style="margin-left: 0 !important"
+        class="float-btn risk-btn"
+        type="primary"
+        icon="el-icon-bottom"
+        circle
+        @click="exportExcel"
+        title="导出订单"
+      ></el-button>
     </div>
 
     <!-- 风控订单弹窗 -->
-    <el-dialog :title="'风控号码'" :visible.sync="riskOrderDialogVisible" width="50%" top="10vh">
+    <el-dialog
+      :title="'风控号码'"
+      :visible.sync="riskOrderDialogVisible"
+      width="50%"
+      top="10vh"
+    >
       <el-form :inline="true" style="margin-bottom: 20px">
         <el-form-item label="彩票种类">
-          <el-select v-model="riskOrderSearchInfo.category" placeholder="彩票种类">
+          <el-select
+            v-model="riskOrderSearchInfo.category"
+            placeholder="彩票种类"
+          >
             <el-option label="福彩" value="1"></el-option>
             <el-option label="体彩" value="2"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="彩期">
-          <el-select v-model="riskOrderSearchInfo.issue_id" placeholder="请选择彩期">
-            <el-option v-for="item in lotteryIssueList" :key="item.ID" :label="item.issue_no"
-              :value="item.ID"></el-option>
+          <el-select
+            v-model="riskOrderSearchInfo.issue_id"
+            placeholder="请选择彩期"
+          >
+            <el-option
+              v-for="item in lotteryIssueList"
+              :key="item.ID"
+              :label="item.issue_no"
+              :value="item.ID"
+            ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="searchRiskOrderList">查询</el-button>
+          <el-button type="primary" @click="searchRiskOrderList"
+            >查询</el-button
+          >
         </el-form-item>
       </el-form>
 
-      <el-table :data="riskOrderList" style="width: 100%" height="500px" class="risk-order-table"
-        @sort-change="handleRiskOrderSortChange">
-        <el-table-column prop="split_number" label="拆分号码" sortable="custom" align="center"></el-table-column>
-        <el-table-column prop="total_amount_new" label="转出金额" sortable="custom" align="center">
+      <el-table
+        :data="riskOrderList"
+        style="width: 100%"
+        height="500px"
+        class="risk-order-table"
+        @sort-change="handleRiskOrderSortChange"
+      >
+        <el-table-column
+          prop="split_number"
+          label="拆分号码"
+          sortable="custom"
+          align="center"
+        ></el-table-column>
+        <el-table-column
+          prop="total_amount_new"
+          label="转出金额"
+          sortable="custom"
+          align="center"
+        >
           <template slot-scope="scope">
             {{ scope.row.total_amount_new }}
           </template>
@@ -520,6 +824,42 @@
           </template>
         </el-table-column>
       </el-table>
+    </el-dialog>
+
+    <!-- 导入订单弹窗 -->
+    <el-dialog
+      title="导入订单"
+      :visible.sync="importDialogVisible"
+      width="50%"
+      top="10vh"
+    >
+      <el-form label-width="100px">
+        <el-form-item label="选择会话" required>
+          <el-select
+            v-model="uploadExtraParams.contactId"
+            placeholder="请选择会话"
+            style="width: 100%"
+            filterable
+          >
+            <el-option
+              v-for="item in contactList"
+              :key="item.ID"
+              :label="item.nick_name || item.user_name"
+              :value="item.ID"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="选择文件">
+          <el-button @click="loadFile" icon="el-icon-sell">导入</el-button>
+        </el-form-item>
+
+        <uploadexcel
+          ref="uploadexcel"
+          action="FcgMessage"
+          :extraParams="uploadExtraParams"
+        ></uploadexcel>
+      </el-form>
     </el-dialog>
   </div>
 </template>
@@ -534,7 +874,8 @@ import {
   batchFcgOrderOperation,
   getFcgOrderSummary,
 } from "@/api/fcgame/fcg_order";
-import { getFcgLotteryIssueList } from '@/api/fcgame/fcg_lottery_issue.js';
+import { getFcgLotteryIssueList } from "@/api/fcgame/fcg_lottery_issue.js";
+import { getFcgContactList } from "@/api/fcgame/fcg_contact.js";
 import infoList from "@/mixins/infoList";
 import { mapGetters } from "vuex";
 export default {
@@ -552,63 +893,82 @@ export default {
       const gameCategoryCache = {};
       const gameTypeCache = {};
 
-      return this.tableData.map(order => {
-        const groupName = order.message ? order.message.session_name : '未知群';
-        const userInfo = order.user ? (order.user.nickname || order.user.username) : order.username || '未知用户';
-        const chatContent = order.bet_content || '';
+      return this.tableData.map((order) => {
+        const groupName = order.message ? order.message.session_name : "未知群";
+        const userInfo = order.user
+          ? order.user.nickname || order.user.username
+          : order.username || "未知用户";
+        const chatContent = order.bet_content || "";
 
         // 处理子订单数据
-        const orderDetails = order.order_details && order.order_details.length > 0
-          ? order.order_details.map((detail, index) => ({
-            ...detail,
-            seq: detail.seq || (index + 1),
-            game_category_name: gameCategoryCache[detail.game_category] || (gameCategoryCache[detail.game_category] = this.getGameCategoryName(detail.game_category)),
-            game_type_name: gameTypeCache[detail.game_type] || (gameTypeCache[detail.game_type] = this.getGameTypeName(detail.game_type)),
-            win_status: detail.win_amount > 0 ? '中奖' : '未中奖'
-          }))
-          : [];
+        const orderDetails =
+          order.order_details && order.order_details.length > 0
+            ? order.order_details.map((detail, index) => ({
+                ...detail,
+                seq: detail.seq || index + 1,
+                game_category_name:
+                  gameCategoryCache[detail.game_category] ||
+                  (gameCategoryCache[detail.game_category] =
+                    this.getGameCategoryName(detail.game_category)),
+                game_type_name:
+                  gameTypeCache[detail.game_type] ||
+                  (gameTypeCache[detail.game_type] = this.getGameTypeName(
+                    detail.game_type
+                  )),
+                win_status: detail.win_amount > 0 ? "中奖" : "未中奖",
+              }))
+            : [];
 
         return {
           ...order,
           group_name: groupName,
           user_info: userInfo,
           chat_content: chatContent,
-          issue_no_display: order.issue_no || '',
+          issue_no_display: order.issue_no || "",
           total_bet_count: order.bet_count || 0,
           total_bet_amount: order.bet_amount || 0,
-          order_details: orderDetails
+          order_details: orderDetails,
         };
       });
     },
   },
   data() {
     return {
+      uploadExtraParams: {
+        contactId: "", // 选中的会话ID
+      },
       // 风控订单弹窗相关
       riskOrderDialogVisible: false,
       riskOrderList: [],
       riskOrderTotal: 0,
       riskOrderCurrentPage: 1,
       riskOrderSearchInfo: {
-        category: '',
-        issue_id: ''
+        category: "",
+        issue_id: "",
       },
       // 彩期数据
       lotteryIssueList: [],
       // 排序相关
-      riskOrderSortField: 'total_amount_new',
-      riskOrderSortOrder: 'desc',
+      riskOrderSortField: "total_amount_new",
+      riskOrderSortOrder: "desc",
 
       // 订单详情弹窗相关
       orderDetailDialogVisible: false,
       orderDetailData: {},
 
+      // 导入弹窗相关
+      importDialogVisible: false,
+      contactList: [], // 会话数据列表
+      selectedContact: "", // 选中的会话
+      importFile: null, // 选中的文件
+      uploadLoading: false, // 上传loading状态
 
       listApi: getFcgOrderList,
       openDialog: false,
       dialogTitle: "",
       type: "",
       multipleSelection: [],
-      activeFilter: 'all',
+      activeFilter: "all",
       // 防抖定时器
       searchDebounceTimer: null,
       formData: {},
@@ -617,41 +977,41 @@ export default {
         ID: undefined,
         order_no: "",
         bet_amount: undefined,
-        order_details: []
+        order_details: [],
       },
-      tabState: '0',
-      statusTabState: 'all',
+      tabState: "0",
+      statusTabState: "all",
       gameTypes: [
-        { value: 0, label: '全部玩法' },
-        { value: 1, label: '单选' },
-        { value: 2, label: '组三(对子)' },
-        { value: 3, label: '组六(无重复)' },
-        { value: 4, label: '组六四码' },
-        { value: 5, label: '组六五码' },
-        { value: 6, label: '组六六码' },
-        { value: 7, label: '组六七码' },
-        { value: 8, label: '组六八码' },
-        { value: 9, label: '组三四码' },
-        { value: 10, label: '组三五码' },
-        { value: 11, label: '组三六码' },
-        { value: 12, label: '组三七码' },
-        { value: 13, label: '组三八码' },
-        { value: 14, label: '独胆' },
-        { value: 15, label: '一码不定位' },
-        { value: 16, label: '一码定位' },
-        { value: 17, label: '两码不定位(双飞)' },
-        { value: 18, label: '两码定位' },
-        { value: 19, label: '复试重复号' },
-        { value: 20, label: '复试(三不同号)' },
-        { value: 21, label: '包对子' },
-        { value: 22, label: '包对一' },
-        { value: 23, label: '豹子' },
+        { value: 0, label: "全部玩法" },
+        { value: 1, label: "单选" },
+        { value: 2, label: "组三(对子)" },
+        { value: 3, label: "组六(无重复)" },
+        { value: 4, label: "组六四码" },
+        { value: 5, label: "组六五码" },
+        { value: 6, label: "组六六码" },
+        { value: 7, label: "组六七码" },
+        { value: 8, label: "组六八码" },
+        { value: 9, label: "组三四码" },
+        { value: 10, label: "组三五码" },
+        { value: 11, label: "组三六码" },
+        { value: 12, label: "组三七码" },
+        { value: 13, label: "组三八码" },
+        { value: 14, label: "独胆" },
+        { value: 15, label: "一码不定位" },
+        { value: 16, label: "一码定位" },
+        { value: 17, label: "两码不定位(双飞)" },
+        { value: 18, label: "两码定位" },
+        { value: 19, label: "复试重复号" },
+        { value: 20, label: "复试(三不同号)" },
+        { value: 21, label: "包对子" },
+        { value: 22, label: "包对一" },
+        { value: 23, label: "豹子" },
       ],
     };
   },
   methods: {
     handleIssueChange() {
-      this.onQuery()
+      this.onQuery();
       //  this.$set(this.searchInfo, 'issue_no', issue_no)
       // this.loadData();
     },
@@ -672,7 +1032,7 @@ export default {
     handleBackToTop() {
       window.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     },
 
@@ -692,13 +1052,17 @@ export default {
           if (this.lotteryIssueList.length > 0) {
             // this.riskOrderSearchInfo.issue_id = this.lotteryIssueList[0].ID;
             // this.searchInfo.issue_id = this.lotteryIssueList[0].ID;
-            this.$set(this.riskOrderSearchInfo, 'issue_id', this.lotteryIssueList[0].ID)
-            this.$set(this.searchInfo, 'issue_id', this.lotteryIssueList[0].ID)
+            this.$set(
+              this.riskOrderSearchInfo,
+              "issue_id",
+              this.lotteryIssueList[0].ID
+            );
+            this.$set(this.searchInfo, "issue_id", this.lotteryIssueList[0].ID);
           }
         }
       } catch (error) {
-        console.error('获取彩期数据失败:', error);
-        this.$message.error('获取彩期数据失败');
+        console.error("获取彩期数据失败:", error);
+        this.$message.error("获取彩期数据失败");
       }
     },
 
@@ -713,39 +1077,40 @@ export default {
         const searchParams = {
           page: 1,
           pageSize: 10000,
-          action: 'risk_management',
+          action: "risk_management",
           ...this.riskOrderSearchInfo,
           // 添加排序参数
           sortField: this.riskOrderSortField,
-          sortOrder: this.riskOrderSortOrder
+          sortOrder: this.riskOrderSortOrder,
         };
 
         const res = await getFcgOrderList(searchParams);
         if (res.code === 0) {
           this.riskOrderList = res.data.order_list || [];
         } else {
-          this.$message.error('获取风控订单列表失败');
+          this.$message.error("获取风控订单列表失败");
         }
       } catch (error) {
-        console.error('获取风控订单列表异常:', error);
-        this.$message.error('获取风控订单列表异常');
+        console.error("获取风控订单列表异常:", error);
+        this.$message.error("获取风控订单列表异常");
       }
     },
 
     // 处理风控订单表格排序变化
     handleRiskOrderSortChange({ prop, order }) {
       this.riskOrderSortField = prop;
-      this.riskOrderSortOrder = order === 'ascending' ? 'asc' : order === 'descending' ? 'desc' : '';
+      this.riskOrderSortOrder =
+        order === "ascending" ? "asc" : order === "descending" ? "desc" : "";
       this.searchRiskOrderList();
     },
     // 获取风险级别文本
     getRiskLevelText(score) {
       const numScore = parseInt(score) || 0;
-      if (numScore >= 0 && numScore <= 20) return '容易';
-      if (numScore >= 21 && numScore <= 40) return '一般';
-      if (numScore >= 41 && numScore <= 60) return '困难';
-      if (numScore >= 61 && numScore <= 100) return '极难';
-      return '未知';
+      if (numScore >= 0 && numScore <= 20) return "容易";
+      if (numScore >= 21 && numScore <= 40) return "一般";
+      if (numScore >= 41 && numScore <= 60) return "困难";
+      if (numScore >= 61 && numScore <= 100) return "极难";
+      return "未知";
     },
 
     // 订单筛选功能
@@ -758,22 +1123,22 @@ export default {
 
       // 根据筛选类型设置查询条件
       switch (filterType) {
-        case 'pending': // 待开奖
+        case "pending": // 待开奖
           this.searchInfo.order_status = 2;
           break;
-        case 'opened': // 已开奖
+        case "opened": // 已开奖
           this.searchInfo.order_status = 3;
           break;
-        case 'won': // 已中奖
+        case "won": // 已中奖
           this.searchInfo.win_flag = 1;
           break;
-        case 'lost': // 未中奖
+        case "lost": // 未中奖
           this.searchInfo.win_flag = 0;
           break;
-        case 'cancelled': // 已撤单
+        case "cancelled": // 已撤单
           this.searchInfo.order_status = 4;
           break;
-        case 'all':
+        case "all":
         default:
           // 全部状态，不添加筛选条件
           break;
@@ -787,7 +1152,7 @@ export default {
 
     handleClick(tab) {
       if (tab.name == 0) {
-        this.searchInfo.game_type = undefined
+        this.searchInfo.game_type = undefined;
       } else {
         this.searchInfo.game_type = tab.name;
       }
@@ -796,7 +1161,7 @@ export default {
 
     // 处理订单状态标签页点击
     handleStatusTabClick(tab) {
-      if (tab.name === 'all') {
+      if (tab.name === "all") {
         delete this.searchInfo.order_status;
       } else {
         this.searchInfo.order_status = tab.name;
@@ -806,42 +1171,42 @@ export default {
     // 获取订单状态类型
     getOrderStatusType(status) {
       const statusMap = {
-        0: 'warning', // 待支付
-        1: 'warning',    //识别失败  
-        2: 'success', //识别成功
-        3: 'success',  // 未中奖
-        4: 'danger'   //已中奖
+        0: "warning", // 待支付
+        1: "warning", //识别失败
+        2: "success", //识别成功
+        3: "success", // 未中奖
+        4: "danger", //已中奖
       };
-      return statusMap[status] || 'info';
+      return statusMap[status] || "info";
     },
     // 获取订单状态文本
     getOrderStatusText(status) {
       const statusMap = {
-        0: '待识别',
-        1: '识别失败',
-        2: '识别成功',
-        3: '未中奖',
-        4: '已中奖'
+        0: "待识别",
+        1: "识别失败",
+        2: "识别成功",
+        3: "未中奖",
+        4: "已中奖",
       };
-      return statusMap[status] || '待开奖';
+      return statusMap[status] || "待开奖";
     },
     // 获取支付状态类型
     getPayStatusType(status) {
       const statusMap = {
-        0: 'info',    // 未支付
-        1: 'success', // 已支付
-        2: 'danger'   // 支付失败
+        0: "info", // 未支付
+        1: "success", // 已支付
+        2: "danger", // 支付失败
       };
-      return statusMap[status] || 'info';
+      return statusMap[status] || "info";
     },
     // 获取支付状态文本
     getPayStatusText(status) {
       const statusMap = {
-        0: '未支付',
-        1: '已支付',
-        2: '支付失败'
+        0: "未支付",
+        1: "已支付",
+        2: "支付失败",
       };
-      return statusMap[status] || '已支付';
+      return statusMap[status] || "已支付";
     },
     onQuery() {
       // 清除之前的定时器
@@ -878,18 +1243,20 @@ export default {
           order_no: order.order_no,
           bet_amount: order.bet_amount,
           bet_content: order.bet_content,
-          order_details: order.order_details ? order.order_details.map(detail => {
-            return {
-              ID: detail.ID,
-              game_category: detail.game_category,
-              game_type: detail.game_type,
-              bet_number: detail.bet_number || '',
-              bet_count: Number(detail.bet_count) || 0,
-              bet_amount: detail.bet_amount || 0,
-              multiple: detail.multiple || 1,
-              order_amount: detail.bet_amount * detail.multiple || 0 // 计算订单金额
-            };
-          }) : []
+          order_details: order.order_details
+            ? order.order_details.map((detail) => {
+                return {
+                  ID: detail.ID,
+                  game_category: detail.game_category,
+                  game_type: detail.game_type,
+                  bet_number: detail.bet_number || "",
+                  bet_count: Number(detail.bet_count) || 0,
+                  bet_amount: detail.bet_amount || 0,
+                  multiple: detail.multiple || 1,
+                  order_amount: detail.bet_amount * detail.multiple || 0, // 计算订单金额
+                };
+              })
+            : [],
         };
         this.openDialog = true;
       }
@@ -901,7 +1268,7 @@ export default {
       if (res.code == 0) {
         this.$message({
           type: "success",
-          message: "删除成功"
+          message: "删除成功",
         });
         if (this.tableData.length == 1) {
           this.page--;
@@ -928,21 +1295,21 @@ export default {
       if (res.code == 0) {
         this.$message({
           type: "success",
-          message: "操作成功"
-        })
+          message: "操作成功",
+        });
         this.$refs.dialog.handleClose();
         this.openDialog = false;
         this.getTableData();
       }
     },
     handleSelectionChange(val) {
-      this.multipleSelection = val
+      this.multipleSelection = val;
     },
     handleCommand(command) {
-      this.$confirm('是否要执行批量操作?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
+      this.$confirm("是否要执行批量操作?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
       }).then(async () => {
         const ids = [];
         if (this.multipleSelection.length == 0) {
@@ -952,14 +1319,15 @@ export default {
           });
           return;
         }
-        this.multipleSelection && this.multipleSelection.map((item) => {
-          // 使用订单的原始ID，而不是可能被明细覆盖的ID
-          ids.push(item.order_id || item.ID);
-        });
+        this.multipleSelection &&
+          this.multipleSelection.map((item) => {
+            // 使用订单的原始ID，而不是可能被明细覆盖的ID
+            ids.push(item.order_id || item.ID);
+          });
 
         const res = await batchFcgOrderOperation({
           ids,
-          'command': command
+          command: command,
         });
         if (res.code == 0) {
           this.$message({
@@ -968,16 +1336,16 @@ export default {
           });
           this.getTableData();
         }
-      })
+      });
     },
     // 获取游戏类型名称
     getGameCategoryName(categoryId) {
       const categoryMap = {
-        1: '福彩',
-        2: '体彩',
-        3: '排列三',
+        1: "福彩",
+        2: "体彩",
+        3: "排列三",
       };
-      return categoryMap[categoryId] || '未知';
+      return categoryMap[categoryId] || "未知";
     },
 
     // 获取玩法名称
@@ -993,8 +1361,8 @@ export default {
       }
 
       // 查找并缓存结果
-      const type = this.gameTypes.find(item => item.value === typeId);
-      const result = type ? type.label : '未知';
+      const type = this.gameTypes.find((item) => item.value === typeId);
+      const result = type ? type.label : "未知";
       this._gameTypeCache[typeId] = result;
       return result;
     },
@@ -1013,16 +1381,17 @@ export default {
       }
       this.showSummary = true;
     },
-    importExcel() {
-      //触发upLoad组件内部点击事件，弹出文件选择框
-      this.$refs.uploadexcel.chooseFile();
-    },
     async exportExcel() {
       this.searchInfo.action = "fcg_order";
       await this.$api.getExcel(this.searchInfo);
     },
-    async reidentify(row) { //重新识别      
-      const res = await findFcgOrder({ ID: row.ID, bet_content: row.bet_content, action: "reidentify" });
+    async reidentify(row) {
+      //重新识别
+      const res = await findFcgOrder({
+        ID: row.ID,
+        bet_content: row.bet_content,
+        action: "reidentify",
+      });
       if (res.code == 0) {
         this.$message({
           type: "success",
@@ -1035,13 +1404,13 @@ export default {
     // 添加子订单
     addOrderDetail() {
       this.editFormData.order_details.push({
-        game_category_name: '',
-        game_type_name: '',
-        bet_number: '',
+        game_category_name: "",
+        game_type_name: "",
+        bet_number: "",
         bet_count: Number(0),
         bet_amount: 0,
         multiple: 1,
-        order_amount: 0
+        order_amount: 0,
       });
     },
     // 删除子订单
@@ -1054,14 +1423,14 @@ export default {
       if (res.code == 0) {
         this.$message({
           type: "success",
-          message: "订单编辑成功"
+          message: "订单编辑成功",
         });
         this.openDialog = false;
         this.getTableData();
       } else {
         this.$message({
           type: "error",
-          message: res.msg || "订单编辑失败"
+          message: res.msg || "订单编辑失败",
         });
       }
     },
@@ -1071,14 +1440,39 @@ export default {
         ID: undefined,
         order_no: "",
         bet_amount: undefined,
-        order_details: []
+        order_details: [],
       };
-    }
+    },
+
+    // 导入相关方法
+    // 修改导入按钮点击事件，打开弹窗而不是直接选择文件
+    importExcel() {
+      this.importDialogVisible = true;
+      this.loadContactList();
+    },
+    loadFile() {
+      this.$refs.uploadexcel.chooseFile();
+    },
+
+    // 加载会话数据列表
+    async loadContactList() {
+      try {
+        const res = await getFcgContactList({ state: 1, pageSize: 10000 });
+        if (res.code === 0) {
+          this.contactList = res.data.list || [];
+        } else {
+          this.$message.error("获取会话数据失败");
+        }
+      } catch (error) {
+        console.error("获取会话数据异常:", error);
+        this.$message.error("获取会话数据异常");
+      }
+    },
   },
   async created() {
     // 性能监控：记录组件创建时间
-    if (process.env.NODE_ENV === 'development') {
-      console.time('fcg_order component created');
+    if (process.env.NODE_ENV === "development") {
+      console.time("fcg_order component created");
     }
 
     // 检查URL查询参数中的状态
@@ -1092,10 +1486,9 @@ export default {
     // 加载彩期数据
     await this.loadLotteryIssueList();
     await this.getTableData();
-    if (process.env.NODE_ENV === 'development') {
-      console.timeEnd('fcg_order component created');
+    if (process.env.NODE_ENV === "development") {
+      console.timeEnd("fcg_order component created");
     }
-
   },
   beforeDestroy() {
     // 清理缓存，避免内存泄漏
@@ -1108,11 +1501,11 @@ export default {
       clearTimeout(this.searchDebounceTimer);
       this.searchDebounceTimer = null;
     }
-  }
+  },
 };
 </script>
 
 
 <style scoped>
-@import './fcg_order.css';
+@import "./fcg_order.css";
 </style>

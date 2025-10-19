@@ -171,7 +171,11 @@
         @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
     </div>
 
-    <uploadexcel ref="uploadexcel" action="FcgContact"></uploadexcel>
+    <uploadexcel 
+      ref="uploadexcel" 
+      action="FcgContact"
+      :extraParams="uploadExtraParams"
+    ></uploadexcel>
   </div>
 </template>
 
@@ -205,6 +209,12 @@ export default {
       lastValidFeeRate: 0, // 用于保存上一次的有效费率值
       // defOddList: [],
       // oddlist: [],
+      // 上传组件的额外GET参数示例
+      uploadExtraParams: {
+        // 可以在这里添加任意的GET参数
+        // 例如：tenant_id: 123, category: 'import' 等
+        // 这些参数会被自动添加到上传URL的查询字符串中
+      },
       formData: {
         tenant_id: undefined,
         username: "",
