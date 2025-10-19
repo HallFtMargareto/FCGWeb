@@ -34,8 +34,11 @@
         </el-form-item>
 
         <el-form-item label=" ">
-          <el-button type="success" @click="generateContent"
+          <el-button type="success" @click="generateContent" plain
             >生成内容</el-button
+          >
+          <el-button type="warning" @click="preLossRate" plain
+            >预亏损率</el-button
           >
         </el-form-item>
         <!-- <el-form-item label="阈值比例">
@@ -84,7 +87,7 @@
             {{ rickDataInfo.total_info.netBank }}
           </el-descriptions-item>
 
-          <el-descriptions-item label="总数量">{{
+          <el-descriptions-item label="号码数">{{
             rickDataInfo.total_info.totalCount
           }}</el-descriptions-item>
           <el-descriptions-item label="转出单量">{{
@@ -108,33 +111,48 @@
         height="600px"
         highlight-current-row
         @selection-change="handleSelectionChange"
+        @sort-change="handleSortChange"
       >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column
           prop="split_number"
           label="拆单号码"
           align="center"
+          sortable="custom"
+          :sort-orders="['descending', 'ascending', null]"
         ></el-table-column>
         <el-table-column
           prop="split_count"
           label="号码数量"
           align="center"
+          sortable="custom"
+          :sort-orders="['descending', 'ascending', null]"
         ></el-table-column>
         <el-table-column
           prop="exposure_amount"
           label="风险金额"
           align="center"
+          sortable="custom"
+          :sort-orders="['descending', 'ascending', null]"
         ></el-table-column>
         <el-table-column
           prop="potential_payout"
           label="中奖赔付"
           align="center"
+          sortable="custom"
+          :sort-orders="['descending', 'ascending', null]"
         >
           <template slot-scope="scope">
             -{{ scope.row.potential_payout }}
           </template>
         </el-table-column>
-        <el-table-column prop="ks_amount" label="预亏损金额" align="center">
+        <el-table-column
+          prop="ks_amount"
+          label="预亏损金额"
+          align="center"
+          sortable="custom"
+          :sort-orders="['descending', 'ascending', null]"
+        >
           <template slot-scope="scope"> -{{ scope.row.ks_amount }} </template>
         </el-table-column>
         <el-table-column
@@ -156,6 +174,8 @@
           prop="trans_amount"
           label="转出金额"
           align="center"
+          sortable="custom"
+          :sort-orders="['descending', 'ascending', null]"
         ></el-table-column>
         <el-table-column prop="risk_level" label="风险等级" align="center">
           <template slot-scope="scope">
@@ -184,6 +204,58 @@
         </el-table-column>
       </el-table>
     </div>
+
+    <!-- 预亏损率弹窗 -->
+    <el-dialog
+      title="预亏损率数据"
+      :visible.sync="showPreLossDialog"
+      width="50%"
+    >
+      <el-table
+        :data="preLossData"
+        border
+        stripe
+        highlight-current-row
+        max-height="400"
+        @sort-change="handlePreLossSortChange"
+      >
+        <el-table-column prop="PreLossAmount" label="预亏损金额" align="center">
+          <template slot-scope="scope">
+            {{ parseFloat(scope.row.PreLossAmount).toFixed(2) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="PreLossRate" label="预亏损百分比" align="center">
+          <template slot-scope="scope">
+            {{ (parseFloat(scope.row.PreLossRate) * 100).toFixed(2) }}%
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="TransferAmount"
+          label="转出总金额"
+          align="center"
+        >
+          <template slot-scope="scope">
+            {{ parseFloat(scope.row.TransferAmount).toFixed(2) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="OrderCount" label="号码数" align="center">
+          <template slot-scope="scope">
+            {{ parseFloat(scope.row.OrderCount).toFixed(0) }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="CalAmount"
+          label="计算金额"
+          align="center"
+          sortable="custom"
+          :sort-orders="['descending', 'ascending', null]"
+        >
+          <template slot-scope="scope">
+            {{ parseFloat(scope.row.CalAmount).toFixed(2) }}
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -229,10 +301,33 @@ export default {
       lotteryIssueList: [],
       rickDataInfo: {},
       ks_amount: undefined,
+      // 预亏损弹窗相关数据
+      showPreLossDialog: false,
+      preLossData: [],
+      // 排序相关数据
+      sortProp: "",
+      sortOrder: null,
     };
   },
   methods: {
     ...mapMutations("common", ["setAlpha", "setBeta"]),
+    // 与亏损率
+    async preLossRate() {
+      const res = await getFcgOrderSplitNumberList({
+        action: "pre_loss_rate",
+        game_category: this.game_category,
+        issue_id: this.chartIssueId,
+        // alpha: this.alpha,
+        // beta: this.beta,
+        ks_amount: this.ks_amount,
+      });
+      if (res.code === 0 && res.data && res.data.pre_loss_list) {
+        this.preLossData = res.data.pre_loss_list;
+        this.showPreLossDialog = true;
+      } else {
+        this.$message.error(res.msg || "获取数据失败");
+      }
+    },
     // 获取期号列表
     async getLotteryIssueList() {
       try {
@@ -289,6 +384,106 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;
+    },
+
+    // 处理表格排序变化
+    handleSortChange({ prop, order }) {
+      this.sortProp = prop;
+      this.sortOrder = order;
+
+      if (
+        !this.rickDataInfo.rick_order ||
+        this.rickDataInfo.rick_order.length === 0
+      ) {
+        return;
+      }
+
+      // 创建数据副本进行排序
+      const sortedData = [...this.rickDataInfo.rick_order];
+
+      if (order) {
+        sortedData.sort((a, b) => {
+          let valueA = a[prop];
+          let valueB = b[prop];
+
+          // 处理数字类型的排序
+          if (
+            prop === "exposure_amount" ||
+            prop === "potential_payout" ||
+            prop === "ks_amount" ||
+            prop === "trans_amount" ||
+            prop === "split_count"
+          ) {
+            valueA = parseFloat(valueA) || 0;
+            valueB = parseFloat(valueB) || 0;
+          }
+
+          // 处理拆单号码的排序（可能是数字或字符串）
+          if (prop === "split_number") {
+            // 尝试转换为数字，如果失败则按字符串排序
+            const numA = parseFloat(valueA);
+            const numB = parseFloat(valueB);
+            if (!isNaN(numA) && !isNaN(numB)) {
+              valueA = numA;
+              valueB = numB;
+            } else {
+              // 字符串排序
+              if (order === "ascending") {
+                return valueA.toString().localeCompare(valueB.toString());
+              } else {
+                return valueB.toString().localeCompare(valueA.toString());
+              }
+            }
+          }
+
+          if (order === "ascending") {
+            return valueA - valueB;
+          } else {
+            return valueB - valueA;
+          }
+        });
+      }
+
+      // 更新排序后的数据
+      this.$set(this.rickDataInfo, "rick_order", sortedData);
+    },
+
+    // 处理预亏损率弹窗表格排序变化
+    handlePreLossSortChange({ prop, order }) {
+      if (!this.preLossData || this.preLossData.length === 0) {
+        return;
+      }
+
+      // 创建数据副本进行排序
+      const sortedData = [...this.preLossData];
+
+      if (order) {
+        sortedData.sort((a, b) => {
+          let valueA = a[prop];
+          let valueB = b[prop];
+
+          // 处理数字类型的排序
+          if (
+            prop === "PreLossAmount" ||
+            prop === "PreLossRate" ||
+            prop === "TransferAmount" ||
+            prop === "OrderCount" ||
+            prop === "CalAmount"
+          ) {
+            valueA = parseFloat(valueA) || 0;
+            valueB = parseFloat(valueB) || 0;
+          }
+
+          if (order === "ascending") {
+            return valueA - valueB;
+          } else {
+            return valueB - valueA;
+          }
+        });
+      }
+
+      // 更新排序后的数据
+      this.preLossData = sortedData;
     },
 
     // 生成内容按钮点击事件
@@ -424,5 +619,21 @@ export default {
   padding: 10px;
   border: 1px solid #ebeef5;
   border-radius: 4px;
+}
+
+/* 预亏损弹窗样式 */
+.dialog-footer {
+  text-align: center;
+  padding: 20px 0 0 0;
+}
+
+/* 表格数字格式化 */
+.el-table .cell {
+  font-family: "Courier New", monospace;
+}
+
+/* 弹窗表格样式优化 */
+.el-dialog__body {
+  padding: 20px;
 }
 </style>

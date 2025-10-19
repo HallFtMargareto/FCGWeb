@@ -19,18 +19,12 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="福彩开奖号码">
-          <el-input
-            v-model="fc_draw_number"
-            placeholder="请输入福彩模拟开奖号码"
-          ></el-input>
+        <el-form-item label="福彩号码">
+          <el-input v-model="fc_draw_number" placeholder="福彩号码"></el-input>
         </el-form-item>
 
-        <el-form-item label="体彩开奖号码">
-          <el-input
-            v-model="tc_draw_number"
-            placeholder="请输入体彩模拟开奖号码"
-          ></el-input>
+        <el-form-item label="体彩号码">
+          <el-input v-model="tc_draw_number" placeholder="体彩号码"></el-input>
         </el-form-item>
       </searchform>
     </div>
