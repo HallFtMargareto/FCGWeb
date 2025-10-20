@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="search-term">
-      <searchform size="mini" :maxShow="3" @search="onQuery">
+      <searchform size="mini" :maxShow="4" @search="onQuery">
         <el-form-item label="彩期">
           <el-select
             v-model="searchInfo.issue_id"
@@ -31,6 +31,21 @@
             placeholder="投注内容"
             clearable
           ></el-input>
+        </el-form-item>
+
+        <el-form-item label=" ">
+          <el-button
+            v-if="userInfo.perm['system.import']"
+            @click="importExcel"
+            icon="el-icon-sell"
+            >导入</el-button
+          >
+          <el-button
+            v-if="userInfo.perm['system.export']"
+            @click="exportExcel"
+            icon="el-icon-sold-out"
+            >导出</el-button
+          >
         </el-form-item>
 
         <el-form-item label="投注号码">
@@ -761,7 +776,7 @@
     </el-dialog>
 
     <!-- 右侧漂浮操作按钮 -->
-    <div class="float-operations">
+    <!-- <div class="float-operations">
       <el-button
         style="margin-left: 0 !important"
         class="float-btn risk-btn"
@@ -781,7 +796,7 @@
         @click="exportExcel"
         title="导出订单"
       ></el-button>
-    </div>
+    </div> -->
 
     <!-- 导入订单弹窗 -->
     <el-dialog
