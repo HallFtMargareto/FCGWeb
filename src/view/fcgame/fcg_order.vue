@@ -282,13 +282,33 @@
           </el-tabs>
         </el-col>
       </el-row>
-      <el-row>
-        <el-button
-          v-if="statusTabState === '1'"
-          icon="el-icon-s-unfold"
-          @click="openBatchEditDialog"
-          >批量编辑</el-button
-        >
+    </div>
+
+    <!-- 分页 -->
+    <div>
+      <el-row :gutter="24">
+        <el-col :span="4" v-if="statusTabState === '1'">
+          <el-button
+            icon="el-icon-s-unfold"
+            @click="openBatchEditDialog"
+            >批量编辑</el-button
+          >
+        </el-col>
+        <el-col :span="statusTabState === '1' ? 20 : 24">
+          <!-- 数据合计,按需求启用 -->
+          <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
+          <el-pagination
+            :current-page="page"
+            :page-size="pageSize"
+            :page-sizes="[10, 20, 30, 50]"
+            :style="{ float: 'right', padding: '0' }"
+            :total="total"
+            @current-change="handleCurrentChange"
+            @size-change="handleSizeChange"
+            layout="total, sizes, prev, pager, next, jumper"
+            background
+          ></el-pagination>
+        </el-col>
       </el-row>
     </div>
 
@@ -521,23 +541,6 @@
           </div>
         </div>
       </el-card>
-    </div>
-
-    <!-- 分页 -->
-    <div>
-      <!-- 数据合计,按需求启用 -->
-      <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
-      <el-pagination
-        :current-page="page"
-        :page-size="pageSize"
-        :page-sizes="[10, 20, 30, 50]"
-        :style="{ float: 'right', padding: '20px' }"
-        :total="total"
-        @current-change="handleCurrentChange"
-        @size-change="handleSizeChange"
-        layout="total, sizes, prev, pager, next, jumper"
-        background
-      ></el-pagination>
     </div>
 
     <!-- 订单修改弹窗 -->

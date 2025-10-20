@@ -1,4 +1,8 @@
 /* 表格样式 - Excel风格 */
+.el-pagination {
+  padding: 0 !important;
+}
+
 .excel-table {
   width: 100%;
   overflow-x: auto;
