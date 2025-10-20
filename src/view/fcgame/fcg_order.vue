@@ -282,6 +282,14 @@
           </el-tabs>
         </el-col>
       </el-row>
+      <el-row>
+        <el-button
+          v-if="statusTabState === '1'"
+          icon="el-icon-s-unfold"
+          @click="openBatchEditDialog"
+          >批量编辑</el-button
+        >
+      </el-row>
     </div>
 
     <!-- table -->
@@ -833,6 +841,53 @@
         ></uploadexcel>
       </el-form>
     </el-dialog>
+
+    <!-- 批量编辑弹窗 -->
+    <el-dialog
+      title="批量编辑投注内容"
+      :visible.sync="batchEditDialogVisible"
+      width="70%"
+      top="5vh"
+      :close-on-click-modal="false"
+    >
+      <div style="max-height: 60vh; overflow-y: auto">
+        <div v-if="batchEditFormData.orders.length === 0" class="empty-state">
+          暂无识别失败的订单数据
+        </div>
+        <div
+          v-for="order in batchEditFormData.orders"
+          :key="order.id"
+          style="
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ebeef5;
+            border-radius: 4px;
+          "
+        >
+          <div style="margin-bottom: 8px; font-weight: bold; color: #409eff">
+            订单ID: {{ order.id }}
+          </div>
+          <el-input
+            type="textarea"
+            :rows="3"
+            v-model="order.bet_content"
+            placeholder="请输入投注内容"
+          ></el-input>
+        </div>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="batchEditDialogVisible = false" size="small"
+          >取 消</el-button
+        >
+        <el-button
+          type="primary"
+          @click="submitBatchEdit"
+          size="small"
+          :loading="batchEditLoading"
+          >确 定</el-button
+        >
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -922,6 +977,13 @@ export default {
       selectedContact: "", // 选中的会话
       importFile: null, // 选中的文件
       uploadLoading: false, // 上传loading状态
+
+      // 批量编辑弹窗相关
+      batchEditDialogVisible: false,
+      batchEditLoading: false,
+      batchEditFormData: {
+        orders: [], // 格式: [{id: xx, bet_content: "xx"}]
+      },
 
       listApi: getFcgOrderList,
       openDialog: false,
@@ -1441,6 +1503,89 @@ export default {
       } catch (error) {
         console.error("获取会话数据异常:", error);
         this.$message.error("获取会话数据异常");
+      }
+    },
+
+    // 打开批量编辑弹窗
+    async openBatchEditDialog() {
+      try {
+        // 获取所有识别失败的订单数据
+        const searchParams = {
+          ...this.searchInfo,
+          order_status: "1", // 识别失败
+          page: 1,
+          pageSize: 1000, // 获取足够多的数据
+        };
+
+        const res = await getFcgOrderList(searchParams);
+        if (res.code === 0) {
+          const failedOrders = res.data.list || [];
+
+          // 格式化数据为批量编辑需要的格式
+          this.batchEditFormData.orders = failedOrders.map((order) => ({
+            id: order.ID,
+            bet_content: order.bet_content || "",
+          }));
+
+          this.batchEditDialogVisible = true;
+        } else {
+          this.$message.error("获取识别失败订单数据失败");
+        }
+      } catch (error) {
+        console.error("获取识别失败订单数据异常:", error);
+        this.$message.error("获取识别失败订单数据异常");
+      }
+    },
+
+    // 提交批量编辑
+    async submitBatchEdit() {
+      try {
+        this.batchEditLoading = true;
+
+        // 验证数据
+        if (this.batchEditFormData.orders.length === 0) {
+          this.$message.warning("没有需要编辑的订单数据");
+          return;
+        }
+
+        // 构建提交数据
+        const submitData = this.batchEditFormData.orders.map((order) => ({
+          id: order.id,
+          bet_content: order.bet_content,
+        }));
+
+        // 调用批量操作接口
+        const res = await batchFcgOrderOperation({
+          command: "batch_alter",
+          bet_contents: submitData,
+          ids: this.batchEditFormData.orders.map((order) => order.id),
+        });
+
+        if (res.code === 0) {
+          this.$message({
+            type: "success",
+            message: "批量编辑成功",
+          });
+
+          // 关闭弹窗
+          this.batchEditDialogVisible = false;
+
+          // 刷新列表数据
+          this.getTableData();
+        } else {
+          this.$message({
+            type: "error",
+            message: res.msg || "批量编辑失败",
+          });
+        }
+      } catch (error) {
+        console.error("批量编辑异常:", error);
+        this.$message({
+          type: "error",
+          message: "批量编辑异常",
+        });
+      } finally {
+        this.batchEditLoading = false;
       }
     },
   },

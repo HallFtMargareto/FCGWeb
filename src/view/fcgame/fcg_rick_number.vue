@@ -19,13 +19,13 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="福彩号码">
-          <el-input v-model="fc_draw_number" placeholder="福彩号码"></el-input>
+        <el-form-item label="拆分号码">
+          <el-input v-model="split_number" placeholder="拆分号码"></el-input>
         </el-form-item>
 
-        <el-form-item label="体彩号码">
+        <!-- <el-form-item label="体彩号码">
           <el-input v-model="tc_draw_number" placeholder="体彩号码"></el-input>
-        </el-form-item>
+        </el-form-item> -->
       </searchform>
     </div>
 
@@ -161,8 +161,7 @@ export default {
       // 期号列表
       lotteryIssueList: [],
       rickDataInfo: {},
-      fc_draw_number: "",
-      tc_draw_number: "",
+      split_number: "",
       // 表格相关数据
       multipleSelection: [],
       isAllSelected: false,
@@ -201,8 +200,7 @@ export default {
           action: "rick_split_num",
           // game_category: this.game_category,
           issue_id: this.chartIssueId,
-          fc_draw_number: this.fc_draw_number,
-          tc_draw_number: this.tc_draw_number,
+          split_number: this.split_number,
         });
         if (res.code === 0 && res.data) {
           this.rickDataInfo = res.data;
