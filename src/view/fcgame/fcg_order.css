@@ -60,6 +60,10 @@
 
 .chat-content {
   color: #446CF9;
+  word-break: break-all;
+  white-space: normal;
+  flex: 1;
+  min-width: 0;
 }
 
 /* 投注号码样式 - 更清晰的显示 */
@@ -128,15 +132,17 @@
 .card-title {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
+  gap: 10px;
 }
 
 .card-title .left-content {
   text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
 .card-title .right-content {

@@ -2,23 +2,39 @@
   <div>
     <div class="search-term">
       <searchform size="mini" :maxShow="3" @search="onQuery">
-
         <el-form-item label="彩票类型">
-          <el-input v-model.number="searchInfo.game_category" placeholder="请输入" clearable></el-input>
+          <el-input
+            v-model.number="searchInfo.game_category"
+            placeholder="请输入"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="玩法类型">
-          <el-input v-model="searchInfo.issue_no" placeholder="玩法分类" clearable></el-input>
+          <el-input
+            v-model="searchInfo.issue_no"
+            placeholder="玩法分类"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="开奖日期">
-          <datepicker v-model="searchInfo.lottery_date" type="datetime" placeholder="选择日期" style="width: 100%"
-            clearable />
+          <datepicker
+            v-model="searchInfo.lottery_date"
+            type="datetime"
+            placeholder="选择日期"
+            style="width: 100%"
+            clearable
+          />
         </el-form-item>
 
         <el-form-item label="状态" prop="status">
           <!-- @change="handleStatusChange(scope.row)" -->
-          <el-select v-model="searchInfo.status" placeholder="请选择" size="mini">
+          <el-select
+            v-model="searchInfo.status"
+            placeholder="请选择"
+            size="mini"
+          >
             <el-option label="未开售" :value="0"></el-option>
             <el-option label="售卖中" :value="1"></el-option>
             <el-option label="封盘" :value="2"></el-option>
@@ -28,11 +44,19 @@
         </el-form-item>
 
         <el-form-item label="开奖结果">
-          <el-input v-model="searchInfo.draw_number" placeholder="开奖结果" clearable></el-input>
+          <el-input
+            v-model="searchInfo.draw_number"
+            placeholder="开奖结果"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="开奖来源">
-          <el-input v-model="searchInfo.source" placeholder="开奖来源" clearable></el-input>
+          <el-input
+            v-model="searchInfo.source"
+            placeholder="开奖来源"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="创建时间">
@@ -42,11 +66,16 @@
           <datepicker v-model="searchInfo.endTime" type="datetime" />
         </el-form-item>
       </searchform>
-
     </div>
 
-    <el-table :data="tableData" @selection-change="handleSelectionChange" @sort-change="sortChange" ref="multipleTable"
-      :show-summary="showSummary" :summary-method="getSummaries">
+    <el-table
+      :data="tableData"
+      @selection-change="handleSelectionChange"
+      @sort-change="sortChange"
+      ref="multipleTable"
+      :show-summary="showSummary"
+      :summary-method="getSummaries"
+    >
       <el-table-column type="selection" width="50"></el-table-column>
       <el-table-column label="ID" prop="ID" sortable></el-table-column>
 
@@ -67,50 +96,92 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="开奖结果" prop="draw_number" show-overflow-tooltip>
+      <el-table-column
+        label="福彩开奖号码"
+        prop="fc_draw_number"
+        show-overflow-tooltip
+      >
+      </el-table-column>
+      <el-table-column
+        label="体彩开奖号码"
+        prop="tc_draw_number"
+        show-overflow-tooltip
+      >
       </el-table-column>
 
-      <el-table-column label="总下注" prop="total_bets">
+      <!-- <el-table-column label="总下注" prop="total_bets">
       </el-table-column>
 
       <el-table-column label="总投金额" prop="total_amount">
       </el-table-column>
 
       <el-table-column label="开奖来源" prop="source" show-overflow-tooltip>
-      </el-table-column>
+      </el-table-column> -->
 
-      <el-table-column label="添加时间" width="160" prop="created_at" sortable="custom">
+      <el-table-column
+        label="添加时间"
+        width="160"
+        prop="created_at"
+        sortable="custom"
+      >
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
       </el-table-column>
 
       <el-table-column label="操作" fixed="right" width="200">
         <template slot-scope="scope">
-          <el-button v-if="userInfo.perm['system.update']" @click="editRow(scope.row)" type="text" size="small"
-            icon="el-icon-edit">编辑</el-button>
+          <el-button
+            v-if="userInfo.perm['system.update']"
+            @click="editRow(scope.row)"
+            type="text"
+            size="small"
+            icon="el-icon-edit"
+            >编辑</el-button
+          >
         </template>
       </el-table-column>
-
     </el-table>
 
     <!-- class="pagination-container" -->
     <div>
       <!-- 数据合计,按需求启用 -->
       <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
-      <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
-        :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
-        @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
+      <el-pagination
+        :current-page="page"
+        :page-size="pageSize"
+        :page-sizes="[10, 30, 50, 100]"
+        :style="{ float: 'right', padding: '20px' }"
+        :total="total"
+        @current-change="handleCurrentChange"
+        @size-change="handleSizeChange"
+        layout="total, sizes, prev, pager, next, jumper"
+        background
+      ></el-pagination>
     </div>
 
-    <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
-      @confirm="enterDialog" ref="dialog">
+    <dialogform
+      :visible.sync="openDialog"
+      :dialogTitle="dialogTitle"
+      :formDatas="formData"
+      :formRule="formRules"
+      @confirm="enterDialog"
+      ref="dialog"
+    >
       <!-- <el-form-item label="官方期号" prop="official_issue_no">
         <el-input v-model="formData.official_issue_no" placeholder="例如 20250909" clearable></el-input>
       </el-form-item> -->
       <el-form-item label="福彩开奖号码" prop="fc_draw_number">
-        <el-input v-model="formData.fc_draw_number" placeholder="请输入开奖号码" clearable></el-input>
+        <el-input
+          v-model="formData.fc_draw_number"
+          placeholder="请输入开奖号码"
+          clearable
+        ></el-input>
       </el-form-item>
       <el-form-item label="体彩开奖号码" prop="fc_draw_number">
-        <el-input v-model="formData.tc_draw_number" placeholder="请输入开奖号码" clearable></el-input>
+        <el-input
+          v-model="formData.tc_draw_number"
+          placeholder="请输入开奖号码"
+          clearable
+        ></el-input>
       </el-form-item>
     </dialogform>
 
@@ -139,11 +210,11 @@ export default {
   data() {
     return {
       statusMap: {
-        0: "未开售",
-        1: "售卖中",
-        2: "封盘",
+        0: "未开始",
+        1: "运行中",
+        2: "已结束",
         3: "已开奖",
-        4: "作废"
+        4: "作废",
       },
       listApi: getFcgLotteryIssueList,
       openDialog: false,
@@ -159,8 +230,7 @@ export default {
         total_bets: undefined,
         total_amount: undefined,
         source: "",
-
-      }
+      },
     };
   },
   methods: {
@@ -168,9 +238,9 @@ export default {
       this.summary = {};
       this.showSummary = false;
 
-      this.page = 1
-      this.pageSize = 10
-      this.getTableData()
+      this.page = 1;
+      this.pageSize = 10;
+      this.getTableData();
     },
     createRow() {
       this.formData = {};
@@ -192,7 +262,7 @@ export default {
       if (res.code == 0) {
         this.$message({
           type: "success",
-          message: "删除成功"
+          message: "删除成功",
         });
         if (this.tableData.length == 1) {
           this.page--;
@@ -219,21 +289,21 @@ export default {
       if (res.code == 0) {
         this.$message({
           type: "success",
-          message: "操作成功"
-        })
+          message: "操作成功",
+        });
         this.$refs.dialog.handleClose();
         this.openDialog = false;
         this.getTableData();
       }
     },
     handleSelectionChange(val) {
-      this.multipleSelection = val
+      this.multipleSelection = val;
     },
     handleCommand(command) {
-      this.$confirm('是否要执行批量操作?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
+      this.$confirm("是否要执行批量操作?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
       }).then(async () => {
         const ids = [];
         if (this.multipleSelection.length == 0) {
@@ -243,13 +313,14 @@ export default {
           });
           return;
         }
-        this.multipleSelection && this.multipleSelection.map((item) => {
-          ids.push(item.ID);
-        });
+        this.multipleSelection &&
+          this.multipleSelection.map((item) => {
+            ids.push(item.ID);
+          });
 
         const res = await batchFcgLotteryIssueOperation({
           ids,
-          'command': command
+          command: command,
         });
         if (res.code == 0) {
           this.$message({
@@ -258,7 +329,7 @@ export default {
           });
           this.getTableData();
         }
-      })
+      });
     },
     sortChange(row) {
       //自定义排序要设置两个属性prop="field-name" sortable="custom"
@@ -298,7 +369,7 @@ export default {
   },
   async created() {
     await this.getTableData();
-  }
+  },
 };
 </script>
 
