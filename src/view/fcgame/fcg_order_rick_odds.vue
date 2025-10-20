@@ -521,10 +521,16 @@ export default {
         return;
       }
 
-      // 拼接所有有效的 bet_content
-      const contentToCopy = validData
-        .map((item) => item.bet_content)
-        .join("\n");
+      // 生成一行格式的内容
+      // 按照规则定开头文字
+      let prefix = this.game_category === 1 ? "福" : "体";
+
+      // 提取所有项的号码和单数部分，拼接成一行
+      const contentParts = validData.map((item) => {
+        return `${item.split_number} ${item.trans_count}单,`;
+      });
+
+      const contentToCopy = `${prefix} ${contentParts.join(" ")}`;
 
       // 复制到剪贴板 - 使用兼容的方法
       if (navigator.clipboard && window.isSecureContext) {
