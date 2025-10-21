@@ -6,10 +6,18 @@
         <p>当前统计期号：{{ summaryData.issue_no }}</p>
       </div>
       <div class="quick-nav">
-        <el-select v-model="searchInfo.issue_no" placeholder="请选择彩票期号" style="width: 200px; margin-right: 10px;"
-          @change="changeSelect">
-          <el-option v-for="issue in lotteryIssues" :key="issue.id" :label="issue.issue_no"
-            :value="issue.issue_no"></el-option>
+        <el-select
+          v-model="searchInfo.issue_no"
+          placeholder="请选择彩票期号"
+          style="width: 200px; margin-right: 10px"
+          @change="changeSelect"
+        >
+          <el-option
+            v-for="issue in lotteryIssues"
+            :key="issue.id"
+            :label="issue.issue_no"
+            :value="issue.issue_no"
+          ></el-option>
         </el-select>
         <!-- <el-button type="primary" @click="queryOrderByIssue">查询订单</el-button> -->
       </div>
@@ -17,25 +25,51 @@
 
     <!-- 统计卡片 -->
     <div class="stat-cards">
-      <el-card class="stat-card" shadow="never" :body-style="{ padding: '16px' }">
+      <el-card
+        class="stat-card"
+        shadow="never"
+        :body-style="{ padding: '16px' }"
+      >
         <div class="stat-item">
           <div class="stat-label">总投注金额</div>
           <div class="stat-value">¥{{ totalBetAmount }}</div>
         </div>
       </el-card>
-      <el-card class="stat-card" shadow="never" :body-style="{ padding: '16px' }">
+      <el-card
+        class="stat-card"
+        shadow="never"
+        :body-style="{ padding: '16px' }"
+      >
         <div class="stat-item">
           <div class="stat-label">总佣金</div>
           <div class="stat-value">¥{{ totalCommission }}</div>
         </div>
       </el-card>
-      <el-card class="stat-card" shadow="never" :body-style="{ padding: '16px' }">
+      <el-card
+        class="stat-card"
+        shadow="never"
+        :body-style="{ padding: '16px' }"
+      >
         <div class="stat-item">
           <div class="stat-label">总中奖金额</div>
           <div class="stat-value">¥{{ totalWinAmount }}</div>
         </div>
       </el-card>
-      <el-card class="stat-card" shadow="never" :body-style="{ padding: '16px' }">
+      <el-card
+        class="stat-card"
+        shadow="never"
+        :body-style="{ padding: '16px' }"
+      >
+        <div class="stat-item">
+          <div class="stat-label">总转出金额</div>
+          <div class="stat-value">¥{{ totalTransferOutAmount }}</div>
+        </div>
+      </el-card>
+      <el-card
+        class="stat-card"
+        shadow="never"
+        :body-style="{ padding: '16px' }"
+      >
         <div class="stat-item">
           <div class="stat-label">总利润</div>
           <div class="stat-value profit">¥{{ totalProfit }}</div>
@@ -45,34 +79,111 @@
 
     <!-- 图表部分 -->
     <div class="charts-row">
-      <el-card class="chart-card" shadow="never" :body-style="{ padding: '16px' }">
+      <el-card
+        class="chart-card"
+        shadow="never"
+        :body-style="{ padding: '12px' }"
+      >
         <div slot="header" class="card-header">
-          <span><span>订单状态分布</span><span>{{ totalOrderCount }}</span></span>
+          <span
+            ><span>订单状态分布</span><span>{{ totalOrderCount }}</span></span
+          >
         </div>
         <div class="chart-container">
-          <el-table :data="orderStatusData" size="small" style="width: 100%">
-            <el-table-column prop="statusText" label="订单状态" align="center"></el-table-column>
-            <el-table-column prop="order_count" label="订单数量" align="center"></el-table-column>
+          <el-table :data="orderStatusData" size="mini" style="width: 100%">
+            <el-table-column
+              prop="statusText"
+              label="订单状态"
+              align="center"
+            ></el-table-column>
+            <el-table-column
+              prop="order_count"
+              label="订单数量"
+              align="center"
+            ></el-table-column>
             <el-table-column label="占比" align="center">
               <template slot-scope="scope">
-                <el-progress :percentage="getOrderStatusPercentage(scope.row.order_count)" :show-text="true"
-                  size="small"></el-progress>
+                <el-progress
+                  :percentage="getOrderStatusPercentage(scope.row.order_count)"
+                  :show-text="true"
+                  size="mini"
+                ></el-progress>
               </template>
             </el-table-column>
           </el-table>
         </div>
       </el-card>
 
-      <el-card class="chart-card" shadow="never" :body-style="{ padding: '16px' }">
+      <el-card
+        class="chart-card"
+        shadow="never"
+        :body-style="{ padding: '12px' }"
+      >
         <div slot="header" class="card-header">
-          <span><span>彩种分布</span><span>{{ totalGameCategoryCount }}</span></span>
+          <span
+            ><span>彩种分布</span
+            ><span>{{ totalGameCategoryCount }}</span></span
+          >
         </div>
         <div class="chart-container">
-          <el-table :data="gameCategoryData" size="small" style="width: 100%">
-            <el-table-column prop="categoryText" label="彩种" align="center"></el-table-column>
-            <el-table-column prop="gc_count" label="订单数量" align="center"></el-table-column>
-            <el-table-column prop="gc_bet_amount" label="投注金额" align="center">
-              <template slot-scope="scope">¥{{ scope.row.gc_bet_amount }}</template>
+          <el-table :data="gameCategoryData" size="mini" style="width: 100%">
+            <el-table-column
+              prop="categoryText"
+              label="彩种"
+              align="center"
+            ></el-table-column>
+            <el-table-column
+              prop="gc_count"
+              label="订单数量"
+              align="center"
+            ></el-table-column>
+            <el-table-column
+              prop="gc_bet_amount"
+              label="投注金额"
+              align="center"
+            >
+              <template slot-scope="scope"
+                >¥{{ scope.row.gc_bet_amount }}</template
+              >
+            </el-table-column>
+          </el-table>
+        </div>
+      </el-card>
+
+      <el-card
+        class="chart-card"
+        shadow="never"
+        :body-style="{ padding: '12px' }"
+      >
+        <div slot="header" class="card-header">
+          <span
+            ><span>转出明细</span><span>{{ totalTransferOutCount }}</span></span
+          >
+        </div>
+        <div class="chart-container">
+          <el-table
+            :data="transferOutDetailsData"
+            size="mini"
+            style="width: 100%"
+          >
+            <el-table-column
+              prop="game_category_name"
+              label="彩种"
+              align="center"
+            ></el-table-column>
+            <el-table-column
+              prop="total_count"
+              label="转出订单数"
+              align="center"
+            ></el-table-column>
+            <el-table-column
+              prop="total_amount"
+              label="转出金额"
+              align="center"
+            >
+              <template slot-scope="scope"
+                >¥{{ scope.row.total_amount }}</template
+              >
             </el-table-column>
           </el-table>
         </div>
@@ -80,42 +191,92 @@
     </div>
 
     <!-- 会话统计表格 -->
-    <el-card class="table-card" shadow="never" :body-style="{ padding: '16px' }">
+    <el-card
+      class="table-card"
+      shadow="never"
+      :body-style="{ padding: '16px' }"
+    >
       <div slot="header" class="card-header">
         <span>会话统计</span>
       </div>
       <div class="table-container">
         <el-table :data="sessionStatsData" size="small" style="width: 100%">
-          <el-table-column prop="session_id" label="会话ID" align="center"></el-table-column>
-          <el-table-column prop="nick_name" label="会话名称" align="center"></el-table-column>
-          <el-table-column prop="total_bet_amount" label="总投注金额" align="center">
-            <template slot-scope="scope">¥{{ scope.row.total_bet_amount }}</template>
+          <el-table-column
+            prop="session_id"
+            label="会话ID"
+            align="center"
+          ></el-table-column>
+          <el-table-column
+            prop="nick_name"
+            label="会话名称"
+            align="center"
+          ></el-table-column>
+          <el-table-column
+            prop="total_bet_amount"
+            label="总投注金额"
+            align="center"
+          >
+            <template slot-scope="scope"
+              >¥{{ scope.row.total_bet_amount }}</template
+            >
           </el-table-column>
-          <el-table-column prop="total_commission" label="总佣金" align="center">
-            <template slot-scope="scope">¥{{ scope.row.total_commission }}</template>
+          <el-table-column
+            prop="total_commission"
+            label="总佣金"
+            align="center"
+          >
+            <template slot-scope="scope"
+              >¥{{ scope.row.total_commission }}</template
+            >
           </el-table-column>
-          <el-table-column prop="total_win_amount" label="总中奖金额" align="center">
-            <template slot-scope="scope">¥{{ scope.row.total_win_amount }}</template>
+          <el-table-column
+            prop="total_win_amount"
+            label="总中奖金额"
+            align="center"
+          >
+            <template slot-scope="scope"
+              >¥{{ scope.row.total_win_amount }}</template
+            >
           </el-table-column>
           <el-table-column prop="total_profit" label="总利润" align="center">
-            <template slot-scope="scope">¥{{ scope.row.total_profit }}</template>
+            <template slot-scope="scope"
+              >¥{{ scope.row.total_profit }}</template
+            >
           </el-table-column>
         </el-table>
       </div>
     </el-card>
 
     <!-- 玩法统计表格 -->
-    <el-card class="table-card" shadow="never" :body-style="{ padding: '16px' }">
+    <el-card
+      class="table-card"
+      shadow="never"
+      :body-style="{ padding: '16px' }"
+    >
       <div slot="header" class="card-header">
         <span>玩法统计</span>
       </div>
       <div class="table-container">
         <el-table :data="gameTypeData" size="small" style="width: 100%">
-          <el-table-column prop="game_type" label="玩法ID" align="center"></el-table-column>
-          <el-table-column prop="typeText" label="玩法名称" align="center"></el-table-column>
-          <el-table-column prop="gt_count" label="订单数量" align="center"></el-table-column>
+          <el-table-column
+            prop="game_type"
+            label="玩法ID"
+            align="center"
+          ></el-table-column>
+          <el-table-column
+            prop="typeText"
+            label="玩法名称"
+            align="center"
+          ></el-table-column>
+          <el-table-column
+            prop="gt_count"
+            label="订单数量"
+            align="center"
+          ></el-table-column>
           <el-table-column prop="gt_bet_amount" label="投注金额" align="center">
-            <template slot-scope="scope">¥{{ scope.row.gt_bet_amount }}</template>
+            <template slot-scope="scope"
+              >¥{{ scope.row.gt_bet_amount }}</template
+            >
           </el-table-column>
         </el-table>
       </div>
@@ -125,9 +286,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import {
-  getFcgOrderSummary
-} from "@/api/fcgame/fcg_order";
+import { getFcgOrderSummary } from "@/api/fcgame/fcg_order";
 import { getFcgLotteryIssueList } from "@/api/fcgame/fcg_lottery_issue";
 
 export default {
@@ -135,58 +294,78 @@ export default {
   data() {
     return {
       summaryData: {
-        issue_no: '',
+        issue_no: "",
         sessions: [],
         session_stats: [],
         order_status_count: [],
         game_type_stats: [],
-        game_category_stats: []
+        game_category_stats: [],
+        transferout_total: null,
+        transferout_details: [],
       },
       loading: false,
       searchInfo: {},
       lotteryIssues: [],
-      selectedIssue: ''
-    }
+      selectedIssue: "",
+    };
   },
   computed: {
     ...mapGetters("common", ["siteInfo"]),
     // 总投注金额
     totalBetAmount() {
-      return this.summaryData.session_stats.reduce((sum, item) => {
-        return sum + parseFloat(item.total_bet_amount || 0);
-      }, 0).toFixed(2);
+      return this.summaryData.session_stats
+        .reduce((sum, item) => {
+          return sum + parseFloat(item.total_bet_amount || 0);
+        }, 0)
+        .toFixed(2);
     },
     // 总佣金
     totalCommission() {
-      return this.summaryData.session_stats.reduce((sum, item) => {
-        return sum + parseFloat(item.total_commission || 0);
-      }, 0).toFixed(2);
+      return this.summaryData.session_stats
+        .reduce((sum, item) => {
+          return sum + parseFloat(item.total_commission || 0);
+        }, 0)
+        .toFixed(2);
     },
     // 总中奖金额
     totalWinAmount() {
-      return this.summaryData.session_stats.reduce((sum, item) => {
-        return sum + parseFloat(item.total_win_amount || 0);
-      }, 0).toFixed(2);
+      return this.summaryData.session_stats
+        .reduce((sum, item) => {
+          return sum + parseFloat(item.total_win_amount || 0);
+        }, 0)
+        .toFixed(2);
     },
-    // 总利润
+    // 总转出金额
+    totalTransferOutAmount() {
+      return this.summaryData.transferout_total
+        ? parseFloat(
+            this.summaryData.transferout_total.total_amount || 0
+          ).toFixed(2)
+        : "0.00";
+    },
+    // 总利润 = 总投注金额 - 总佣金 - 总中奖金额 - 总转出金额
     totalProfit() {
-      return this.summaryData.session_stats.reduce((sum, item) => {
-        return sum + parseFloat(item.total_profit || 0);
-      }, 0).toFixed(2);
+      const totalBet = parseFloat(this.totalBetAmount);
+      const totalCommission = parseFloat(this.totalCommission);
+      const totalWin = parseFloat(this.totalWinAmount);
+      const totalTransferOut = parseFloat(this.totalTransferOutAmount);
+      const profit = totalBet - totalCommission - totalWin - totalTransferOut;
+      return profit.toFixed(2);
     },
     // 订单状态数据
     orderStatusData() {
       const statusMap = {
-        0: '待识别',
-        1: '识别失败',
-        2: '识别成功',
-        3: '未中奖',
-        4: '已中奖'
+        0: "待识别",
+        1: "识别失败",
+        2: "识别成功",
+        3: "未中奖",
+        4: "已中奖",
       };
-      return (this.summaryData.order_status_count || []).map(item => {
+      return (this.summaryData.order_status_count || []).map((item) => {
         return {
           ...item,
-          statusText: statusMap[item.order_status] || `状态${item.order_status}`
+          statusText:
+            statusMap[item.order_status] || `状态${item.order_status}`,
         };
       });
     },
@@ -199,65 +378,79 @@ export default {
     // 彩种数据
     gameCategoryData() {
       const categoryMap = {
-        1: '福彩',
-        2: '体彩',
-        3: '排列三'
+        1: "福彩",
+        2: "体彩",
+        3: "排列三",
       };
-      return (this.summaryData.game_category_stats || []).map(item => {
+      return (this.summaryData.game_category_stats || []).map((item) => {
         return {
           ...item,
-          categoryText: categoryMap[item.game_category] || `彩种${item.game_category}`
+          categoryText:
+            categoryMap[item.game_category] || `彩种${item.game_category}`,
         };
       });
     },
     // 彩种分布总数合计
     totalGameCategoryCount() {
-      return (this.summaryData.game_category_stats || []).reduce((sum, item) => {
-        return sum + item.gc_count;
-      }, 0);
+      return (this.summaryData.game_category_stats || []).reduce(
+        (sum, item) => {
+          return sum + item.gc_count;
+        },
+        0
+      );
     },
     // 玩法数据
     gameTypeData() {
       const typeMap = {
-        1: '单选',
-        2: '组三(对子)',
-        3: '组六(无重复)',
-        4: '组六四码',
-        5: '组六五码',
-        6: '组六六码',
-        7: '组六七码',
-        8: '组六八码',
-        9: '组三四码',
-        10: '组三五码',
-        11: '组三六码',
-        12: '组三七码',
-        13: '组三八码',
-        14: '独胆',
-        15: '一码不定位',
-        16: '一码定位',
-        17: '两码不定位(双飞)',
-        18: '两码定位',
-        19: '复试重复号',
-        20: '复试(三不同号)',
-        21: '包对子',
-        22: '包对一',
-        23: '豹子'
+        1: "单选",
+        2: "组三(对子)",
+        3: "组六(无重复)",
+        4: "组六四码",
+        5: "组六五码",
+        6: "组六六码",
+        7: "组六七码",
+        8: "组六八码",
+        9: "组三四码",
+        10: "组三五码",
+        11: "组三六码",
+        12: "组三七码",
+        13: "组三八码",
+        14: "独胆",
+        15: "一码不定位",
+        16: "一码定位",
+        17: "两码不定位(双飞)",
+        18: "两码定位",
+        19: "复试重复号",
+        20: "复试(三不同号)",
+        21: "包对子",
+        22: "包对一",
+        23: "豹子",
       };
-      return (this.summaryData.game_type_stats || []).map(item => {
+      return (this.summaryData.game_type_stats || []).map((item) => {
         return {
           ...item,
-          typeText: typeMap[item.game_type] || `玩法${item.game_type}`
+          typeText: typeMap[item.game_type] || `玩法${item.game_type}`,
         };
       });
     },
     // 会话统计数据
     sessionStatsData() {
       return this.summaryData.session_stats || [];
-    }
+    },
+    // 转出明细数据
+    transferOutDetailsData() {
+      return this.summaryData.transferout_details || [];
+    },
+    // 转出明细总数合计
+    totalTransferOutCount() {
+      return this.summaryData.transferout_total
+        ? this.summaryData.transferout_total.total_count || 0
+        : 0;
+    },
   },
   methods: {
     changeSelect(issue_no) {
-      this.$set(this.searchInfo, 'issue_no', issue_no)
+      this.$set(this.searchInfo, "issue_no", issue_no);
       this.loadData();
     },
     formattedVal(val) {
@@ -278,52 +471,54 @@ export default {
     navigateToOrder(status) {
       // 状态映射关系
       const statusMap = {
-        'all': '',  // 全部订单不需要传递状态参数
-        'pending': '0',  // 待识别
-        'failed': '1',  // 识别失败
-        'success': '2',  // 识别成功
-        'notWin': '3',  // 未中奖
-        'win': '4'  // 已中奖
+        all: "", // 全部订单不需要传递状态参数
+        pending: "0", // 待识别
+        failed: "1", // 识别失败
+        success: "2", // 识别成功
+        notWin: "3", // 未中奖
+        win: "4", // 已中奖
       };
 
       // 跳转到订单页面，根据状态传递参数
       const query = {};
-      if (status !== 'all') {
+      if (status !== "all") {
         query.status = statusMap[status];
       }
 
       this.$router.push({
-        name: 'fcg_order',
-        query: query
+        name: "fcg_order",
+        query: query,
       });
     },
 
     getLotteryIssues() {
-      getFcgLotteryIssueList({ page: 1, pageSize: 100 })
-        .then(res => {
-          if (res && res.data && res.data.list && res.data.list.length > 0) {
-            this.lotteryIssues = res.data.list;
-            // 如果是首次加载且没有选中的期号，自动选择第一条期号并加载数据
-            if (!this.searchInfo.issue_no) {
-              this.$set(this.searchInfo, 'issue_no', res.data.list[0].issue_no)
-              this.loadData();
-            }
+      getFcgLotteryIssueList({ page: 1, pageSize: 100 }).then((res) => {
+        if (res && res.data && res.data.list && res.data.list.length > 0) {
+          this.lotteryIssues = res.data.list;
+          // 如果是首次加载且没有选中的期号，自动选择第一条期号并加载数据
+          if (!this.searchInfo.issue_no) {
+            this.$set(this.searchInfo, "issue_no", res.data.list[0].issue_no);
+            this.loadData();
           }
-        })
+        }
+      });
     },
 
     queryOrderByIssue() {
       if (!this.searchInfo.issue_no) {
-        this.$message.warning('请先选择彩票期号');
+        this.$message.warning("请先选择彩票期号");
         return;
       }
-      this.loadData()
+      this.loadData();
     },
     // 获取订单状态占比
     getOrderStatusPercentage(count) {
-      const totalCount = this.summaryData.order_status_count.reduce((sum, item) => {
-        return sum + item.order_count;
-      }, 0);
+      const totalCount = this.summaryData.order_status_count.reduce(
+        (sum, item) => {
+          return sum + item.order_count;
+        },
+        0
+      );
       if (totalCount === 0) return 0;
       return parseFloat(((count / totalCount) * 100).toFixed(1));
     },
@@ -334,27 +529,29 @@ export default {
         const res = await getFcgOrderSummary(this.searchInfo);
         if (res.code === 0) {
           this.summaryData = res.data || {
-            issue_no: '',
+            issue_no: "",
             sessions: [],
             session_stats: [],
             order_status_count: [],
             game_type_stats: [],
-            game_category_stats: []
+            game_category_stats: [],
+            transferout_total: null,
+            transferout_details: [],
           };
         } else {
-          this.$message.error(res.msg || '获取数据失败');
+          this.$message.error(res.msg || "获取数据失败");
         }
       } catch (error) {
-        this.$message.error('获取数据异常');
-        console.error('Error loading summary data:', error);
+        this.$message.error("获取数据异常");
+        console.error("Error loading summary data:", error);
       } finally {
         this.loading = false;
       }
-    }
+    },
   },
   created() {
     this.getLotteryIssues();
-  }
+  },
 };
 </script>
 
@@ -400,7 +597,7 @@ export default {
 
 .stat-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 20px;
   margin-bottom: 20px;
 }
@@ -438,7 +635,7 @@ export default {
 
 .charts-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 20px;
   margin-bottom: 20px;
 }
@@ -459,14 +656,14 @@ export default {
   border-bottom: 1px solid #ebeef5;
 }
 
-.card-header>span {
+.card-header > span {
   flex: 1;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.card-header>span>span:last-child {
+.card-header > span > span:last-child {
   text-align: right;
 }
 
@@ -482,7 +679,7 @@ export default {
   }
 
   .charts-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 }
 
