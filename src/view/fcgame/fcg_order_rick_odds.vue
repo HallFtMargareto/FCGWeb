@@ -260,7 +260,10 @@
 </template>
 
 <script>
-import { getFcgOrderSplitNumberList } from "@/api/fcgame/fcg_order_split_number";
+import {
+  getFcgOrderSplitNumberList,
+  batchFcgOrderSplitNumberOperation,
+} from "@/api/fcgame/fcg_order_split_number";
 import { getFcgLotteryIssueList } from "@/api/fcgame/fcg_lottery_issue";
 import infoList from "@/mixins/infoList";
 import { mapGetters, mapMutations } from "vuex";
@@ -307,6 +310,8 @@ export default {
       // 排序相关数据
       sortProp: "",
       sortOrder: null,
+      // 复制loading状态
+      copyLoading: false,
     };
   },
   methods: {
@@ -509,7 +514,12 @@ export default {
     },
 
     // 复制内容按钮点击事件
-    copyColumn() {
+    async copyColumn() {
+      // 防止重复点击
+      if (this.copyLoading) {
+        return;
+      }
+
       // 过滤掉 bet_content 为空的数据
       const validData = this.multipleSelection.filter(
         (item) => item.bet_content
@@ -532,32 +542,65 @@ export default {
 
       const contentToCopy = `${prefix} ${contentParts.join(" ")}`;
 
-      // 复制到剪贴板 - 使用兼容的方法
-      if (navigator.clipboard && window.isSecureContext) {
-        // 在安全上下文中使用现代 clipboard API
-        navigator.clipboard
-          .writeText(contentToCopy)
-          .then(() => {
-            this.$message.success("复制成功");
-          })
-          .catch((err) => {
-            this.$message.error("复制失败");
-            console.error("复制失败:", err);
-          });
-      } else {
-        // 兼容旧浏览器或非安全上下文的实现
-        try {
+      try {
+        // 复制到剪贴板 - 使用兼容的方法
+        if (navigator.clipboard && window.isSecureContext) {
+          // 在安全上下文中使用现代 clipboard API
+          await navigator.clipboard.writeText(contentToCopy);
+        } else {
+          // 兼容旧浏览器或非安全上下文的实现
           const textarea = document.createElement("textarea");
           textarea.value = contentToCopy;
           document.body.appendChild(textarea);
           textarea.select();
           document.execCommand("copy");
           document.body.removeChild(textarea);
-          this.$message.success("复制成功");
-        } catch (err) {
-          this.$message.error("复制失败");
-          console.error("复制失败:", err);
         }
+
+        this.$message.success("复制成功");
+
+        // 复制成功后发送数据到后台
+        await this.sendTransferData(validData);
+      } catch (err) {
+        this.$message.error("复制失败");
+        console.error("复制失败:", err);
+      }
+    },
+
+    // 发送转移数据到后台
+    async sendTransferData(validData) {
+      try {
+        this.copyLoading = true;
+
+        // 构建transfer_list数据
+        const transfer_list = validData.map((item) => ({
+          split_number: item.split_number,
+          trans_count: item.trans_count,
+          trans_amount: item.trans_amount,
+        }));
+
+        // 构建请求数据
+        const requestData = {
+          game_category: this.game_category,
+          ids: [this.chartIssueId],
+          issue_id: this.chartIssueId,
+          command: "transfer",
+          transfer_list: transfer_list,
+        };
+
+        // 调用API接口
+        const res = await batchFcgOrderSplitNumberOperation(requestData);
+
+        if (res.code === 0) {
+          this.$message.success("保存转出数据成功");
+        } else {
+          this.$message.error(res.msg || "保存转出数据失败");
+        }
+      } catch (error) {
+        this.$message.error("保存转出数据失败");
+        console.error("保存转出数据失败:", error);
+      } finally {
+        this.copyLoading = false;
       }
     },
   },
