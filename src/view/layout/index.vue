@@ -256,7 +256,7 @@ export default {
     this.windowInit();
 
     //更新公共数据
-    this.$store.dispatch("product/updateProductList");
+    // this.$store.dispatch("product/updateProductList");
     this.$store.dispatch("common/updateCommonData");
     this.$store.dispatch("common/updateSiteData");
     // 获取期号统计数据
@@ -264,6 +264,12 @@ export default {
       .dispatch("statistics/fetchLatestIssueStatistics")
       .catch((error) => {
         console.warn("获取期号统计数据失败:", error);
+      });
+    // 获取游戏信息数据
+    this.$store
+      .dispatch("gameInfo/initGameInfo")
+      .catch((error) => {
+        console.warn("获取游戏信息失败:", error);
       });
     // this.$store.dispatch("websocets/webSocketInit");
   },

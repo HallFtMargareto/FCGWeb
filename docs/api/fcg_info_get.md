@@ -2,7 +2,7 @@
 
 ## 接口概述
 
-获取所有游戏类型、游戏分类和模拟赔率信息，用于前端展示游戏配置和赔率数据。
+获取所有游戏类型、游戏分类、模拟赔率和组织列表信息，用于前端展示游戏配置、赔率数据和可选的组织信息。
 
 ## 接口信息
 
@@ -37,6 +37,8 @@ GET /fcg_info/get
     "game_category": {
       "1": "福彩",
       "2": "体彩",
+      "3": "娱乐场",
+      "4": "体育"
     },
     "simulated_odds": {
       "lottery_1": 2.5,
@@ -46,7 +48,23 @@ GET /fcg_info/get
       "slot_2": 2.2,
       "poker_1": 3.5,
       "poker_2": 4.0
-    }
+    },
+    "tenants": [
+      {
+        "organization": "tenant001",
+        "application": "game_app",
+        "platform_name": "游戏平台1",
+        "admin_id": 1001,
+        "account": "admin001"
+      },
+      {
+        "organization": "tenant002",
+        "application": "game_app",
+        "platform_name": "游戏平台2",
+        "admin_id": 1002,
+        "account": "admin002"
+      }
+    ]
   },
   "msg": "获取成功"
 }
@@ -98,6 +116,7 @@ GET /fcg_info/get
 | game_types | object | 游戏类型映射，格式为 {id: name} |
 | game_category | object | 游戏分类映射，格式为 {id: name} |
 | simulated_odds | object | 模拟赔率映射，格式为 {game_key: odds} |
+| tenants | array | 组织列表，包含启用的租户信息 |
 
 ### game_types字段
 
@@ -120,25 +139,39 @@ GET /fcg_info/get
 | key | string | 游戏标识符 |
 | value | float64 | 模拟赔率值 |
 
+### tenants字段
+
+| 字段名 | 类型 | 描述 |
+|--------|------|------|
+| organization | string | 组织标识-租户编码 |
+| application | string | APP标识 |
+| platform_name | string | 平台名称 |
+| admin_id | uint64 | 租户管理员主键 |
+| account | string | 账号 |
+
 ## 业务逻辑
 
 1. **数据查询**：
    - 从 `game_types` 表查询所有游戏类型（id, game_types_name）
    - 从 `game_category` 表查询所有游戏分类（id, game_category_name）
    - 从 `games` 表查询所有游戏的赔率信息（game_key, odds）
+   - 从 `sys_tenant` 表查询启用的租户列表（organization, application, platform_name, admin_id, account），条件为 enabled = 1，按 id 降序排列
 
 2. **数据处理**：
    - 将查询结果转换为 map 格式，便于前端使用
    - 游戏类型和分类转换为 `{id: name}` 格式
    - 赔率数据转换为 `{game_key: odds}` 格式
+   - 租户列表保持数组格式，包含指定的字段信息
 
 3. **默认数据处理**：
    - 如果 `games` 表中没有赔率数据，提供默认的模拟赔率
    - 默认赔率包括彩票、老虎机、扑克等常见游戏类型
+   - 如果没有启用的租户，租户列表返回空数组
 
 4. **错误处理**：
    - 单独处理每个数据源的查询错误
    - 任何一个数据源查询失败都会返回相应的错误信息
+   - 租户查询失败不会影响其他数据的返回
 
 ## 默认模拟赔率
 
@@ -174,6 +207,17 @@ GET /fcg_info/get
 | game_key | varchar | 游戏标识符 |
 | odds | decimal | 赔率值 |
 
+### sys_tenant 表
+| 字段名 | 类型 | 描述 |
+|--------|------|------|
+| id | bigint | 主键ID |
+| organization | varchar | 组织标识-租户编码 |
+| application | varchar | APP标识 |
+| platform_name | varchar | 平台名称 |
+| admin_id | bigint | 租户管理员主键 |
+| account | varchar | 账号 |
+| enabled | tinyint | 状态（0:=禁用; 1:=启用） |
+
 ## 实现文件
 
 - **API实现**: `internal/app/fcgame/fcg_info.go`
@@ -194,8 +238,17 @@ GET /fcg_info/get
 2. **赔率显示**：在游戏详情页面显示当前游戏的赔率信息
 3. **游戏配置**：用于前端动态配置游戏选项和过滤条件
 4. **数据统计**：为其他接口提供基础的游戏分类数据
+5. **组织选择**：前端获取可用的组织列表，用于用户切换或选择不同的租户环境
+6. **多租户管理**：为管理员提供租户信息展示，支持多租户系统的管理功能
+7. **平台标识**：用于前端显示不同平台的名称和标识信息
 
 ## 更新记录
+
+- **2025-10-22**: 新增组织列表功能
+  - 接口响应新增 tenants 字段，返回启用的租户信息
+  - 支持查询租户的组织标识、APP标识、平台名称、管理员ID和账号
+  - 租户列表按 ID 降序排列，只返回 enabled = 1 的租户
+  - 更新接口文档，完善字段说明和使用场景
 
 - **2025-10-18**: 创建接口文档
   - 实现获取游戏信息功能

@@ -9,6 +9,7 @@ import { common } from "@/store/module/common"
 import { websocets } from "@/store/module/websocets"
 import { product } from "@/store/module/product"
 import { statistics } from "@/store/module/statistics"
+import { gameInfo } from "@/store/module/gameInfo"
 Vue.use(Vuex)
 
 
@@ -25,7 +26,8 @@ export const store = new Vuex.Store({
         common,
         websocets,
         product,
-        statistics
+        statistics,
+        gameInfo
     },
     plugins: [vuexLocal.plugin]
 })

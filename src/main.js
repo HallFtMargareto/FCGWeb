@@ -172,6 +172,7 @@ import dialogform from "@/components/dialogform";
 import selectimg from "@/components/selectimg";
 import booltag from "@/components/booltag";
 import dynamicform from "@/components/dynamicform";
+import TenantSelect from "@/components/tenant";
 
 Vue.component('datepicker', datepicker);
 Vue.component('uploadexcel', uploadexcel);
@@ -180,6 +181,7 @@ Vue.component('dialogform', dialogform);
 Vue.component('selectimg', selectimg);
 Vue.component('booltag', booltag);
 Vue.component('dynamicform', dynamicform);
+Vue.component('TenantSelect', TenantSelect);
 
 
 import api from '@/api';
