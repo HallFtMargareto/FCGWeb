@@ -17,6 +17,14 @@
           </el-select>
         </el-form-item>
 
+        <el-form-item label="所属组织">
+          <TenantSelect
+            v-model="searchInfo.tenant_id"
+            placeholder="请选择组织"
+            clearable
+          ></TenantSelect>
+        </el-form-item>
+
         <el-form-item label="会话名称">
           <el-input
             v-model="searchInfo.group_name"
@@ -288,9 +296,7 @@
     <div>
       <el-row :gutter="24">
         <el-col :span="4" v-if="statusTabState === '1'">
-          <el-button
-            icon="el-icon-s-unfold"
-            @click="openBatchEditDialog"
+          <el-button icon="el-icon-s-unfold" @click="openBatchEditDialog"
             >批量编辑</el-button
           >
         </el-col>
@@ -785,29 +791,6 @@
         <code>{{ orderDetailData.msg }}</code>
       </div>
     </el-dialog>
-
-    <!-- 右侧漂浮操作按钮 -->
-    <!-- <div class="float-operations">
-      <el-button
-        style="margin-left: 0 !important"
-        class="float-btn risk-btn"
-        type="primary"
-        icon="el-icon-top"
-        circle
-        @click="importExcel"
-        title="导入订单"
-      ></el-button>
-
-      <el-button
-        style="margin-left: 0 !important"
-        class="float-btn risk-btn"
-        type="primary"
-        icon="el-icon-bottom"
-        circle
-        @click="exportExcel"
-        title="导出订单"
-      ></el-button>
-    </div> -->
 
     <!-- 导入订单弹窗 -->
     <el-dialog
