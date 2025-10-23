@@ -265,15 +265,11 @@ export default {
       .catch((error) => {
         console.warn("获取期号统计数据失败:", error);
       });
-    // 获取游戏信息数据
-    this.$store
-      .dispatch("gameInfo/initGameInfo")
-      .catch((error) => {
-        console.warn("获取游戏信息失败:", error);
-      });
+
     // this.$store.dispatch("websocets/webSocketInit");
   },
   created() {
+    // 游戏信息已在路由守卫中预加载，这里不再重复加载
     console.log(this.siteInfo);
   },
 };

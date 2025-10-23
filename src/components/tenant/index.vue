@@ -6,7 +6,6 @@
     :disabled="disabled"
     :clearable="clearable"
     :filterable="filterable"
-    :loading="loading"
     @change="handleChange"
     @clear="handleClear"
     @focus="handleFocus"
@@ -64,16 +63,10 @@ export default {
       type: Boolean,
       default: true,
     },
-    // 是否等待数据加载完成后再自动选择
-    waitForData: {
-      type: Boolean,
-      default: true,
-    },
   },
   data() {
     return {
       selectedValue: this.value,
-      loading: false,
       isInitialized: false,
     };
   },
@@ -103,8 +96,7 @@ export default {
           this.autoSelectFirst &&
           newVal &&
           newVal.length > 0 &&
-          !this.selectedValue &&
-          !this.isInitialized
+          !this.selectedValue
         ) {
           this.selectFirstTenant();
         }
@@ -119,14 +111,14 @@ export default {
       immediate: true,
     },
   },
-  async mounted() {
-    await this.initializeSelection();
+  mounted() {
+    this.initializeSelection();
   },
   methods: {
     /**
      * 初始化选择逻辑
      */
-    async initializeSelection() {
+    initializeSelection() {
       // 如果已有选中值，不需要自动选择
       if (this.selectedValue) {
         this.isInitialized = true;
@@ -143,33 +135,9 @@ export default {
       if (this.hasTenants) {
         this.selectFirstTenant();
         this.isInitialized = true;
-        return;
-      }
-
-      // 如果需要等待数据加载
-      if (this.waitForData) {
-        await this.loadTenantData();
-        if (this.autoSelectFirst && this.hasTenants && !this.selectedValue) {
-          this.selectFirstTenant();
-        }
-        this.isInitialized = true;
       } else {
+        // 如果没有数据，先标记为已初始化，让watch来处理后续数据加载
         this.isInitialized = true;
-      }
-    },
-
-    /**
-     * 加载租户数据
-     */
-    async loadTenantData() {
-      try {
-        this.loading = true;
-        await this.$store.dispatch("gameInfo/fetchGameInfo");
-      } catch (error) {
-        console.error("加载租户数据失败:", error);
-        this.$message.error("加载组织数据失败");
-      } finally {
-        this.loading = false;
       }
     },
 
@@ -204,11 +172,8 @@ export default {
     /**
      * 处理焦点事件
      */
-    async handleFocus() {
-      // 如果没有数据且不在加载中，尝试加载数据
-      if (!this.hasTenants && !this.loading && this.waitForData) {
-        await this.loadTenantData();
-      }
+    handleFocus() {
+      // 仅处理焦点事件，不加载数据
     },
 
     /**
@@ -222,10 +187,9 @@ export default {
     },
 
     /**
-     * 刷新数据
+     * 刷新数据 - 仅重新检查现有数据
      */
-    async refresh() {
-      await this.loadTenantData();
+    refresh() {
       if (this.autoSelectFirst && this.hasTenants && !this.selectedValue) {
         this.selectFirstTenant();
       }

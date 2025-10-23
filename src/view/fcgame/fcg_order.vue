@@ -891,8 +891,12 @@ import { getFcgLotteryIssueList } from "@/api/fcgame/fcg_lottery_issue.js";
 import { getFcgContactList } from "@/api/fcgame/fcg_contact.js";
 import infoList from "@/mixins/infoList";
 import { mapGetters } from "vuex";
+import TenantSelect from "@/components/tenant/index.vue";
 export default {
   name: "fcg_order",
+  components: {
+    TenantSelect,
+  },
   mixins: [infoList],
   computed: {
     ...mapGetters("user", ["userInfo"]),
@@ -1576,6 +1580,9 @@ export default {
     },
   },
   async created() {
+    await this.$nextTick();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    console.log(this.searchInfo);
     // 性能监控：记录组件创建时间
     if (process.env.NODE_ENV === "development") {
       console.time("fcg_order component created");

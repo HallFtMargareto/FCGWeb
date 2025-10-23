@@ -10,6 +10,14 @@
           ></el-input>
         </el-form-item>
 
+        <el-form-item label="所属组织">
+          <TenantSelect
+            v-model="searchInfo.tenant_id"
+            placeholder="请选择组织"
+            clearable
+          ></TenantSelect>
+        </el-form-item>
+
         <el-form-item label="玩法类型">
           <el-input
             v-model="searchInfo.issue_no"
@@ -162,7 +170,6 @@
       :visible.sync="openDialog"
       :dialogTitle="dialogTitle"
       :formDatas="formData"
-      :formRule="formRules"
       @confirm="enterDialog"
       ref="dialog"
     >
@@ -368,6 +375,8 @@ export default {
     },
   },
   async created() {
+    await this.$nextTick();
+    await new Promise((resolve) => setTimeout(resolve, 0));
     await this.getTableData();
   },
 };
