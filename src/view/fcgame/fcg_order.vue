@@ -14,6 +14,7 @@
           <TenantSelect
             v-model="searchInfo.tenant_id"
             placeholder="请选择组织"
+            :autoSelectFirst="false"
             clearable
           ></TenantSelect>
         </el-form-item>
