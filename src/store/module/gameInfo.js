@@ -22,6 +22,7 @@ export const gameInfo = {
     },
     mutations: {
         setGameInfo(state, data) {
+            console.log("data", data)
             // 将字符串key转换为数值key
             state.gameTypes = convertKeysToNumbers(data.game_types || {});
             state.gameCategory = convertKeysToNumbers(data.game_category || {});
