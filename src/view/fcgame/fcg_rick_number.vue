@@ -2,21 +2,20 @@
   <div>
     <div class="search-term">
       <searchform size="mini" :maxShow="5" @search="getChartData">
-        <el-form-item label="期号">
-          <el-select
+        <el-form-item label="彩期">
+          <IssueSelect
             v-model="chartIssueId"
-            placeholder="请选择期号"
-            @change="getChartData"
+            placeholder="请选择彩期"
             clearable
-          >
-            <el-option
-              v-for="item in lotteryIssueList"
-              :key="item.ID"
-              :label="item.issue_no"
-              :value="item.ID"
-            >
-            </el-option>
-          </el-select>
+          ></IssueSelect>
+        </el-form-item>
+
+        <el-form-item label="所属组织">
+          <TenantSelect
+            v-model="tenant_id"
+            placeholder="请选择组织"
+            clearable
+          ></TenantSelect>
         </el-form-item>
 
         <el-form-item label="拆分号码">
@@ -118,7 +117,6 @@
 
 <script>
 import { getFcgOrderSplitNumberList } from "@/api/fcgame/fcg_order_split_number";
-import { getFcgLotteryIssueList } from "@/api/fcgame/fcg_lottery_issue";
 import infoList from "@/mixins/infoList";
 import { mapGetters, mapMutations } from "vuex";
 
@@ -156,6 +154,7 @@ export default {
       dialogTitle: "",
       type: "",
       chartIssueId: 0,
+      tenant_id: 0,
       game_category: 1, // 默认福彩
       maxValue: 0,
       // 期号列表
@@ -169,24 +168,6 @@ export default {
   },
   methods: {
     ...mapMutations("common", ["setAlpha", "setBeta"]),
-    // 获取期号列表
-    async getLotteryIssueList() {
-      try {
-        const res = await getFcgLotteryIssueList({ page: 1, pageSize: 100 });
-        if (res.code === 0 && res.data && res.data.list) {
-          this.lotteryIssueList = res.data.list;
-          // 获取到列表后默认取第一条期号作为参数
-          if (this.lotteryIssueList.length > 0) {
-            this.chartIssueId = this.lotteryIssueList[0].ID;
-            console.log(this.chartIssueId);
-            this.getChartData();
-          }
-        }
-      } catch (error) {
-        console.error("获取期号列表失败:", error);
-        this.$message.error("获取期号列表失败");
-      }
-    },
 
     // 获取图表数据
     async getChartData() {
@@ -201,6 +182,7 @@ export default {
           // game_category: this.game_category,
           issue_id: this.chartIssueId,
           split_number: this.split_number,
+          tenant_id: this.tenant_id,
         });
         if (res.code === 0 && res.data) {
           this.rickDataInfo = res.data;
@@ -277,7 +259,9 @@ export default {
   },
 
   async created() {
-    await this.getLotteryIssueList();
+    await this.$nextTick();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    this.getChartData();
   },
 };
 </script>

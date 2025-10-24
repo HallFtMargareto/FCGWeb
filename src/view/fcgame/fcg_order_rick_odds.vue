@@ -2,21 +2,20 @@
   <div>
     <div class="search-term">
       <searchform size="mini" :maxShow="6" @search="getChartData">
-        <el-form-item label="期号">
-          <el-select
+        <el-form-item label="彩期">
+          <IssueSelect
             v-model="chartIssueId"
-            placeholder="请选择期号"
-            @change="getChartData"
+            placeholder="请选择彩期"
             clearable
-          >
-            <el-option
-              v-for="item in lotteryIssueList"
-              :key="item.ID"
-              :label="item.issue_no"
-              :value="item.ID"
-            >
-            </el-option>
-          </el-select>
+          ></IssueSelect>
+        </el-form-item>
+
+        <el-form-item label="所属组织">
+          <TenantSelect
+            v-model="tenant_id"
+            placeholder="请选择组织"
+            clearable
+          ></TenantSelect>
         </el-form-item>
 
         <el-form-item label="彩票类型">
@@ -264,7 +263,6 @@ import {
   getFcgOrderSplitNumberList,
   batchFcgOrderSplitNumberOperation,
 } from "@/api/fcgame/fcg_order_split_number";
-import { getFcgLotteryIssueList } from "@/api/fcgame/fcg_lottery_issue";
 import infoList from "@/mixins/infoList";
 import { mapGetters, mapMutations } from "vuex";
 export default {
@@ -298,6 +296,7 @@ export default {
       type: "",
       multipleSelection: [],
       chartIssueId: 0,
+      tenant_id: 0,
       game_category: 1, // 默认福彩
       maxValue: 0,
       // 期号列表
@@ -324,6 +323,7 @@ export default {
         issue_id: this.chartIssueId,
         // alpha: this.alpha,
         // beta: this.beta,
+        tenant_id: this.tenant_id,
         ks_amount: this.ks_amount,
       });
       if (res.code === 0 && res.data && res.data.pre_loss_list) {
@@ -333,29 +333,15 @@ export default {
         this.$message.error(res.msg || "获取数据失败");
       }
     },
-    // 获取期号列表
-    async getLotteryIssueList() {
-      try {
-        const res = await getFcgLotteryIssueList({ page: 1, pageSize: 100 });
-        if (res.code === 0 && res.data && res.data.list) {
-          this.lotteryIssueList = res.data.list;
-          // 获取到列表后默认取第一条期号作为参数
-          if (this.lotteryIssueList.length > 0) {
-            this.chartIssueId = this.lotteryIssueList[0].ID;
-            console.log(this.chartIssueId);
-            this.getChartData();
-          }
-        }
-      } catch (error) {
-        console.error("获取期号列表失败:", error);
-        this.$message.error("获取期号列表失败");
-      }
-    },
 
     // 获取图表数据
     async getChartData() {
       if (this.chartIssueId == 0) {
         this.$message.warning("请输入期号");
+        return;
+      }
+      if (this.tenant_id == 0) {
+        this.$message.warning("请选择所属组织");
         return;
       }
       this.chartLoading = true;
@@ -367,6 +353,7 @@ export default {
           // alpha: this.alpha,
           // beta: this.beta,
           ks_amount: this.ks_amount,
+          tenant_id: this.tenant_id,
         });
         if (res.code === 0 && res.data) {
           this.rickDataInfo = res.data;
@@ -379,14 +366,6 @@ export default {
       }
     },
 
-    onQuery() {
-      this.summary = {};
-      this.showSummary = false;
-
-      this.page = 1;
-      this.pageSize = 10;
-      this.getTableData();
-    },
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
@@ -577,6 +556,7 @@ export default {
           split_number: item.split_number,
           trans_count: item.trans_count,
           trans_amount: item.trans_amount,
+          tenant_id: item.tenant_id,
         }));
 
         // 构建请求数据
@@ -606,7 +586,9 @@ export default {
   },
 
   async created() {
-    await this.getLotteryIssueList();
+    await this.$nextTick();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    this.getChartData();
   },
 };
 </script>

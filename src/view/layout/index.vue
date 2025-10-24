@@ -260,11 +260,11 @@ export default {
     this.$store.dispatch("common/updateCommonData");
     this.$store.dispatch("common/updateSiteData");
     // 获取期号统计数据
-    this.$store
-      .dispatch("statistics/fetchLatestIssueStatistics")
-      .catch((error) => {
-        console.warn("获取期号统计数据失败:", error);
-      });
+    // this.$store
+    //   .dispatch("statistics/fetchLatestIssueStatistics")
+    //   .catch((error) => {
+    //     console.warn("获取期号统计数据失败:", error);
+    //   });
 
     // this.$store.dispatch("websocets/webSocketInit");
   },

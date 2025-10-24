@@ -6,7 +6,7 @@
         <p>当前统计期号：{{ summaryData.issue_no }}</p>
       </div>
       <div class="quick-nav">
-        <el-select
+        <!-- <el-select
           v-model="searchInfo.issue_no"
           placeholder="请选择彩票期号"
           style="width: 200px; margin-right: 10px"
@@ -18,8 +18,22 @@
             :label="issue.issue_no"
             :value="issue.issue_no"
           ></el-option>
-        </el-select>
+        </el-select> -->
         <!-- <el-button type="primary" @click="queryOrderByIssue">查询订单</el-button> -->
+
+        <IssueSelect
+          v-model="searchInfo.issue_id"
+          placeholder="请选择彩期"
+          clearable
+        ></IssueSelect>
+        -
+        <TenantSelect
+          v-model="searchInfo.tenant_id"
+          placeholder="请选择组织"
+          clearable
+        ></TenantSelect>
+        -
+        <el-button @click="changeSelect">查询</el-button>
       </div>
     </el-card>
 
@@ -287,7 +301,6 @@
 <script>
 import { mapGetters } from "vuex";
 import { getFcgOrderSummary } from "@/api/fcgame/fcg_order";
-import { getFcgLotteryIssueList } from "@/api/fcgame/fcg_lottery_issue";
 
 export default {
   name: "DashboardPage",
@@ -449,8 +462,7 @@ export default {
     },
   },
   methods: {
-    changeSelect(issue_no) {
-      this.$set(this.searchInfo, "issue_no", issue_no);
+    changeSelect() {
       this.loadData();
     },
     formattedVal(val) {
@@ -490,20 +502,6 @@ export default {
         query: query,
       });
     },
-
-    getLotteryIssues() {
-      getFcgLotteryIssueList({ page: 1, pageSize: 100 }).then((res) => {
-        if (res && res.data && res.data.list && res.data.list.length > 0) {
-          this.lotteryIssues = res.data.list;
-          // 如果是首次加载且没有选中的期号，自动选择第一条期号并加载数据
-          if (!this.searchInfo.issue_no) {
-            this.$set(this.searchInfo, "issue_no", res.data.list[0].issue_no);
-            this.loadData();
-          }
-        }
-      });
-    },
-
     queryOrderByIssue() {
       if (!this.searchInfo.issue_no) {
         this.$message.warning("请先选择彩票期号");
@@ -550,7 +548,7 @@ export default {
     },
   },
   created() {
-    this.getLotteryIssues();
+    this.loadData();
   },
 };
 </script>

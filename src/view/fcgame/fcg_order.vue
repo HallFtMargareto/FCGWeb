@@ -3,18 +3,11 @@
     <div class="search-term">
       <searchform size="mini" :maxShow="4" @search="onQuery">
         <el-form-item label="彩期">
-          <el-select
+          <IssueSelect
             v-model="searchInfo.issue_id"
             placeholder="请选择彩期"
-            @change="handleIssueChange"
-          >
-            <el-option
-              v-for="item in lotteryIssueList"
-              :key="item.ID"
-              :label="item.issue_no"
-              :value="item.ID"
-            ></el-option>
-          </el-select>
+            clearable
+          ></IssueSelect>
         </el-form-item>
 
         <el-form-item label="所属组织">
@@ -887,7 +880,6 @@ import {
   batchFcgOrderOperation,
   getFcgOrderSummary,
 } from "@/api/fcgame/fcg_order";
-import { getFcgLotteryIssueList } from "@/api/fcgame/fcg_lottery_issue.js";
 import { getFcgContactList } from "@/api/fcgame/fcg_contact.js";
 import infoList from "@/mixins/infoList";
 import { mapGetters } from "vuex";
@@ -954,8 +946,6 @@ export default {
       uploadExtraParams: {
         contactId: "", // 选中的会话ID
       },
-      // 彩期数据
-      lotteryIssueList: [],
 
       // 订单详情弹窗相关
       orderDetailDialogVisible: false,
@@ -1049,22 +1039,6 @@ export default {
       });
     },
 
-    // 加载彩期数据
-    async loadLotteryIssueList() {
-      try {
-        const res = await getFcgLotteryIssueList({ page: 1, pageSize: 100 });
-        if (res.code === 0) {
-          this.lotteryIssueList = res.data.list || [];
-          // 默认选中第一条数据
-          if (this.lotteryIssueList.length > 0) {
-            this.$set(this.searchInfo, "issue_id", this.lotteryIssueList[0].ID);
-          }
-        }
-      } catch (error) {
-        console.error("获取彩期数据失败:", error);
-        this.$message.error("获取彩期数据失败");
-      }
-    },
     // 获取风险级别文本
     getRiskLevelText(score) {
       const numScore = parseInt(score) || 0;
@@ -1596,8 +1570,6 @@ export default {
       // 设置搜索条件
       this.searchInfo.order_status = status;
     }
-    // 加载彩期数据
-    await this.loadLotteryIssueList();
     await this.getTableData();
     if (process.env.NODE_ENV === "development") {
       console.timeEnd("fcg_order component created");

@@ -5,6 +5,8 @@
 升级node-sass 和sass-load, 最新支持node20
 
 
+
+
 ## 安装依赖
 
 ```
@@ -15,6 +17,32 @@ pnpm install
 pnpm run serve
 
 pnpm run build
+```
+
+
+
+## 查询组件
+```
+ <el-form-item label="彩期">
+          <IssueSelect
+            v-model="searchInfo.issue_id"
+            placeholder="请选择彩期"
+            clearable
+          ></IssueSelect>
+        </el-form-item>
+
+        <el-form-item label="所属组织">
+          <TenantSelect
+            v-model="searchInfo.tenant_id"
+            placeholder="请选择组织"
+            clearable
+          ></TenantSelect>
+        </el-form-item>
+
+  async created() {
+    await this.$nextTick();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  },
 ```
 
 

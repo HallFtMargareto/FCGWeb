@@ -7,16 +7,29 @@
         </el-form-item> -->
 
         <el-form-item label="会话名称">
-          <el-input v-model="searchInfo.nick_name" placeholder="用户昵称" clearable></el-input>
+          <el-input
+            v-model="searchInfo.nick_name"
+            placeholder="用户昵称"
+            clearable
+          ></el-input>
         </el-form-item>
+
+        <!-- <el-form-item label="所属组织">
+          <TenantSelect
+            v-model="searchInfo.tenant_id"
+            placeholder="请选择组织"
+            :autoSelectFirs="false"
+            clearable
+          ></TenantSelect>
+        </el-form-item> -->
 
         <!-- <el-form-item label="会话标识">
           <el-input v-model="searchInfo.username" placeholder="用户标识" clearable></el-input>
         </el-form-item> -->
 
-        <el-form-item label="别名">
+        <!-- <el-form-item label="别名">
           <el-input v-model="searchInfo.alias" placeholder="用户别名" clearable></el-input>
-        </el-form-item>
+        </el-form-item> -->
 
         <el-form-item label="状态" prop="state">
           <el-select v-model="searchInfo.state" placeholder="请选择">
@@ -30,22 +43,42 @@
         </el-form-item> -->
 
         <el-form-item label="备注">
-          <el-input v-model="searchInfo.remark" placeholder="备注信息" clearable></el-input>
+          <el-input
+            v-model="searchInfo.remark"
+            placeholder="备注信息"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="描述">
-          <el-input v-model="searchInfo.description" placeholder="描述信息" clearable></el-input>
+          <el-input
+            v-model="searchInfo.description"
+            placeholder="描述信息"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="消息哈希">
-          <el-input v-model="searchInfo.hash" placeholder="消息哈希值" clearable></el-input>
+          <el-input
+            v-model="searchInfo.hash"
+            placeholder="消息哈希值"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="添加时间">
-          <datepicker v-model="searchInfo.startTime" type="datetime" placeholder="开始时间" />
+          <datepicker
+            v-model="searchInfo.startTime"
+            type="datetime"
+            placeholder="开始时间"
+          />
         </el-form-item>
         <el-form-item label="结束时间">
-          <datepicker v-model="searchInfo.endTime" type="datetime" placeholder="结束时间" />
+          <datepicker
+            v-model="searchInfo.endTime"
+            type="datetime"
+            placeholder="结束时间"
+          />
         </el-form-item>
       </searchform>
 
@@ -59,8 +92,14 @@
       </el-form> -->
     </div>
 
-    <el-table :data="tableData" @selection-change="handleSelectionChange" @sort-change="sortChange" ref="multipleTable"
-      :show-summary="showSummary" :summary-method="getSummaries">
+    <el-table
+      :data="tableData"
+      @selection-change="handleSelectionChange"
+      @sort-change="sortChange"
+      ref="multipleTable"
+      :show-summary="showSummary"
+      :summary-method="getSummaries"
+    >
       <el-table-column type="selection" width="50"></el-table-column>
       <el-table-column label="ID" prop="ID" sortable></el-table-column>
 
@@ -75,7 +114,11 @@
 
       <el-table-column label="会话状态" prop="state">
         <template slot-scope="scope">
-          <booltag :tagState="scope.row.state" true-text="已激活" false-text="未激活"></booltag>
+          <booltag
+            :tagState="scope.row.state"
+            true-text="已激活"
+            false-text="未激活"
+          ></booltag>
         </template>
       </el-table-column>
 
@@ -115,7 +158,12 @@
       <!-- <el-table-column label="msg_hash" prop="hash" show-overflow-tooltip>
       </el-table-column> -->
 
-      <el-table-column label="添加时间" width="160" prop="created_at" sortable="custom">
+      <el-table-column
+        label="添加时间"
+        width="160"
+        prop="created_at"
+        sortable="custom"
+      >
         <template slot-scope="scope">
           {{ formatTimestamp(scope.row.created_at) }}
         </template>
@@ -123,8 +171,14 @@
 
       <el-table-column label="操作" fixed="right" width="200">
         <template slot-scope="scope">
-          <el-button v-if="userInfo.perm['system.update']" @click="editRow(scope.row)" type="text" size="small"
-            icon="el-icon-edit">编辑</el-button>
+          <el-button
+            v-if="userInfo.perm['system.update']"
+            @click="editRow(scope.row)"
+            type="text"
+            size="small"
+            icon="el-icon-edit"
+            >编辑</el-button
+          >
 
           <!-- <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
             title="确定要删除吗？" @confirm="deleteRow(scope.row)" v-if="userInfo.perm['system.delete']">
@@ -134,15 +188,41 @@
       </el-table-column>
     </el-table>
 
-    <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
-      @confirm="enterDialog" width="50%" ref="dialog">
+    <dialogform
+      :visible.sync="openDialog"
+      :dialogTitle="dialogTitle"
+      :formDatas="formData"
+      :formRule="formRules"
+      @confirm="enterDialog"
+      width="50%"
+      ref="dialog"
+    >
       <el-form-item label="状态" prop="state">
-        <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="已激活" inactive-text="未激活"
-          v-model="formData.state"></el-switch>
+        <el-switch
+          active-color="#13ce66"
+          inactive-color="#ff4949"
+          active-text="已激活"
+          inactive-text="未激活"
+          v-model="formData.state"
+        ></el-switch>
+      </el-form-item>
+
+      <el-form-item label="所属组织">
+        <TenantSelect
+          v-model="formData.tenant_id"
+          placeholder="请选择组织"
+          clearable
+          style="width: 100%"
+        ></TenantSelect>
       </el-form-item>
 
       <el-form-item label="费率">
-        <el-input v-model="formData.fee_rate" placeholder="费率" clearable @input="validateNumberInput">
+        <el-input
+          v-model="formData.fee_rate"
+          placeholder="费率"
+          clearable
+          @input="validateNumberInput"
+        >
           <template slot="append">%</template>
         </el-input>
         <div class="el-form-item__tip">
@@ -153,9 +233,19 @@
       <el-divider content-position="center">赔率设置</el-divider>
       <el-form-item label="">
         <el-row :gutter="24">
-          <el-col :span="12" v-for="(odd, index) in formData.odds_rate" :key="odd.game_type_id">
-            <el-form-item :label="odd.game_type_name" :prop="'odds_rate.' + index + '.odds'">
-              <el-input v-model.number="odd.odds" placeholder="请输入赔率"></el-input>
+          <el-col
+            :span="12"
+            v-for="(odd, index) in formData.odds_rate"
+            :key="odd.game_type_id"
+          >
+            <el-form-item
+              :label="odd.game_type_name"
+              :prop="'odds_rate.' + index + '.odds'"
+            >
+              <el-input
+                v-model.number="odd.odds"
+                placeholder="请输入赔率"
+              ></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -166,13 +256,21 @@
     <div>
       <!-- 数据合计,按需求启用 -->
       <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
-      <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
-        :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
-        @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
+      <el-pagination
+        :current-page="page"
+        :page-size="pageSize"
+        :page-sizes="[10, 30, 50, 100]"
+        :style="{ float: 'right', padding: '20px' }"
+        :total="total"
+        @current-change="handleCurrentChange"
+        @size-change="handleSizeChange"
+        layout="total, sizes, prev, pager, next, jumper"
+        background
+      ></el-pagination>
     </div>
 
-    <uploadexcel 
-      ref="uploadexcel" 
+    <uploadexcel
+      ref="uploadexcel"
       action="FcgContact"
       :extraParams="uploadExtraParams"
     ></uploadexcel>
@@ -260,7 +358,7 @@ export default {
   methods: {
     validateNumberInput(value) {
       // 允许空值
-      if (value === '' || value === null || value === undefined) {
+      if (value === "" || value === null || value === undefined) {
         return;
       }
 
