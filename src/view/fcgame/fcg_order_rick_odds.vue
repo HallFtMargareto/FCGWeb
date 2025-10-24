@@ -557,7 +557,7 @@ export default {
           split_number: item.split_number,
           trans_count: item.trans_count,
           trans_amount: item.trans_amount,
-          tenant_id: item.tenant_id,
+          tenant_id: this.tenant_id,
         }));
 
         // 构建请求数据
