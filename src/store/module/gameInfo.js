@@ -17,6 +17,7 @@ export const gameInfo = {
         gameCategory: {}, // 游戏分类映射
         simulatedOdds: {}, // 模拟赔率映射
         tenants: [], // 组织列表
+        issues: [],  //期号列表
         lastUpdateTime: null // 最后更新时间
     },
     mutations: {
@@ -26,6 +27,7 @@ export const gameInfo = {
             state.gameCategory = convertKeysToNumbers(data.game_category || {});
             state.simulatedOdds = convertKeysToNumbers(data.simulated_odds || {});
             state.tenants = data.tenants || [];
+            state.issues = data.issues || [];
             state.lastUpdateTime = new Date().getTime();
         },
         clearGameInfo(state) {
@@ -33,6 +35,7 @@ export const gameInfo = {
             state.gameCategory = {};
             state.simulatedOdds = {};
             state.tenants = [];
+            state.issues = [];
             state.lastUpdateTime = null;
         }
     },
@@ -66,6 +69,7 @@ export const gameInfo = {
         gameCategory: state => state.gameCategory,
         simulatedOdds: state => state.simulatedOdds,
         tenants: state => state.tenants,
+        issues: state => state.issues,
         lastUpdateTime: state => state.lastUpdateTime,
         // 根据ID获取游戏类型名称
         getGameTypeName: (state) => (id) => {
