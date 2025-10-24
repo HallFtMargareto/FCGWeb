@@ -243,9 +243,14 @@
               :prop="'odds_rate.' + index + '.odds'"
             >
               <el-input
-                v-model.number="odd.odds"
-                placeholder="请输入赔率"
-              ></el-input>
+                v-model="odd.odds"
+                @input="
+                  odd.odds = odd.odds.replace(/^(\d+\.?\d{0,2}).*$/, '$1')
+                "
+              >
+                @blur="odd.odds = parseFloat(odd.odds) || 0"
+                placeholder="请输入赔率" ></el-input
+              >
             </el-form-item>
           </el-col>
         </el-row>
@@ -422,6 +427,14 @@ export default {
       }
     },
     async enterDialog() {
+      // 确保赔率为数字类型
+      if (this.formData.odds_rate && this.formData.odds_rate.length > 0) {
+        this.formData.odds_rate = this.formData.odds_rate.map((odd) => ({
+          ...odd,
+          odds: parseFloat(odd.odds) || 0,
+        }));
+      }
+
       let res;
       switch (this.type) {
         case "create":
