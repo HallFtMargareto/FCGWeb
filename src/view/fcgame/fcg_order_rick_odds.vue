@@ -297,7 +297,7 @@ export default {
       type: "",
       multipleSelection: [],
       chartIssueId: 0,
-      tenant_id: 0,
+      tenant_id: null,
       game_category: 1, // 默认福彩
       maxValue: 0,
       // 期号列表

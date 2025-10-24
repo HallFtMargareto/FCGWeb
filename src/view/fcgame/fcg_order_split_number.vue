@@ -132,7 +132,7 @@ export default {
       chartData: null,
       chartLoading: false, // 图表加载状态
       chartIssueId: 0,
-      tenant_id: 0,
+      tenant_id: null,
       game_category: 1, // 默认福彩
       chartInstance: null,
       maxValue: 0,
