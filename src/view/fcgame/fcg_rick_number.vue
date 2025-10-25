@@ -47,6 +47,14 @@
       >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column
+          type="index"
+          label="序号"
+          width="60"
+          align="center"
+          :index="indexMethod"
+        >
+        </el-table-column>
+        <el-table-column
           prop="split_number"
           label="拆分号码"
           sortable
@@ -169,6 +177,10 @@ export default {
   },
   methods: {
     ...mapMutations("common", ["setAlpha", "setBeta"]),
+    // 自定义序号方法，从1开始
+    indexMethod(index) {
+      return index + 1;
+    },
 
     // 获取图表数据
     async getChartData() {

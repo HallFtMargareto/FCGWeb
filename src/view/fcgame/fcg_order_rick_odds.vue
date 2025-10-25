@@ -33,6 +33,10 @@
           ></el-input>
         </el-form-item>
 
+        <el-form-item label="风险比例">
+          <el-input v-model="prate" placeholder="请输入风险比例"></el-input>
+        </el-form-item>
+
         <el-form-item label=" ">
           <el-button type="success" @click="generateContent" plain
             >生成内容</el-button
@@ -105,7 +109,7 @@
         </el-descriptions>
       </div>
       <el-table
-        :data="rickDataInfo.rick_order"
+        :data="filteredRickOrder"
         style="width: 100%"
         border
         height="600px"
@@ -167,6 +171,8 @@
           prop="risk_ratio"
           label="风险比例"
           align="center"
+          sortable="custom"
+          :sort-orders="['descending', 'ascending', null]"
         ></el-table-column>
         <!-- <el-table-column prop="threshold" label="阈值"></el-table-column> -->
         <!-- <el-table-column prop="target_limit" label="目标限额"></el-table-column> -->
@@ -412,6 +418,27 @@ export default {
         return true;
       });
     },
+    // 根据风险比例过滤后的订单数据
+    filteredRickOrder() {
+      if (
+        !this.rickDataInfo.rick_order ||
+        this.rickDataInfo.rick_order.length === 0
+      ) {
+        return [];
+      }
+
+      // 如果没有输入风险比例，返回所有数据
+      if (!this.prate || this.prate === "") {
+        return this.rickDataInfo.rick_order;
+      }
+
+      const filterValue = parseFloat(this.prate) || 0;
+
+      return this.rickDataInfo.rick_order.filter((item) => {
+        const riskRatio = parseFloat(item.risk_ratio) || 0;
+        return riskRatio > filterValue;
+      });
+    },
   },
   data() {
     return {
@@ -439,6 +466,7 @@ export default {
       sortOrder: null,
       // 复制loading状态
       copyLoading: false,
+      prate: null, //风险比例数字帅选
     };
   },
   methods: {
@@ -509,15 +537,15 @@ export default {
       this.sortProp = prop;
       this.sortOrder = order;
 
-      if (
-        !this.rickDataInfo.rick_order ||
-        this.rickDataInfo.rick_order.length === 0
-      ) {
+      // 获取当前过滤后的数据进行排序
+      const currentData = this.filteredRickOrder;
+
+      if (!currentData || currentData.length === 0) {
         return;
       }
 
       // 创建数据副本进行排序
-      const sortedData = [...this.rickDataInfo.rick_order];
+      const sortedData = [...currentData];
 
       if (order) {
         sortedData.sort((a, b) => {
@@ -530,7 +558,8 @@ export default {
             prop === "potential_payout" ||
             prop === "ks_amount" ||
             prop === "trans_amount" ||
-            prop === "split_count"
+            prop === "split_count" ||
+            prop === "risk_ratio"
           ) {
             valueA = parseFloat(valueA) || 0;
             valueB = parseFloat(valueB) || 0;
@@ -562,7 +591,7 @@ export default {
         });
       }
 
-      // 更新排序后的数据
+      // 更新排序后的数据到原始数据，这样过滤后的数据也会保持排序
       this.$set(this.rickDataInfo, "rick_order", sortedData);
     },
 
