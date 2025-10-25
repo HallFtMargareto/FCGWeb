@@ -693,7 +693,7 @@ export default {
           if (!numberBatches[1]) {
             numberBatches[1] = [];
           }
-          numberBatches[1].push(`${number} ${totalCount}单`);
+          numberBatches[1].push(`${number}-${totalCount}单`);
         } else {
           // 需要拆分
           const batchCount = Math.ceil(totalCount / this.batchThreshold);
@@ -720,8 +720,19 @@ export default {
 
       for (let batchIndex = 1; batchIndex <= maxBatch; batchIndex++) {
         if (numberBatches[batchIndex] && numberBatches[batchIndex].length > 0) {
-          const batchContent = numberBatches[batchIndex].join(", ");
-          lines.push(`${prefix} ${batchContent}`);
+          const batchItems = numberBatches[batchIndex];
+          const batchLines = [];
+
+          // 当号码数量超过50个时换行
+          for (let i = 0; i < batchItems.length; i += 50) {
+            const chunk = batchItems.slice(i, i + 50);
+            batchLines.push(chunk.join(", "));
+          }
+
+          // 每个批次生成多行，每行最多50个号码
+          batchLines.forEach((line) => {
+            lines.push(`${prefix} ${line}`);
+          });
         }
       }
 
