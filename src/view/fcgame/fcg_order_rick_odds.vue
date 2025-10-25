@@ -343,11 +343,11 @@
             {{ parseFloat(scope.row.TransferAmount).toFixed(2) }}
           </template>
         </el-table-column>
-        <el-table-column prop="WinWaterRate" label="上水概率" align="center">
+        <!-- <el-table-column prop="WinWaterRate" label="上水概率" align="center">
           <template slot-scope="scope">
             {{ parseFloat(scope.row.WinWaterRate).toFixed(2) }}
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column prop="OrderCount" label="号码数" align="center">
           <template slot-scope="scope">
             {{ parseFloat(scope.row.OrderCount).toFixed(0) }}
@@ -693,7 +693,7 @@ export default {
           if (!numberBatches[1]) {
             numberBatches[1] = [];
           }
-          numberBatches[1].push(`${number}-${totalCount}单`);
+          numberBatches[1].push(`${number}/${totalCount}单`);
         } else {
           // 需要拆分
           const batchCount = Math.ceil(totalCount / this.batchThreshold);
@@ -708,7 +708,7 @@ export default {
               remainingCount,
               this.batchThreshold
             );
-            numberBatches[batchIndex].push(`${number} ${countInThisBatch}单`);
+            numberBatches[batchIndex].push(`${number}/${countInThisBatch}单`);
             remainingCount -= countInThisBatch;
           }
         }
@@ -726,13 +726,26 @@ export default {
           // 当号码数量超过50个时换行
           for (let i = 0; i < batchItems.length; i += 50) {
             const chunk = batchItems.slice(i, i + 50);
+            // 超过50个号码量换行的新行不需要拼接前缀
             batchLines.push(chunk.join(", "));
           }
 
           // 每个批次生成多行，每行最多50个号码
           batchLines.forEach((line) => {
-            lines.push(`${prefix} ${line}`);
+            // 只有超出batchThreshold批次的那部分数据才拼接 福或者体字
+            if (batchIndex > 1) {
+              lines.push(`${prefix} ${line}`);
+            } else {
+              lines.push(" ");
+              // lines.push(line);
+              lines.push(`${prefix} ${line}`);
+            }
           });
+
+          // 在批次之间添加空白行（除了最后一个批次）
+          if (batchIndex < maxBatch) {
+            lines.push(" "); // 添加空白行
+          }
         }
       }
 
