@@ -563,8 +563,13 @@
               <el-input v-model.number="editFormData.bet_amount" placeholder="请输入订单总金额"></el-input>
             </el-form-item>
           </el-col> -->
-          <el-col :span="19">
+          <el-col>
             <el-form-item label="投注内容">
+              {{ editFormData.source_content }}
+            </el-form-item>
+          </el-col>
+          <el-col :span="19">
+            <el-form-item label="内容修改">
               <el-input
                 type="textarea"
                 :rows="5"
@@ -980,6 +985,7 @@ export default {
         ID: undefined,
         order_no: "",
         bet_amount: undefined,
+        source_content: "",
         order_details: [],
       },
       tabState: "0",
@@ -987,29 +993,31 @@ export default {
       mark_state: "all",
       gameTypes: [
         { value: 0, label: "全部玩法" },
-        { value: 1, label: "单选" },
-        { value: 2, label: "组三(对子)" },
-        { value: 3, label: "组六(无重复)" },
+        { value: 1, label: "直选" },
+        { value: 14, label: "独胆" },
+        { value: 23, label: "豹子" },
+        { value: 2, label: "组三" },
+        { value: 3, label: "组六" },
         { value: 4, label: "组六四码" },
         { value: 5, label: "组六五码" },
         { value: 6, label: "组六六码" },
         { value: 7, label: "组六七码" },
         { value: 8, label: "组六八码" },
         { value: 9, label: "组三四码" },
+        { value: 24, label: "组三两码" },
+        { value: 25, label: "组三三码" },
         { value: 10, label: "组三五码" },
         { value: 11, label: "组三六码" },
         { value: 12, label: "组三七码" },
         { value: 13, label: "组三八码" },
-        { value: 14, label: "独胆" },
-        { value: 15, label: "一码不定位" },
         { value: 16, label: "一码定位" },
-        { value: 17, label: "两码不定位(双飞)" },
+        { value: 15, label: "一码不定位" },
         { value: 18, label: "两码定位" },
-        { value: 19, label: "复试重复号" },
-        { value: 20, label: "复试(三不同号)" },
+        { value: 17, label: "两码不定位(双飞)" },
+        { value: 19, label: "复试-重复号" },
+        { value: 20, label: "复试-不同号" },
         { value: 21, label: "包对子" },
         { value: 22, label: "包对一" },
-        { value: 23, label: "豹子" },
       ],
     };
   },
@@ -1244,6 +1252,7 @@ export default {
           ID: order.ID,
           order_no: order.order_no,
           bet_amount: order.bet_amount,
+          source_content: order.bet_content,
           bet_content: order.bet_content,
           order_details: order.order_details
             ? order.order_details.map((detail) => {
