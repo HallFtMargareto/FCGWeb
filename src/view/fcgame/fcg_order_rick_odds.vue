@@ -209,10 +209,92 @@
     <el-dialog
       title="预亏损率数据"
       :visible.sync="showPreLossDialog"
-      width="50%"
+      width="60%"
     >
+      <!-- 筛选区域 -->
+      <div
+        style="
+          margin-bottom: 15px;
+          padding: 10px;
+          background-color: #f5f7fa;
+          border-radius: 4px;
+        "
+      >
+        <el-row :gutter="20">
+          <el-col :span="8">
+            <div style="margin-bottom: 10px">
+              <label
+                style="
+                  display: block;
+                  margin-bottom: 5px;
+                  font-size: 14px;
+                  color: #606266;
+                "
+                >预亏损金额筛选:</label
+              >
+              <el-input
+                v-model="preLossAmountFilter"
+                placeholder="小于此金额"
+                type="number"
+                clearable
+                @input="handlePreLossFilter"
+              >
+                <template slot="append">元</template>
+              </el-input>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div style="margin-bottom: 10px">
+              <label
+                style="
+                  display: block;
+                  margin-bottom: 5px;
+                  font-size: 14px;
+                  color: #606266;
+                "
+                >转出总金额筛选:</label
+              >
+              <el-input
+                v-model="transferAmountFilter"
+                placeholder="小于此金额"
+                type="number"
+                clearable
+                @input="handlePreLossFilter"
+              >
+                <template slot="append">元</template>
+              </el-input>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div
+              style="
+                margin-bottom: 10px;
+                display: flex;
+                align-items: flex-end;
+                height: 100%;
+              "
+            >
+              <div>
+                <el-button
+                  type="primary"
+                  @click="clearPreLossFilters"
+                  size="small"
+                  >清除筛选</el-button
+                >
+                <span
+                  style="margin-left: 10px; color: #909399; font-size: 12px"
+                >
+                  显示 {{ filteredPreLossData.length }} /
+                  {{ preLossData.length }} 条数据
+                </span>
+              </div>
+            </div>
+          </el-col>
+        </el-row>
+      </div>
+
       <el-table
-        :data="preLossData"
+        :data="filteredPreLossData"
         border
         stripe
         highlight-current-row
@@ -293,6 +375,35 @@ export default {
         this.setBeta(value);
       },
     },
+    // 过滤后的预亏损数据
+    filteredPreLossData() {
+      if (!this.preLossData || this.preLossData.length === 0) {
+        return [];
+      }
+
+      return this.preLossData.filter((item) => {
+        const preLossAmount = parseFloat(item.PreLossAmount) || 0;
+        const transferAmount = parseFloat(item.TransferAmount) || 0;
+
+        // 预亏损金额筛选
+        if (this.preLossAmountFilter && this.preLossAmountFilter !== "") {
+          const filterValue = parseFloat(this.preLossAmountFilter) || 0;
+          if (preLossAmount > filterValue) {
+            return false;
+          }
+        }
+
+        // 转出总金额筛选
+        if (this.transferAmountFilter && this.transferAmountFilter !== "") {
+          const filterValue = parseFloat(this.transferAmountFilter) || 0;
+          if (transferAmount > filterValue) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+    },
   },
   data() {
     return {
@@ -312,6 +423,9 @@ export default {
       // 预亏损弹窗相关数据
       showPreLossDialog: false,
       preLossData: [],
+      // 筛选相关数据
+      preLossAmountFilter: "",
+      transferAmountFilter: "",
       // 排序相关数据
       sortProp: "",
       sortOrder: null,
@@ -334,6 +448,8 @@ export default {
       });
       if (res.code === 0 && res.data && res.data.pre_loss_list) {
         this.preLossData = res.data.pre_loss_list;
+        // 清除之前的筛选条件
+        this.clearPreLossFilters();
         this.showPreLossDialog = true;
       } else {
         this.$message.error(res.msg || "获取数据失败");
@@ -440,12 +556,12 @@ export default {
 
     // 处理预亏损率弹窗表格排序变化
     handlePreLossSortChange({ prop, order }) {
-      if (!this.preLossData || this.preLossData.length === 0) {
+      if (!this.filteredPreLossData || this.filteredPreLossData.length === 0) {
         return;
       }
 
       // 创建数据副本进行排序
-      const sortedData = [...this.preLossData];
+      const sortedData = [...this.filteredPreLossData];
 
       if (order) {
         sortedData.sort((a, b) => {
@@ -472,8 +588,20 @@ export default {
         });
       }
 
-      // 更新排序后的数据
-      this.preLossData = sortedData;
+      // 更新排序后的数据到过滤后的数据
+      this.filteredPreLossData = sortedData;
+    },
+
+    // 处理预亏损数据筛选
+    handlePreLossFilter() {
+      // 这个方法主要用于触发计算属性的重新计算
+      // 实际的筛选逻辑在 filteredPreLossData 计算属性中
+    },
+
+    // 清除预亏损数据筛选
+    clearPreLossFilters() {
+      this.preLossAmountFilter = "";
+      this.transferAmountFilter = "";
     },
 
     // 生成内容按钮点击事件
