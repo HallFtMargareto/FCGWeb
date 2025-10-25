@@ -45,6 +45,14 @@
             >预亏损率</el-button
           >
         </el-form-item>
+
+        <el-form-item label="拆分单量">
+          <el-input
+            v-model.number="batchThreshold"
+            placeholder="拆分单量"
+          ></el-input>
+        </el-form-item>
+
         <!-- <el-form-item label="阈值比例">
                     <el-input v-model="alpha" :min="0" :max="1" :step="0.1" placeholder="请输入阈值比例"></el-input>
                 </el-form-item>
@@ -282,10 +290,11 @@
           <el-col :span="8">
             <div
               style="
-                margin-bottom: 10px;
+                /* margin-bottom: 10px; */
                 display: flex;
                 align-items: flex-end;
                 height: 100%;
+                margin-top: 25px;
               "
             >
               <div>
@@ -467,6 +476,7 @@ export default {
       // 复制loading状态
       copyLoading: false,
       prate: null, //风险比例数字帅选
+      batchThreshold: 50, // 批次拆分阈值
     };
   },
   methods: {
@@ -667,6 +677,57 @@ export default {
       });
     },
 
+    // 生成批次内容
+    generateBatchContent(validData) {
+      let prefix = this.game_category === 1 ? "福" : "体";
+
+      // 为每个号码计算批次信息
+      const numberBatches = {};
+
+      validData.forEach((item) => {
+        const number = item.split_number;
+        const totalCount = parseInt(item.trans_count) || 0;
+
+        if (totalCount <= this.batchThreshold) {
+          // 不需要拆分，直接添加到第一批次
+          if (!numberBatches[1]) {
+            numberBatches[1] = [];
+          }
+          numberBatches[1].push(`${number} ${totalCount}单`);
+        } else {
+          // 需要拆分
+          const batchCount = Math.ceil(totalCount / this.batchThreshold);
+          let remainingCount = totalCount;
+
+          for (let batchIndex = 1; batchIndex <= batchCount; batchIndex++) {
+            if (!numberBatches[batchIndex]) {
+              numberBatches[batchIndex] = [];
+            }
+
+            const countInThisBatch = Math.min(
+              remainingCount,
+              this.batchThreshold
+            );
+            numberBatches[batchIndex].push(`${number} ${countInThisBatch}单`);
+            remainingCount -= countInThisBatch;
+          }
+        }
+      });
+
+      // 生成多行内容
+      const lines = [];
+      const maxBatch = Math.max(...Object.keys(numberBatches).map(Number));
+
+      for (let batchIndex = 1; batchIndex <= maxBatch; batchIndex++) {
+        if (numberBatches[batchIndex] && numberBatches[batchIndex].length > 0) {
+          const batchContent = numberBatches[batchIndex].join(", ");
+          lines.push(`${prefix} ${batchContent}`);
+        }
+      }
+
+      return lines.join("\n");
+    },
+
     // 复制内容按钮点击事件
     async copyColumn() {
       // 防止重复点击
@@ -685,16 +746,8 @@ export default {
         return;
       }
 
-      // 生成一行格式的内容
-      // 按照规则定开头文字
-      let prefix = this.game_category === 1 ? "福" : "体";
-
-      // 提取所有项的号码和单数部分，拼接成一行
-      const contentParts = validData.map((item) => {
-        return `${item.split_number} ${item.trans_count}单,`;
-      });
-
-      const contentToCopy = `${prefix} ${contentParts.join(" ")}`;
+      // 生成批次格式的内容
+      const contentToCopy = this.generateBatchContent(validData);
 
       try {
         // 复制到剪贴板 - 使用兼容的方法
