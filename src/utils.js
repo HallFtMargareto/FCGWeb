@@ -5,6 +5,7 @@ import * as downloadImg from "@/utils/downloadImg";
 import * as image from "@/utils/image.js";
 import * as stringFun from "@/utils/stringFun";
 import * as dictionary from "@/utils/dictionary";
+import * as fcgame from "@/utils/fcgame";
 
 
 const utils = {
@@ -13,6 +14,7 @@ const utils = {
     ...downloadImg,
     ...stringFun,
     ...dictionary,
+    ...fcgame,
 }
 
 

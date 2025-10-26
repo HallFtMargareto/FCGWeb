@@ -343,11 +343,11 @@
             {{ parseFloat(scope.row.TransferAmount).toFixed(2) }}
           </template>
         </el-table-column>
-        <!-- <el-table-column prop="WinWaterRate" label="上水概率" align="center">
+        <el-table-column prop="WinWaterRate" label="上水概率" align="center">
           <template slot-scope="scope">
             {{ parseFloat(scope.row.WinWaterRate).toFixed(2) }}
           </template>
-        </el-table-column> -->
+        </el-table-column>
         <el-table-column prop="OrderCount" label="号码数" align="center">
           <template slot-scope="scope">
             {{ parseFloat(scope.row.OrderCount).toFixed(0) }}

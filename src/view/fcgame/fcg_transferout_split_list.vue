@@ -1,0 +1,700 @@
+
+<template>
+  <div class="fcg-transferout-split-list">
+    <div class="search-term">
+      <searchform size="mini" :maxShow="3" @search="onQuery">
+        <el-form-item label="彩期">
+          <IssueSelect
+            v-model="searchInfo.issue_id"
+            placeholder="请选择彩期"
+            clearable
+          ></IssueSelect>
+        </el-form-item>
+
+        <el-form-item label="所属组织">
+          <TenantSelect
+            v-model="searchInfo.tenant_id"
+            placeholder="请选择组织"
+            :autoSelectFirst="false"
+            clearable
+          ></TenantSelect>
+        </el-form-item>
+
+        <el-form-item label="游戏类别">
+          <GCategory
+            v-model.number="searchInfo.game_category"
+            placeholder="请输入游戏类别"
+            clearable
+            :autoSelectFirst="false"
+          ></GCategory>
+        </el-form-item>
+
+        <el-form-item label="分割号码">
+          <el-input
+            v-model="searchInfo.split_number"
+            placeholder="请输入分割号码"
+            clearable
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item label="交易笔数">
+          <el-input
+            v-model.number="searchInfo.trans_count"
+            placeholder="请输入交易笔数"
+            clearable
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item label="交易金额">
+          <el-input
+            v-model="searchInfo.trans_amount"
+            placeholder="请输入交易金额"
+            clearable
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item label="彩期ID">
+          <el-input
+            v-model.number="searchInfo.issue_id"
+            placeholder="请输入彩期ID"
+            clearable
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item label="租户ID">
+          <el-input
+            v-model.number="searchInfo.tenant_id"
+            placeholder="请输入租户ID"
+            clearable
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item label="添加时间">
+          <datepicker v-model="searchInfo.startTime" type="datetime" />
+        </el-form-item>
+        <el-form-item label="结束时间">
+          <datepicker v-model="searchInfo.endTime" type="datetime" />
+        </el-form-item>
+      </searchform>
+    </div>
+
+    <!-- 汇总数据展示 -->
+    <div class="summary-section" v-if="summaryData">
+      <el-card class="summary-card" shadow="hover">
+        <div slot="header" class="summary-header">
+          <span class="summary-title">
+            <i class="el-icon-data-analysis"></i>
+            数据汇总
+          </span>
+        </div>
+
+        <!-- 总计数据 -->
+        <div class="total-summary">
+          <h4 class="summary-subtitle">总计</h4>
+          <el-descriptions :column="3" border>
+            <el-descriptions-item label="总交易笔数">
+              <span class="summary-value">{{
+                summaryData.totalSummary.totalTransCount || 0
+              }}</span>
+            </el-descriptions-item>
+            <el-descriptions-item label="总交易金额">
+              <span class="summary-value amount">{{
+                summaryData.totalSummary.totalTransAmount || 0
+              }}</span>
+            </el-descriptions-item>
+          </el-descriptions>
+        </div>
+
+        <!-- 分组汇总 -->
+        <div
+          class="group-summary"
+          v-if="summaryData.groupSummary && summaryData.groupSummary.length > 0"
+        >
+          <h4 class="summary-subtitle">分组汇总</h4>
+          <el-table :data="summaryData.groupSummary" size="small" border>
+            <el-table-column label="游戏类别" prop="game_category">
+              <template slot-scope="scope">
+                <el-tag size="mini" type="primary">{{
+                  $utils.getGameCategoryName(scope.row.game_category)
+                }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="交易笔数" prop="transCount">
+              <template slot-scope="scope">
+                <span class="summary-value">{{ scope.row.transCount }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="交易金额" prop="transAmount">
+              <template slot-scope="scope">
+                <span class="summary-value amount">{{
+                  scope.row.transAmount
+                }}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </el-card>
+    </div>
+
+    <el-table
+      :data="tableData"
+      @selection-change="handleSelectionChange"
+      @sort-change="sortChange"
+      ref="multipleTable"
+      :show-summary="showSummary"
+      :summary-method="getSummaries"
+    >
+      <el-table-column type="selection" width="50"></el-table-column>
+      <el-table-column label="ID" prop="ID" sortable></el-table-column>
+
+      <el-table-column label="游戏类别" prop="game_category">
+        <template slot-scope="scope">
+          <el-tag size="mini" type="primary">{{
+            $utils.getGameCategoryName(scope.row.game_category)
+          }}</el-tag>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="号码" prop="split_number" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <span class="split-number">{{ scope.row.split_number }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="交易笔数" prop="trans_count">
+        <template slot-scope="scope">
+          <span class="trans-count">{{ scope.row.trans_count }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="交易金额" prop="trans_amount">
+        <template slot-scope="scope">
+          <span class="trans-amount">{{ scope.row.trans_amount }}</span>
+        </template>
+      </el-table-column>
+
+      <!-- <el-table-column label="彩期ID" prop="issue_id">
+        <template slot-scope="scope">
+          <span class="issue-id">{{ scope.row.issue_id }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="租户ID" prop="tenant_id">
+        <template slot-scope="scope">
+          <span class="tenant-id">{{ scope.row.tenant_id }}</span>
+        </template>
+      </el-table-column> -->
+
+      <el-table-column
+        label="添加时间"
+        width="160"
+        prop="created_at"
+        sortable="custom"
+      >
+        <template slot-scope="scope">{{ scope.row.created_at }}</template>
+      </el-table-column>
+
+      <!-- <el-table-column label="操作" fixed="right" width="200">
+        <template slot-scope="scope">
+          <el-button
+            v-if="userInfo.perm['system.update']"
+            @click="editRow(scope.row)"
+            type="text"
+            size="small"
+            icon="el-icon-edit"
+            >编辑</el-button
+          >
+
+          <el-popconfirm
+            confirm-button-text="确定"
+            cancel-button-text="取消"
+            icon="el-icon-info"
+            icon-color="red"
+            title="确定要删除吗？"
+            @confirm="deleteRow(scope.row)"
+            v-if="userInfo.perm['system.delete']"
+          >
+            <el-button
+              type="text"
+              size="small"
+              icon="el-icon-delete"
+              slot="reference"
+              >删除</el-button
+            >
+          </el-popconfirm>
+        </template>
+      </el-table-column> -->
+    </el-table>
+
+    <!-- class="pagination-container" -->
+    <div>
+      <!-- 数据合计,按需求启用 -->
+      <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
+      <!-- <el-pagination
+        :current-page="page"
+        :page-size="pageSize"
+        :page-sizes="[10, 30, 50, 100]"
+        :style="{ float: 'right', padding: '20px' }"
+        :total="total"
+        @current-change="handleCurrentChange"
+        @size-change="handleSizeChange"
+        layout="total, sizes, prev, pager, next, jumper"
+        background
+      ></el-pagination> -->
+    </div>
+
+    <dialogform
+      :visible.sync="openDialog"
+      :dialogTitle="dialogTitle"
+      :formDatas="formData"
+      :formRule="formRules"
+      @confirm="enterDialog"
+      ref="dialog"
+    >
+      <el-form-item label="游戏类别" prop="game_category">
+        <el-input
+          v-model.number="formData.game_category"
+          placeholder="请输入游戏类别"
+          clearable
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="分割号码" prop="split_number">
+        <el-input
+          v-model="formData.split_number"
+          placeholder="请输入分割号码"
+          clearable
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="交易笔数" prop="trans_count">
+        <el-input
+          v-model.number="formData.trans_count"
+          placeholder="请输入交易笔数"
+          clearable
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="交易金额" prop="trans_amount">
+        <el-input
+          v-model="formData.trans_amount"
+          clearable
+          placeholder="请输入交易金额"
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="彩期ID" prop="issue_id">
+        <el-input
+          v-model.number="formData.issue_id"
+          placeholder="请输入彩期ID"
+          clearable
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="租户ID" prop="tenant_id">
+        <el-input
+          v-model.number="formData.tenant_id"
+          placeholder="请输入租户ID"
+          clearable
+        ></el-input>
+      </el-form-item>
+    </dialogform>
+
+    <uploadexcel
+      ref="uploadexcel"
+      action="FcgTransferoutSplitList"
+    ></uploadexcel>
+  </div>
+</template>
+
+<script>
+import {
+  createFcgTransferoutSplitList,
+  deleteFcgTransferoutSplitList,
+  updateFcgTransferoutSplitList,
+  findFcgTransferoutSplitList,
+  getFcgTransferoutSplitListList,
+  batchFcgTransferoutSplitListOperation,
+  getFcgTransferoutSplitListSummary,
+} from "@/api/fcgame/fcg_transferout_split_list";
+import infoList from "@/mixins/infoList";
+import { mapGetters } from "vuex";
+export default {
+  name: "fcg_transferout_split_list",
+  mixins: [infoList],
+  computed: {
+    ...mapGetters("user", ["userInfo"]),
+  },
+  data() {
+    return {
+      listApi: getFcgTransferoutSplitListList,
+      openDialog: false,
+      dialogTitle: "",
+      type: "",
+      multipleSelection: [],
+      summaryData: null, // 汇总数据
+      formData: {
+        game_category: undefined,
+        split_number: "",
+        trans_count: undefined,
+        trans_amount: undefined,
+        issue_id: undefined,
+        tenant_id: undefined,
+      },
+      formRules: {
+        game_category: [
+          { required: true, message: "请填写数据", trigger: "blur" },
+        ],
+        split_number: [
+          { required: true, message: "请填写数据", trigger: "blur" },
+        ],
+        trans_count: [
+          { required: true, message: "请填写数据", trigger: "blur" },
+        ],
+        trans_amount: [
+          { required: true, message: "请选择项目", trigger: "change" },
+        ],
+        issue_id: [{ required: true, message: "请填写数据", trigger: "blur" }],
+        tenant_id: [{ required: true, message: "请填写数据", trigger: "blur" }],
+      },
+    };
+  },
+  methods: {
+    // 重写getTableData方法来处理summary数据
+    async getTableData(
+      page = this.page,
+      pageSize = this.pageSize,
+      orderField = this.orderField,
+      orderType = this.orderType
+    ) {
+      const table = await this.listApi({
+        page,
+        pageSize,
+        orderField,
+        orderType,
+        ...this.searchInfo,
+      });
+      if (table.code == 0) {
+        this.tableData = table.data.list;
+        this.total = table.data.total;
+        this.page = table.data.page;
+        this.pageSize = table.data.pageSize;
+
+        // 处理summary数据
+        if (table.data.summary) {
+          this.summaryData = table.data.summary;
+        } else {
+          this.summaryData = null;
+        }
+      }
+    },
+    onQuery() {
+      this.summary = {};
+      this.showSummary = false;
+      this.summaryData = null; // 清空汇总数据
+
+      this.page = 1;
+      this.pageSize = 10;
+      this.getTableData();
+    },
+    createRow() {
+      this.formData = {};
+      this.type = "create";
+      this.dialogTitle = "创建";
+      this.openDialog = true;
+    },
+    async editRow(row) {
+      this.type = "update";
+      this.dialogTitle = "编辑";
+      const res = await findFcgTransferoutSplitList({ ID: row.ID });
+      if (res.code == 0) {
+        this.formData = res.data.refcg_transferout_split_list;
+        this.openDialog = true;
+      }
+    },
+    async deleteRow(row) {
+      const res = await deleteFcgTransferoutSplitList({ ID: row.ID });
+      if (res.code == 0) {
+        this.$message({
+          type: "success",
+          message: "删除成功",
+        });
+        if (this.tableData.length == 1) {
+          this.page--;
+        }
+        this.getTableData();
+      }
+    },
+    async enterDialog() {
+      let res;
+      switch (this.type) {
+        case "create":
+          res = await createFcgTransferoutSplitList(this.formData);
+          break;
+        case "update":
+          res = await updateFcgTransferoutSplitList(this.formData);
+          break;
+        default:
+          this.$message({
+            type: "error",
+            message: "操作类型错误",
+          });
+          return false;
+      }
+      if (res.code == 0) {
+        this.$message({
+          type: "success",
+          message: "操作成功",
+        });
+        this.$refs.dialog.handleClose();
+        this.openDialog = false;
+        this.getTableData();
+      }
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
+    handleCommand(command) {
+      this.$confirm("是否要执行批量操作?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then(async () => {
+        const ids = [];
+        if (this.multipleSelection.length == 0) {
+          this.$message({
+            type: "warning",
+            message: "请选择需要操作的数据",
+          });
+          return;
+        }
+        this.multipleSelection &&
+          this.multipleSelection.map((item) => {
+            ids.push(item.ID);
+          });
+
+        const res = await batchFcgTransferoutSplitListOperation({
+          ids,
+          command: command,
+        });
+        if (res.code == 0) {
+          this.$message({
+            type: "success",
+            message: "操作成功",
+          });
+          this.getTableData();
+        }
+      });
+    },
+    sortChange(row) {
+      //自定义排序要设置两个属性prop="field-name" sortable="custom"
+      this.orderField = row.prop;
+      this.orderType = this.directionMap[row.order] || "";
+      this.getTableData();
+    },
+    async getSummaryList() {
+      const res = await getFcgTransferoutSplitListSummary(this.searchInfo);
+      let keys = Object.keys(res.data.summary);
+      for (let key of keys) {
+        this.summary[key] = res.data.summary[key];
+      }
+      this.showSummary = true;
+    },
+    getSummaries(param) {
+      const sums = [];
+      const { columns } = param;
+      let that = this;
+      columns.forEach((column, index) => {
+        sums[index] =
+          that.summary[column.property] != null
+            ? that.summary[column.property]
+            : null;
+      });
+      // sums[0] = "合计";
+      return sums;
+    },
+    importExcel() {
+      //触发upLoad组件内部点击事件，弹出文件选择框
+      this.$refs.uploadexcel.chooseFile();
+    },
+    async exportExcel() {
+      this.searchInfo.action = "fcg_transferout_split_list";
+      await this.$api.getExcel(this.searchInfo);
+    },
+  },
+  async created() {
+    await this.$nextTick();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await this.getTableData();
+  },
+};
+</script>
+
+<style scoped>
+.fcg-transferout-split-list {
+  padding: 20px;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* 汇总数据样式 */
+.summary-section {
+  margin-bottom: 12px;
+}
+
+.summary-card {
+  border-radius: 6px;
+  box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.08);
+}
+
+.summary-card /deep/ .el-card__body {
+  padding: 12px;
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: #303133;
+  padding-bottom: 8px;
+}
+
+.summary-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.summary-title i {
+  margin-right: 6px;
+  color: #409eff;
+  font-size: 14px;
+}
+
+.summary-subtitle {
+  margin: 10px 0 8px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #606266;
+  border-left: 3px solid #409eff;
+  padding-left: 6px;
+}
+
+.total-summary {
+  margin-bottom: 12px;
+}
+
+.group-summary {
+  margin-top: 12px;
+}
+
+.summary-value {
+  font-weight: 600;
+  color: #409eff;
+  font-size: 13px;
+}
+
+.summary-value.amount {
+  color: #67c23a;
+  font-size: 14px;
+}
+
+/* 汇总表格样式优化 */
+.summary-section /deep/ .el-descriptions {
+  font-size: 13px;
+}
+
+.summary-section /deep/ .el-descriptions__label {
+  font-size: 13px;
+}
+
+.summary-section /deep/ .el-descriptions__content {
+  font-size: 13px;
+}
+
+.summary-section /deep/ .el-table {
+  font-size: 13px;
+}
+
+.summary-section /deep/ .el-table th {
+  padding: 8px 0;
+  font-size: 13px;
+}
+
+.summary-section /deep/ .el-table td {
+  padding: 6px 0;
+  font-size: 13px;
+}
+
+/* 搜索区域样式 */
+.search-term {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.btn-form-inline {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #ebeef5;
+}
+
+/* 表格样式 */
+.el-table {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.el-table th {
+  background-color: #fafafa;
+  color: #606266;
+  font-weight: 600;
+}
+
+.split-number {
+  font-family: "Courier New", monospace;
+  font-weight: 600;
+  color: #e6a23c;
+}
+
+.trans-count {
+  font-weight: 600;
+  color: #909399;
+}
+
+.trans-amount {
+  font-weight: 600;
+  color: #67c23a;
+}
+
+.issue-id {
+  color: #606266;
+}
+
+.tenant-id {
+  color: #909399;
+}
+
+/* 分页样式 */
+.el-pagination {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .fcg-transferout-split-list {
+    padding: 10px;
+  }
+
+  .search-term {
+    padding: 15px;
+  }
+
+  .summary-card {
+    margin-bottom: 15px;
+  }
+}
+</style>

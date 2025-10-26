@@ -174,6 +174,7 @@ import booltag from "@/components/booltag";
 import dynamicform from "@/components/dynamicform";
 import TenantSelect from "@/components/tenant";
 import IssueSelect from '@/components/issues'
+import GCategory from '@/components/gcategory'
 
 Vue.component('datepicker', datepicker);
 Vue.component('uploadexcel', uploadexcel);
@@ -184,6 +185,7 @@ Vue.component('booltag', booltag);
 Vue.component('dynamicform', dynamicform);
 Vue.component('TenantSelect', TenantSelect);
 Vue.component('IssueSelect', IssueSelect);
+Vue.component('GCategory', GCategory);
 
 
 import api from '@/api';
