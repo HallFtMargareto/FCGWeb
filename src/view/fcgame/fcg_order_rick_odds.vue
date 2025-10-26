@@ -307,8 +307,14 @@
                 <span
                   style="margin-left: 10px; color: #909399; font-size: 12px"
                 >
-                  显示 {{ filteredPreLossData.length }} /
-                  {{ preLossData.length }} 条数据
+                  显示
+                  {{
+                    (sortedPreLossData.length > 0
+                      ? sortedPreLossData
+                      : filteredPreLossData
+                    ).length
+                  }}
+                  / {{ preLossData.length }} 条数据
                 </span>
               </div>
             </div>
@@ -317,7 +323,9 @@
       </div>
 
       <el-table
-        :data="filteredPreLossData"
+        :data="
+          sortedPreLossData.length > 0 ? sortedPreLossData : filteredPreLossData
+        "
         border
         stripe
         highlight-current-row
@@ -345,7 +353,7 @@
         </el-table-column>
         <el-table-column prop="WinWaterRate" label="上水概率" align="center">
           <template slot-scope="scope">
-            {{ parseFloat(scope.row.WinWaterRate).toFixed(2) }}
+            {{ (parseFloat(scope.row.WinWaterRate) * 100).toFixed(2) }}%
           </template>
         </el-table-column>
         <el-table-column prop="OrderCount" label="号码数" align="center">
@@ -404,7 +412,7 @@ export default {
         return [];
       }
 
-      return this.preLossData.filter((item) => {
+      let filteredData = this.preLossData.filter((item) => {
         const preLossAmount = parseFloat(item.PreLossAmount) || 0;
         const transferAmount = parseFloat(item.TransferAmount) || 0;
 
@@ -426,6 +434,34 @@ export default {
 
         return true;
       });
+
+      // 如果有排序条件，对过滤后的数据进行排序
+      if (this.preLossSortProp && this.preLossSortOrder) {
+        filteredData = [...filteredData].sort((a, b) => {
+          let valueA = a[this.preLossSortProp];
+          let valueB = b[this.preLossSortProp];
+
+          // 处理数字类型的排序
+          if (
+            this.preLossSortProp === "PreLossAmount" ||
+            this.preLossSortProp === "PreLossRate" ||
+            this.preLossSortProp === "TransferAmount" ||
+            this.preLossSortProp === "OrderCount" ||
+            this.preLossSortProp === "CalAmount"
+          ) {
+            valueA = parseFloat(valueA) || 0;
+            valueB = parseFloat(valueB) || 0;
+          }
+
+          if (this.preLossSortOrder === "ascending") {
+            return valueA - valueB;
+          } else {
+            return valueB - valueA;
+          }
+        });
+      }
+
+      return filteredData;
     },
     // 根据风险比例过滤后的订单数据
     filteredRickOrder() {
@@ -473,6 +509,10 @@ export default {
       // 排序相关数据
       sortProp: "",
       sortOrder: null,
+      // 预亏损数据排序相关
+      preLossSortProp: "",
+      preLossSortOrder: null,
+      sortedPreLossData: [],
       // 复制loading状态
       copyLoading: false,
       prate: null, //风险比例数字帅选
@@ -481,6 +521,10 @@ export default {
   },
   methods: {
     ...mapMutations("common", ["setAlpha", "setBeta"]),
+    // 更新排序后的预亏损数据
+    updateSortedPreLossData() {
+      this.sortedPreLossData = this.filteredPreLossData;
+    },
     // 自定义序号方法，从1开始
     indexMethod(index) {
       return index + 1;
@@ -607,40 +651,12 @@ export default {
 
     // 处理预亏损率弹窗表格排序变化
     handlePreLossSortChange({ prop, order }) {
-      if (!this.filteredPreLossData || this.filteredPreLossData.length === 0) {
-        return;
-      }
+      // 更新排序条件
+      this.preLossSortProp = prop;
+      this.preLossSortOrder = order;
 
-      // 创建数据副本进行排序
-      const sortedData = [...this.filteredPreLossData];
-
-      if (order) {
-        sortedData.sort((a, b) => {
-          let valueA = a[prop];
-          let valueB = b[prop];
-
-          // 处理数字类型的排序
-          if (
-            prop === "PreLossAmount" ||
-            prop === "PreLossRate" ||
-            prop === "TransferAmount" ||
-            prop === "OrderCount" ||
-            prop === "CalAmount"
-          ) {
-            valueA = parseFloat(valueA) || 0;
-            valueB = parseFloat(valueB) || 0;
-          }
-
-          if (order === "ascending") {
-            return valueA - valueB;
-          } else {
-            return valueB - valueA;
-          }
-        });
-      }
-
-      // 更新排序后的数据到过滤后的数据
-      this.filteredPreLossData = sortedData;
+      // 强制更新视图
+      this.$forceUpdate();
     },
 
     // 处理预亏损数据筛选
@@ -653,6 +669,13 @@ export default {
     clearPreLossFilters() {
       this.preLossAmountFilter = "";
       this.transferAmountFilter = "";
+      // 同时清除排序条件
+      this.preLossSortProp = "";
+      this.preLossSortOrder = null;
+      // 清空排序后的数据
+      this.sortedPreLossData = [];
+      // 强制更新视图
+      this.$forceUpdate();
     },
 
     // 生成内容按钮点击事件
@@ -836,7 +859,26 @@ export default {
       }
     },
   },
-
+  watch: {
+    // 监听排序条件变化，更新排序后的数据
+    preLossSortProp() {
+      this.updateSortedPreLossData();
+    },
+    preLossSortOrder() {
+      this.updateSortedPreLossData();
+    },
+    // 监听过滤条件变化，更新排序后的数据
+    preLossAmountFilter() {
+      this.updateSortedPreLossData();
+    },
+    transferAmountFilter() {
+      this.updateSortedPreLossData();
+    },
+    // 监听原始数据变化，更新排序后的数据
+    preLossData() {
+      this.updateSortedPreLossData();
+    },
+  },
   async created() {
     await this.$nextTick();
     await new Promise((resolve) => setTimeout(resolve, 0));
