@@ -77,7 +77,12 @@
       >
         <div class="stat-item">
           <div class="stat-label">总转出金额</div>
-          <div class="stat-value">¥{{ totalTransferOutAmount }}</div>
+          <div class="stat-value">
+            ¥{{ totalTransferOutAmount }} /
+            <span style="color: rgb(103, 194, 58)"
+              >¥{{ totalWinferOutAmount }}</span
+            >
+          </div>
         </div>
       </el-card>
       <el-card
@@ -200,6 +205,11 @@
                 >¥{{ scope.row.total_amount }}</template
               >
             </el-table-column>
+            <el-table-column
+              prop="total_win_amount"
+              label="中奖金额"
+              align="center"
+            ></el-table-column>
           </el-table>
         </div>
       </el-card>
@@ -357,13 +367,27 @@ export default {
           ).toFixed(2)
         : "0.00";
     },
+    // 总转出金额
+    totalWinferOutAmount() {
+      return this.summaryData.transferout_total
+        ? parseFloat(
+            this.summaryData.transferout_total.total_win_amount || 0
+          ).toFixed(2)
+        : "0.00";
+    },
     // 总利润 = 总投注金额 - 总佣金 - 总中奖金额 - 总转出金额
     totalProfit() {
       const totalBet = parseFloat(this.totalBetAmount);
       const totalCommission = parseFloat(this.totalCommission);
       const totalWin = parseFloat(this.totalWinAmount);
       const totalTransferOut = parseFloat(this.totalTransferOutAmount);
-      const profit = totalBet - totalCommission - totalWin - totalTransferOut;
+      const totalWinferOutAmount = parseFloat(this.totalWinferOutAmount);
+      const profit =
+        totalBet -
+        totalCommission -
+        totalWin -
+        totalTransferOut +
+        totalWinferOutAmount;
       return profit.toFixed(2);
     },
     // 订单状态数据

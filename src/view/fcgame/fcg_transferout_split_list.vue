@@ -102,6 +102,11 @@
                 summaryData.totalSummary.totalTransAmount || 0
               }}</span>
             </el-descriptions-item>
+            <el-descriptions-item label="总中奖金额">
+              <span class="summary-value amount">{{
+                summaryData.totalSummary.totalWinAmount || 0
+              }}</span>
+            </el-descriptions-item>
           </el-descriptions>
         </div>
 
@@ -128,6 +133,13 @@
               <template slot-scope="scope">
                 <span class="summary-value amount">{{
                   scope.row.transAmount
+                }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="中奖金额" prop="transAmount">
+              <template slot-scope="scope">
+                <span class="summary-value amount">{{
+                  scope.row.winAmount
                 }}</span>
               </template>
             </el-table-column>
@@ -170,6 +182,12 @@
       <el-table-column label="交易金额" prop="trans_amount">
         <template slot-scope="scope">
           <span class="trans-amount">{{ scope.row.trans_amount }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="中奖金额" prop="win_amount">
+        <template slot-scope="scope">
+          <span class="trans-amount">{{ scope.row.win_amount }}</span>
         </template>
       </el-table-column>
 
