@@ -86,6 +86,10 @@
             <i class="el-icon-data-analysis"></i>
             数据汇总
           </span>
+
+          <div class="water-rate-setting" @click="openWaterRateDialog">
+            水费设置
+          </div>
         </div>
 
         <!-- 总计数据 -->
@@ -313,6 +317,34 @@
       </el-form-item>
     </dialogform>
 
+    <!-- 水费设置对话框 -->
+    <el-dialog
+      title="水费设置"
+      :visible.sync="waterRateDialogVisible"
+      width="30%"
+      :close-on-click-modal="false"
+    >
+      <el-form
+        :model="waterRateForm"
+        :rules="waterRateRules"
+        ref="waterRateForm"
+        label-width="80px"
+      >
+        <el-form-item label="费率" prop="rate">
+          <el-input
+            v-model.number="waterRateForm.rate"
+            placeholder="请输入费率"
+            type="number"
+            step="1"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="waterRateDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitWaterRate">确 定</el-button>
+      </span>
+    </el-dialog>
+
     <uploadexcel
       ref="uploadexcel"
       action="FcgTransferoutSplitList"
@@ -346,6 +378,16 @@ export default {
       type: "",
       multipleSelection: [],
       summaryData: null, // 汇总数据
+      waterRateDialogVisible: false, // 水费设置对话框可见性
+      waterRateForm: {
+        rate: null, // 费率
+      },
+      waterRateRules: {
+        rate: [
+          { required: true, message: "请输入费率", trigger: "blur" },
+          { type: "number", message: "费率必须为数字", trigger: "blur" },
+        ],
+      },
       formData: {
         game_category: undefined,
         split_number: "",
@@ -534,6 +576,56 @@ export default {
       this.searchInfo.action = "fcg_transferout_split_list";
       await this.$api.getExcel(this.searchInfo);
     },
+    // 打开水费设置对话框
+    openWaterRateDialog() {
+      this.waterRateForm.rate = null;
+      this.waterRateDialogVisible = true;
+      this.$nextTick(() => {
+        this.$refs.waterRateForm && this.$refs.waterRateForm.clearValidate();
+      });
+    },
+    // 提交水费设置
+    async submitWaterRate() {
+      this.$refs.waterRateForm.validate(async (valid) => {
+        if (valid) {
+          if (!this.searchInfo.issue_id) {
+            this.$message({
+              type: "error",
+              message: "请先选择彩期",
+            });
+            return;
+          }
+
+          const data = {
+            issue_id: this.searchInfo.issue_id,
+            water_rate: this.waterRateForm.rate,
+          };
+
+          try {
+            const res = await updateFcgTransferoutSplitList(data);
+            if (res.code === 0) {
+              this.$message({
+                type: "success",
+                message: "水费设置成功",
+              });
+              this.waterRateDialogVisible = false;
+              // 刷新数据
+              this.getTableData();
+            } else {
+              this.$message({
+                type: "error",
+                message: res.msg || "水费设置失败",
+              });
+            }
+          } catch (error) {
+            this.$message({
+              type: "error",
+              message: "水费设置失败",
+            });
+          }
+        }
+      });
+    },
   },
   async created() {
     await this.$nextTick();
@@ -567,9 +659,22 @@ export default {
 .summary-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   font-weight: 600;
   color: #303133;
   padding-bottom: 8px;
+}
+
+.water-rate-setting {
+  color: #409eff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.water-rate-setting:hover {
+  color: #66b1ff;
+  text-decoration: underline;
 }
 
 .summary-title {

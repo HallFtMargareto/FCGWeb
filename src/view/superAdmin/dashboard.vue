@@ -70,6 +70,7 @@
           <div class="stat-value">¥{{ totalWinAmount }}</div>
         </div>
       </el-card>
+
       <el-card
         class="stat-card"
         shadow="never"
@@ -79,6 +80,10 @@
           <div class="stat-label">总转出金额</div>
           <div class="stat-value">
             ¥{{ totalTransferOutAmount }} /
+            <span style="color: #667de8"
+              >¥{{ totalTransferOutWaterAmount }}</span
+            >
+            /
             <span style="color: rgb(103, 194, 58)"
               >¥{{ totalWinferOutAmount }}</span
             >
@@ -375,6 +380,14 @@ export default {
           ).toFixed(2)
         : "0.00";
     },
+    // 总转出水钱
+    totalTransferOutWaterAmount() {
+      return this.summaryData.transferout_total
+        ? parseFloat(
+            this.summaryData.transferout_total.total_water_amount || 0
+          ).toFixed(2)
+        : "0.00";
+    },
     // 总利润 = 总投注金额 - 总佣金 - 总中奖金额 - 总转出金额
     totalProfit() {
       const totalBet = parseFloat(this.totalBetAmount);
@@ -382,11 +395,15 @@ export default {
       const totalWin = parseFloat(this.totalWinAmount);
       const totalTransferOut = parseFloat(this.totalTransferOutAmount);
       const totalWinferOutAmount = parseFloat(this.totalWinferOutAmount);
+      const totalTransferOutWaterAmount = parseFloat(
+        this.totalTransferOutWaterAmount
+      );
       const profit =
         totalBet -
         totalCommission -
         totalWin -
         totalTransferOut +
+        totalTransferOutWaterAmount +
         totalWinferOutAmount;
       return profit.toFixed(2);
     },
@@ -483,6 +500,12 @@ export default {
     totalTransferOutCount() {
       return this.summaryData.transferout_total
         ? this.summaryData.transferout_total.total_count || 0
+        : 0;
+    },
+    // 转出明细总数合计
+    totalTransferWaterAmount() {
+      return this.summaryData.transferout_total
+        ? this.summaryData.transferout_total.total_water_amount || 0
         : 0;
     },
   },
