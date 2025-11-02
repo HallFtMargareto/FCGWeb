@@ -741,7 +741,7 @@
             width="100"
           >
             <template slot-scope="scope">
-              {{ getGameCategoryName(scope.row.game_category) }}
+              {{ $utils.getGameCategoryName(scope.row.game_category) }}
             </template>
           </el-table-column>
           <el-table-column
@@ -890,7 +890,6 @@ import { getFcgContactList } from "@/api/fcgame/fcg_contact.js";
 import infoList from "@/mixins/infoList";
 import { mapGetters } from "vuex";
 import TenantSelect from "@/components/tenant/index.vue";
-import { getGameCategoryName } from "@/utils/fcgame";
 export default {
   name: "fcg_order",
   components: {
@@ -925,7 +924,7 @@ export default {
                 game_category_name:
                   gameCategoryCache[detail.game_category] ||
                   (gameCategoryCache[detail.game_category] =
-                    getGameCategoryName(detail.game_category)),
+                    this.$utils.getGameCategoryName(detail.game_category)),
                 game_type_name:
                   gameTypeCache[detail.game_type] ||
                   (gameTypeCache[detail.game_type] = this.getGameTypeName(
