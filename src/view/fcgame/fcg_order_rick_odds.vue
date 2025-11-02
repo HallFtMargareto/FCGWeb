@@ -332,6 +332,14 @@
         max-height="400"
         @sort-change="handlePreLossSortChange"
       >
+        <el-table-column
+          type="index"
+          label="序号"
+          width="60"
+          align="center"
+          :index="preLossIndexMethod"
+        >
+        </el-table-column>
         <el-table-column prop="PreLossAmount" label="预亏损金额" align="center">
           <template slot-scope="scope">
             {{ parseFloat(scope.row.PreLossAmount).toFixed(2) }}
@@ -527,6 +535,10 @@ export default {
     },
     // 自定义序号方法，从1开始
     indexMethod(index) {
+      return index + 1;
+    },
+    // 预亏损率表格的自定义序号方法，从1开始
+    preLossIndexMethod(index) {
       return index + 1;
     },
     // 与亏损率
