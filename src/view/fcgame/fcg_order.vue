@@ -74,6 +74,15 @@
           ></el-input>
         </el-form-item>
 
+        <el-form-item label="彩票类型">
+          <GCategory
+            v-model.number="searchInfo.game_category"
+            placeholder="请输入游戏类别"
+            clearable
+            :autoSelectFirst="false"
+          ></GCategory>
+        </el-form-item>
+
         <el-form-item label="识别难度">
           <el-select
             v-model="searchInfo.risk_level"
