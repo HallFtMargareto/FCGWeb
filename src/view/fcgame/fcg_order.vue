@@ -20,11 +20,19 @@
         </el-form-item>
 
         <el-form-item label="会话名称">
-          <el-input
-            v-model="searchInfo.group_name"
-            placeholder="群组名称"
+          <el-select
+            v-model="searchInfo.session_id"
+            placeholder="请选择会话"
             clearable
-          ></el-input>
+            filterable
+          >
+            <el-option
+              v-for="item in contactList"
+              :key="item.ID"
+              :label="item.nick_name"
+              :value="item.ID"
+            ></el-option>
+          </el-select>
         </el-form-item>
 
         <el-form-item label="投注内容">
@@ -1561,6 +1569,23 @@ export default {
     // 性能监控：记录组件创建时间
     if (process.env.NODE_ENV === "development") {
       console.time("fcg_order component created");
+    }
+
+    // 获取激活的会话列表
+    try {
+      const res = await getFcgContactList({
+        state: true,
+        tenant_id: this.searchInfo.tenant_id,
+        pageSize: 10000,
+      });
+      if (res.code === 0) {
+        this.contactList = res.data.list || [];
+      } else {
+        this.$message.error("获取会话列表失败");
+      }
+    } catch (error) {
+      console.error("获取会话列表异常:", error);
+      this.$message.error("获取会话列表异常");
     }
 
     // 检查URL查询参数中的状态
