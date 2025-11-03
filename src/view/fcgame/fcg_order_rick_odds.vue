@@ -350,6 +350,14 @@
             {{ (parseFloat(scope.row.PreLossRate) * 100).toFixed(2) }}%
           </template>
         </el-table-column>
+
+        <el-table-column
+          prop="PreLossValueUnit"
+          label="预亏损值单元"
+          align="center"
+        >
+        </el-table-column>
+
         <el-table-column
           prop="TransferAmount"
           label="转出总金额"
@@ -359,6 +367,16 @@
             {{ parseFloat(scope.row.TransferAmount).toFixed(2) }}
           </template>
         </el-table-column>
+
+        <el-table-column prop="Difference" label="差值" align="center">
+        </el-table-column>
+
+        <el-table-column prop="GameRatio" label="博弈比例" align="center">
+          <template slot-scope="scope">
+            {{ (parseFloat(scope.row.GameRatio) * 100).toFixed(2) }}%
+          </template>
+        </el-table-column>
+
         <el-table-column prop="WinWaterRate" label="上水概率" align="center">
           <template slot-scope="scope">
             {{ (parseFloat(scope.row.WinWaterRate) * 100).toFixed(2) }}%
@@ -371,7 +389,7 @@
         </el-table-column>
         <el-table-column
           prop="CalAmount"
-          label="计算金额"
+          label="号码单价"
           align="center"
           sortable="custom"
           :sort-orders="['descending', 'ascending', null]"
