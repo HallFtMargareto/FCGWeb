@@ -242,84 +242,46 @@
           border-radius: 4px;
         "
       >
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <div style="margin-bottom: 10px">
-              <label
-                style="
-                  display: block;
-                  margin-bottom: 5px;
-                  font-size: 14px;
-                  color: #606266;
-                "
-                >预亏损金额筛选:</label
-              >
-              <el-input
-                v-model="preLossAmountFilter"
-                placeholder="小于此金额"
-                type="number"
-                clearable
-                @input="handlePreLossFilter"
-              >
-                <template slot="append">元</template>
-              </el-input>
-            </div>
-          </el-col>
-          <el-col :span="8">
-            <div style="margin-bottom: 10px">
-              <label
-                style="
-                  display: block;
-                  margin-bottom: 5px;
-                  font-size: 14px;
-                  color: #606266;
-                "
-                >转出总金额筛选:</label
-              >
-              <el-input
-                v-model="transferAmountFilter"
-                placeholder="小于此金额"
-                type="number"
-                clearable
-                @input="handlePreLossFilter"
-              >
-                <template slot="append">元</template>
-              </el-input>
-            </div>
-          </el-col>
-          <el-col :span="8">
-            <div
-              style="
-                /* margin-bottom: 10px; */
-                display: flex;
-                align-items: flex-end;
-                height: 100%;
-                margin-top: 25px;
-              "
-            >
-              <div>
-                <el-button
-                  type="primary"
-                  @click="clearPreLossFilters"
-                  size="small"
-                  >清除筛选</el-button
-                >
-                <span
-                  style="margin-left: 10px; color: #909399; font-size: 12px"
-                >
-                  显示
-                  {{
-                    (sortedPreLossData.length > 0
-                      ? sortedPreLossData
-                      : filteredPreLossData
-                    ).length
-                  }}
-                  / {{ preLossData.length }} 条数据
-                </span>
-              </div>
-            </div>
-          </el-col>
-        </el-row>
+        <el-form
+          ref="form"
+          class="demo-form-inline"
+          :inline="true"
+          :label-width="labelWidth"
+          size="mini"
+          label-position="right"
+        >
+          <el-form-item label="预亏损金额">
+            <el-input
+              v-model="preLossAmountFilter"
+              placeholder="预亏损金额最小值"
+              clearable
+              @input="handlePreLossFilter"
+              style="width: 150px"
+            ></el-input>
+            -
+            <el-input
+              v-model="preLossAmountFilter"
+              placeholder="预亏损金额最大值"
+              clearable
+              @input="handlePreLossFilter"
+              style="width: 150px"
+            ></el-input>
+          </el-form-item>
+
+          <el-form-item label="转出总金额">
+            <el-input
+              v-model="transferAmountFilter"
+              placeholder="转出总金额"
+              clearable
+              type="number"
+              @input="handlePreLossFilter"
+            ></el-input>
+          </el-form-item>
+
+          <el-form-item label=" ">
+            <el-button @click="clearPreLossFilters">重置</el-button>
+          </el-form-item>
+        </el-form>
       </div>
 
       <el-table
