@@ -252,7 +252,7 @@
         >
           <el-form-item label="预亏损金额">
             <el-input
-              v-model="preLossAmountFilter"
+              v-model="preLossAmountMinFilter"
               placeholder="预亏损金额最小值"
               clearable
               @input="handlePreLossFilter"
@@ -260,7 +260,7 @@
             ></el-input>
             -
             <el-input
-              v-model="preLossAmountFilter"
+              v-model="preLossAmountMaxFilter"
               placeholder="预亏损金额最大值"
               clearable
               @input="handlePreLossFilter"
@@ -410,10 +410,18 @@ export default {
         const preLossAmount = parseFloat(item.PreLossAmount) || 0;
         const transferAmount = parseFloat(item.TransferAmount) || 0;
 
-        // 预亏损金额筛选
-        if (this.preLossAmountFilter && this.preLossAmountFilter !== "") {
-          const filterValue = parseFloat(this.preLossAmountFilter) || 0;
-          if (preLossAmount > filterValue) {
+        // 预亏损金额最小值筛选
+        if (this.preLossAmountMinFilter && this.preLossAmountMinFilter !== "") {
+          const minValue = parseFloat(this.preLossAmountMinFilter) || 0;
+          if (preLossAmount < minValue) {
+            return false;
+          }
+        }
+
+        // 预亏损金额最大值筛选
+        if (this.preLossAmountMaxFilter && this.preLossAmountMaxFilter !== "") {
+          const maxValue = parseFloat(this.preLossAmountMaxFilter) || 0;
+          if (preLossAmount > maxValue) {
             return false;
           }
         }
@@ -499,7 +507,8 @@ export default {
       showPreLossDialog: false,
       preLossData: [],
       // 筛选相关数据
-      preLossAmountFilter: "",
+      preLossAmountMinFilter: "",
+      preLossAmountMaxFilter: "",
       transferAmountFilter: "",
       // 排序相关数据
       sortProp: "",
@@ -666,7 +675,8 @@ export default {
 
     // 清除预亏损数据筛选
     clearPreLossFilters() {
-      this.preLossAmountFilter = "";
+      this.preLossAmountMinFilter = "";
+      this.preLossAmountMaxFilter = "";
       this.transferAmountFilter = "";
       // 同时清除排序条件
       this.preLossSortProp = "";
@@ -867,7 +877,10 @@ export default {
       this.updateSortedPreLossData();
     },
     // 监听过滤条件变化，更新排序后的数据
-    preLossAmountFilter() {
+    preLossAmountMinFilter() {
+      this.updateSortedPreLossData();
+    },
+    preLossAmountMaxFilter() {
       this.updateSortedPreLossData();
     },
     transferAmountFilter() {
