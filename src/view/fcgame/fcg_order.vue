@@ -354,6 +354,15 @@
           </div>
           <div class="right-content">
             <el-button
+              type="text"
+              size="mini"
+              icon="el-icon-error"
+              @click="handleMarkFailClick(orderGroup)"
+            >
+              标记失败
+            </el-button>
+
+            <el-button
               @click="infoRow(orderGroup)"
               type="text"
               size="mini"
@@ -1232,6 +1241,38 @@ export default {
         this.$message({
           type: "error",
           message: "标记订单失败",
+        });
+      }
+    },
+    // 处理标记失败点击事件
+    async handleMarkFailClick(orderGroup) {
+      try {
+        const orderId = orderGroup.order_id || orderGroup.ID;
+        const res = await batchFcgOrderOperation({
+          command: "mark_order_fail",
+          ids: [orderId],
+        });
+
+        if (res.code === 0) {
+          this.$message({
+            type: "success",
+            message: "标记失败成功",
+          });
+          // 更新本地数据状态
+          orderGroup.mark_state = 1; // 设置为失败状态
+          // 重新获取数据以确保状态同步
+          this.getTableData();
+        } else {
+          this.$message({
+            type: "error",
+            message: res.msg || "标记失败失败",
+          });
+        }
+      } catch (error) {
+        console.error("标记订单失败失败:", error);
+        this.$message({
+          type: "error",
+          message: "标记订单失败失败",
         });
       }
     },
