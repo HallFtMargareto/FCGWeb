@@ -296,6 +296,7 @@
               >AI分析</el-button
             >
           </el-form-item>
+          <el-button @click="copyPreLossData" type="success">复制内容</el-button>
         </el-form>
       </div>
 
@@ -980,6 +981,71 @@ export default {
         confirmButtonText: "确定",
         dangerouslyUseHTMLString: true,
       }).catch(() => {});
+    },
+
+    // 复制预亏损数据为markdown表格格式
+    async copyPreLossData() {
+      // 获取当前筛选后的数据
+      const currentData =
+        this.sortedPreLossData.length > 0
+          ? this.sortedPreLossData
+          : this.filteredPreLossData;
+
+      // 检查是否有数据
+      if (!currentData || currentData.length === 0) {
+        this.$message.warning("没有可复制的数据");
+        return;
+      }
+
+      try {
+        // 构建markdown表格
+        let markdownTable = "# 预亏损率数据\n\n";
+
+        // 表头
+        markdownTable +=
+          "| 序号 | 预亏损金额 | 预亏损百分比 | 预亏损值单元 | 转出总金额 | 差值 | 博弈比例 | 上水概率 | 号码数 | 号码单价 |\n";
+
+        // 分隔线
+        markdownTable +=
+          "|------|------------|--------------|--------------|------------|------|----------|----------|--------|----------|\n";
+
+        // 数据行
+        currentData.forEach((item, index) => {
+          const row = [
+            index + 1,
+            parseFloat(item.PreLossAmount).toFixed(2),
+            (parseFloat(item.PreLossRate) * 100).toFixed(2) + "%",
+            item.PreLossValueUnit || "",
+            parseFloat(item.TransferAmount).toFixed(2),
+            item.Difference || "",
+            (parseFloat(item.GameRatio) * 100).toFixed(2) + "%",
+            (parseFloat(item.WinWaterRate) * 100).toFixed(2) + "%",
+            parseFloat(item.OrderCount).toFixed(0),
+            parseFloat(item.CalAmount).toFixed(2),
+          ];
+
+          markdownTable += "| " + row.join(" | ") + " |\n";
+        });
+
+        // 复制到剪贴板
+        if (navigator.clipboard && window.isSecureContext) {
+          // 在安全上下文中使用现代 clipboard API
+          await navigator.clipboard.writeText(markdownTable);
+        } else {
+          // 兼容旧浏览器或非安全上下文的实现
+          const textarea = document.createElement("textarea");
+          textarea.value = markdownTable;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textarea);
+        }
+
+        this.$message.success("复制成功");
+      } catch (err) {
+        this.$message.error("复制失败");
+        console.error("复制失败:", err);
+      }
     },
   },
   watch: {
