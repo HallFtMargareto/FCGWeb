@@ -371,7 +371,13 @@
         <el-table-column prop="Difference" label="差值" align="center">
         </el-table-column>
 
-        <el-table-column prop="GameRatio" label="博弈比例" align="center">
+        <el-table-column
+          prop="GameRatio"
+          label="博弈比例"
+          align="center"
+          sortable="custom"
+          :sort-orders="['descending', 'ascending', null]"
+        >
           <template slot-scope="scope">
             {{ (parseFloat(scope.row.GameRatio) * 100).toFixed(2) }}%
           </template>
@@ -473,7 +479,8 @@ export default {
             this.preLossSortProp === "PreLossRate" ||
             this.preLossSortProp === "TransferAmount" ||
             this.preLossSortProp === "OrderCount" ||
-            this.preLossSortProp === "CalAmount"
+            this.preLossSortProp === "CalAmount" ||
+            this.preLossSortProp === "GameRatio"
           ) {
             valueA = parseFloat(valueA) || 0;
             valueB = parseFloat(valueB) || 0;
