@@ -280,16 +280,17 @@
           </el-tabs>
         </el-col>
 
-        <el-col :span="4">
+        <el-col :span="5">
           <!-- 订单状态标签页 -->
           <el-tabs v-model="mark_state" @tab-click="handleMarkStateTabClick">
             <el-tab-pane label="全部状态" name="all"></el-tab-pane>
             <el-tab-pane label="未标记" name="1"></el-tab-pane>
             <el-tab-pane label="已标记" name="2"></el-tab-pane>
+            <el-tab-pane label="最近标记" name="3"></el-tab-pane>
           </el-tabs>
         </el-col>
 
-        <el-col :span="13">
+        <el-col :span="12">
           <!-- 玩法类型标签页 -->
           <el-tabs v-model="tabState" @tab-click="handleClick">
             <el-tab-pane
@@ -344,6 +345,7 @@
         class="order-card"
         shadow="hover"
       >
+        <!-- 订单功能区 -->
         <div class="card-title">
           <div class="left-content">
             <span style="margin-right: 5px"
@@ -469,9 +471,9 @@
               <el-descriptions-item label="创建时间">{{
                 orderGroup.created_at
               }}</el-descriptions-item>
-              <el-descriptions-item label="来源">{{
-                orderGroup.source
-              }}</el-descriptions-item>
+              <el-descriptions-item label="所属组织">
+                {{ getTenantName(orderGroup.tenant_id) }}
+              </el-descriptions-item>
               <el-descriptions-item label="单号">{{
                 orderGroup.order_no
               }}</el-descriptions-item>
@@ -924,6 +926,7 @@ export default {
   mixins: [infoList],
   computed: {
     ...mapGetters("user", ["userInfo"]),
+    ...mapGetters("gameInfo", ["tenants"]),
     // 处理表格数据，将订单按主订单分组
     groupedTableData() {
       if (!this.tableData || this.tableData.length === 0) {
@@ -1048,6 +1051,13 @@ export default {
     };
   },
   methods: {
+    getTenantName(tenantId) {
+      if (!tenantId || !this.tenants || this.tenants.length === 0) {
+        return "";
+      }
+      const tenant = this.tenants.find((t) => t.ID === tenantId);
+      return tenant ? tenant.platform_name : "";
+    },
     handleIssueChange() {
       this.onQuery();
       //  this.$set(this.searchInfo, 'issue_no', issue_no)

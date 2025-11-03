@@ -14,6 +14,15 @@
           ></el-input>
         </el-form-item>
 
+        <el-form-item label="所属组织">
+          <TenantSelect
+            v-model="searchInfo.tenant_id"
+            placeholder="请选择组织"
+            :autoSelectFirst="false"
+            clearable
+          ></TenantSelect>
+        </el-form-item>
+
         <!-- <el-form-item label="所属组织">
           <TenantSelect
             v-model="searchInfo.tenant_id"
@@ -106,10 +115,16 @@
       <!-- <el-table-column label="租户ID" prop="tenant_id">
       </el-table-column> -->
 
-      <el-table-column label="会话名称" prop="nick_name" show-overflow-tooltip>
+      <el-table-column label="会话名称" prop="nick_name" width="300">
       </el-table-column>
 
       <el-table-column label="会话标识" prop="user_name" width="300">
+      </el-table-column>
+
+      <el-table-column label="所属组织" width="300">
+        <template slot-scope="scope">
+          {{ getTenantName(scope.row.tenant_id) }}
+        </template>
       </el-table-column>
 
       <el-table-column label="会话状态" prop="state">
@@ -197,6 +212,14 @@
       width="50%"
       ref="dialog"
     >
+      <el-form-item label="会话名称" prop="nick_name">
+        <el-input
+          v-model="formData.nick_name"
+          placeholder="请输入会话名称"
+          clearable
+        ></el-input>
+      </el-form-item>
+
       <el-form-item label="状态" prop="state">
         <el-switch
           active-color="#13ce66"
@@ -301,6 +324,7 @@ export default {
   mixins: [infoList],
   computed: {
     ...mapGetters("user", ["userInfo"]),
+    ...mapGetters("gameInfo", ["tenants"]),
   },
   data() {
     return {
@@ -538,8 +562,19 @@ export default {
         this.oddlist = [...this.defOddList];
       }
     },
+    // 根据tenant_id获取组织名称
+    getTenantName(tenantId) {
+      if (!tenantId || !this.tenants || this.tenants.length === 0) {
+        return "";
+      }
+      const tenant = this.tenants.find((t) => t.ID === tenantId);
+      return tenant ? tenant.platform_name : "";
+    },
   },
   async created() {
+    await this.$nextTick();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
     await this.getTableData();
     //await this.getOdds();
   },
