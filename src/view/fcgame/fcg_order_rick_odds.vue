@@ -246,7 +246,6 @@
           ref="form"
           class="demo-form-inline"
           :inline="true"
-          :label-width="labelWidth"
           size="mini"
           label-position="right"
         >
@@ -278,10 +277,33 @@
             ></el-input>
           </el-form-item>
 
+          <el-form-item>
+            {{
+              (sortedPreLossData.length > 0
+                ? sortedPreLossData
+                : filteredPreLossData
+              ).length
+            }}
+            / {{ preLossData.length }} 条数据
+          </el-form-item>
+
           <el-form-item label=" ">
             <el-button @click="clearPreLossFilters">重置</el-button>
+            <el-button
+              type="primary"
+              @click="handleAIAnalysis"
+              :loading="aiAnalysisLoading"
+              >AI分析</el-button
+            >
           </el-form-item>
         </el-form>
+      </div>
+
+      <!-- AI分析内容显示区域 -->
+      <div v-if="aiAnalysisContent" class="ai-analysis-container">
+        <el-card class="ai-analysis-card" header="AI分析结果">
+          <div class="markdown-content" v-html="renderedMarkdown"></div>
+        </el-card>
       </div>
 
       <el-table
@@ -302,7 +324,13 @@
           :index="preLossIndexMethod"
         >
         </el-table-column>
-        <el-table-column prop="PreLossAmount" label="预亏损金额" align="center">
+        <el-table-column
+          prop="PreLossAmount"
+          label="预亏损金额"
+          align="center"
+          sortable="custom"
+          :sort-orders="['descending', 'ascending', null]"
+        >
           <template slot-scope="scope">
             {{ parseFloat(scope.row.PreLossAmount).toFixed(2) }}
           </template>
@@ -376,13 +404,22 @@ import {
   getFcgOrderSplitNumberList,
   batchFcgOrderSplitNumberOperation,
 } from "@/api/fcgame/fcg_order_split_number";
+import { preLossDataAnalysis } from "@/api/fcgame/fcg_aianalysis";
 import infoList from "@/mixins/infoList";
 import { mapGetters, mapMutations } from "vuex";
+import MarkdownIt from "markdown-it";
 export default {
   name: "fcg_order_split_number",
   mixins: [infoList],
   computed: {
     ...mapGetters("user", ["userInfo"]),
+    // 渲染后的Markdown内容
+    renderedMarkdown() {
+      if (!this.aiAnalysisContent) return "";
+      // 使用导入的markdown-it
+      const md = new MarkdownIt();
+      return md.render(this.aiAnalysisContent);
+    },
     // 创建双向绑定的计算属性
     alpha: {
       get() {
@@ -521,6 +558,8 @@ export default {
       copyLoading: false,
       prate: null, //风险比例数字帅选
       batchThreshold: 50, // 批次拆分阈值
+      aiAnalysisLoading: false, // AI分析加载状态
+      aiAnalysisContent: "", // AI分析内容
     };
   },
   methods: {
@@ -867,6 +906,81 @@ export default {
         this.copyLoading = false;
       }
     },
+
+    // AI分析功能
+    async handleAIAnalysis() {
+      // 获取当前筛选后的数据
+      const currentData =
+        this.sortedPreLossData.length > 0
+          ? this.sortedPreLossData
+          : this.filteredPreLossData;
+
+      // 检查是否有数据
+      if (!currentData || currentData.length === 0) {
+        this.$message.warning("没有可分析的数据");
+        return;
+      }
+
+      try {
+        this.aiAnalysisLoading = true;
+
+        // 构建请求数据
+        const requestData = {
+          game_category: this.game_category,
+          issue_id: this.chartIssueId,
+          tenant_id: this.tenant_id,
+          ks_amount: this.ks_amount,
+          data: currentData,
+        };
+
+        // 调用AI分析接口
+        const res = await preLossDataAnalysis(requestData);
+
+        if (res.code === 0) {
+          this.$message.success("AI分析完成");
+          // 处理返回的content内容
+          if (res.data && res.data.content) {
+            this.aiAnalysisContent = res.data.content;
+            this.aiAnalysisLoading = false;
+            // 滚动到AI分析内容区域
+            this.$nextTick(() => {
+              const element = document.querySelector(".ai-analysis-container");
+              if (element) {
+                element.scrollIntoView({ behavior: "smooth" });
+              }
+            });
+          }
+        } else {
+          this.$message.error(res.msg || "AI分析失败");
+        }
+      } catch (error) {
+        this.$message.error("AI分析请求失败");
+        console.error("AI分析错误:", error);
+      } finally {
+        this.aiAnalysisLoading = false;
+      }
+    },
+
+    // 显示分析结果
+    showAnalysisResult(result) {
+      // 使用Element UI的MessageBox显示分析结果
+      this.$msgbox({
+        title: "AI分析结果",
+        message: this.$createElement("div", {
+          domProps: {
+            innerHTML: result.replace(/\n/g, "<br>"),
+          },
+          style: {
+            maxHeight: "400px",
+            overflowY: "auto",
+            whiteSpace: "pre-wrap",
+          },
+        }),
+        showCancelButton: false,
+        confirmButtonText: "确定",
+        dangerouslyUseHTMLString: true,
+      }).catch(() => {});
+    },
   },
   watch: {
     // 监听排序条件变化，更新排序后的数据
@@ -889,6 +1003,12 @@ export default {
     // 监听原始数据变化，更新排序后的数据
     preLossData() {
       this.updateSortedPreLossData();
+    },
+    // 监听弹窗关闭，清空AI分析内容
+    showPreLossDialog(newVal) {
+      if (!newVal) {
+        this.aiAnalysisContent = "";
+      }
     },
   },
   async created() {
@@ -972,5 +1092,141 @@ export default {
 /* 弹窗表格样式优化 */
 .el-dialog__body {
   padding: 20px;
+}
+
+/* AI分析内容样式 */
+.ai-analysis-container {
+  margin-top: 20px;
+}
+
+.ai-analysis-card {
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.markdown-content {
+  line-height: 1.6;
+  color: #333;
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+/* Markdown内容样式 */
+.markdown-content h1 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 20px 0 10px 0;
+  color: #409eff;
+  border-bottom: 2px solid #409eff;
+  padding-bottom: 5px;
+}
+
+.markdown-content h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 18px 0 8px 0;
+  color: #67c23a;
+  border-bottom: 1px solid #67c23a;
+  padding-bottom: 3px;
+}
+
+.markdown-content h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 16px 0 6px 0;
+  color: #e6a23c;
+}
+
+.markdown-content h4 {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 14px 0 6px 0;
+  color: #f56c6c;
+}
+
+.markdown-content p {
+  margin: 10px 0;
+  text-align: justify;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.markdown-content li {
+  margin: 5px 0;
+}
+
+.markdown-content blockquote {
+  margin: 15px 0;
+  padding: 10px 15px;
+  background-color: #f5f7fa;
+  border-left: 4px solid #409eff;
+  color: #606266;
+}
+
+.markdown-content code {
+  background-color: #f5f7fa;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: "Courier New", monospace;
+  color: #e6a23c;
+}
+
+.markdown-content pre {
+  background-color: #f5f7fa;
+  padding: 15px;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 15px 0;
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  padding: 0;
+  color: #333;
+}
+
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+}
+
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid #ebeef5;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.markdown-content th {
+  background-color: #f5f7fa;
+  font-weight: bold;
+}
+
+.markdown-content tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.markdown-content a {
+  color: #409eff;
+  text-decoration: none;
+}
+
+.markdown-content a:hover {
+  text-decoration: underline;
+}
+
+.markdown-content strong {
+  font-weight: bold;
+  color: #303133;
+}
+
+.markdown-content em {
+  font-style: italic;
+  color: #606266;
 }
 </style>
