@@ -231,11 +231,11 @@
       </div>
       <div class="table-container">
         <el-table :data="sessionStatsData" size="small" style="width: 100%">
-          <el-table-column
+          <!-- <el-table-column
             prop="session_id"
             label="会话ID"
             align="center"
-          ></el-table-column>
+          ></el-table-column> -->
           <el-table-column
             prop="nick_name"
             label="会话名称"
@@ -250,6 +250,21 @@
               >¥{{ scope.row.total_bet_amount }}</template
             >
           </el-table-column>
+
+          <el-table-column label="福彩 投注 / 中奖" align="center">
+            <template slot-scope="scope"
+              >¥{{ scope.row.fc_total_bet_amount }} /
+              <span class="winam">¥{{ scope.row.fc_total_win_amount }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="体彩 投注 / 中奖" align="center">
+            <template slot-scope="scope"
+              >¥{{ scope.row.tc_total_bet_amount }} /
+              <span class="winam">¥{{ scope.row.tc_total_win_amount }}</span>
+            </template>
+          </el-table-column>
+
           <el-table-column
             prop="total_commission"
             label="总佣金"
@@ -676,6 +691,9 @@ export default {
 }
 
 .stat-value.profit {
+  color: #f56c6c;
+}
+.winam {
   color: #f56c6c;
 }
 
