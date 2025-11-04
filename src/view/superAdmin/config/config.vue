@@ -467,7 +467,7 @@
       </el-tab-pane> -->
       <el-tab-pane label="数据清除" name="dataClear">
         <el-row class="el-row-cnf">
-          <el-col :span="24">
+          <el-col :span="30">
             <el-card class="data-clear-card">
               <div slot="header" class="clearfix">
                 <span>数据清除操作</span>
@@ -475,8 +475,8 @@
                   >危险操作</el-tag
                 >
               </div>
-              <el-row :gutter="20">
-                <el-col :span="12">
+              <el-row>
+                <el-col :span="8">
                   <el-card shadow="hover" class="operation-card">
                     <div class="operation-content">
                       <h3>清除数据</h3>
@@ -494,7 +494,7 @@
                     </div>
                   </el-card>
                 </el-col>
-                <el-col :span="12">
+                <el-col :span="8">
                   <el-card shadow="hover" class="operation-card">
                     <div class="operation-content">
                       <h3>清除开奖</h3>
@@ -508,6 +508,24 @@
                         :loading="clearLotteryLoading"
                       >
                         清除开奖
+                      </el-button>
+                    </div>
+                  </el-card>
+                </el-col>
+                <el-col :span="8">
+                  <el-card shadow="hover" class="operation-card">
+                    <div class="operation-content">
+                      <h3>清除标记</h3>
+                      <p class="operation-desc">
+                        清除所有订单标记，此操作不可恢复
+                      </p>
+                      <el-button
+                        type="warning"
+                        size="medium"
+                        @click="handleClearMark"
+                        :loading="clearOrderMark"
+                      >
+                        清除标记
                       </el-button>
                     </div>
                   </el-card>
@@ -546,6 +564,7 @@ export default {
       config: {},
       clearDataLoading: false,
       clearLotteryLoading: false,
+      clearOrderMark: false,
       site_rules: {
         site_name: [
           {
@@ -721,6 +740,54 @@ export default {
             })
             .finally(() => {
               this.clearLotteryLoading = false;
+            });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消清除开奖操作",
+          });
+        });
+    },
+    handleClearMark() {
+      this.$confirm(
+        "此操作将清除所有订单标记，此操作不可恢复。是否确认继续？",
+        "危险操作确认",
+        {
+          confirmButtonText: "确认清除",
+          cancelButtonText: "取消",
+          type: "warning",
+          confirmButtonClass: "el-button--warning",
+        }
+      )
+        .then(() => {
+          this.clearOrderMark = true;
+          updateSysSettings({}, { key: "clear_order_mark" })
+            .then((res) => {
+              if (res.code === 0) {
+                this.$message({
+                  type: "success",
+                  message: "订单标记清除成功",
+                  showClose: true,
+                });
+              } else {
+                this.$message({
+                  type: "error",
+                  message: res.msg || "订单标记清除失败",
+                  showClose: true,
+                });
+              }
+            })
+            .catch((error) => {
+              console.error("清除订单标记失败:", error);
+              this.$message({
+                type: "error",
+                message: "清除订单标记失败，请稍后重试",
+                showClose: true,
+              });
+            })
+            .finally(() => {
+              this.clearOrderMark = false;
             });
         })
         .catch(() => {
