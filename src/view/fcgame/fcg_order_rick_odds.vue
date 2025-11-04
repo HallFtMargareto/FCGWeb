@@ -296,7 +296,9 @@
               >AI分析</el-button
             >
           </el-form-item>
-          <el-button @click="copyPreLossData" type="success">复制内容</el-button>
+          <el-button @click="copyPreLossData" type="success"
+            >复制内容</el-button
+          >
         </el-form>
       </div>
 
@@ -925,13 +927,42 @@ export default {
       try {
         this.aiAnalysisLoading = true;
 
-        // 构建请求数据
+        // 构建markdown表格内容（与copyPreLossData方法相同的逻辑）
+        let markdownTable = "# 预亏损率数据\n\n";
+
+        // 表头
+        markdownTable +=
+          "| 序号 | 预亏损金额 | 预亏损百分比 | 预亏损值单元 | 转出总金额 | 差值 | 博弈比例 | 上水概率 | 号码数 | 号码单价 |\n";
+
+        // 分隔线
+        markdownTable +=
+          "|------|------------|--------------|--------------|------------|------|----------|----------|--------|----------|\n";
+
+        // 数据行
+        currentData.forEach((item, index) => {
+          const row = [
+            index + 1,
+            parseFloat(item.PreLossAmount).toFixed(2),
+            (parseFloat(item.PreLossRate) * 100).toFixed(2) + "%",
+            item.PreLossValueUnit || "",
+            parseFloat(item.TransferAmount).toFixed(2),
+            item.Difference || "",
+            (parseFloat(item.GameRatio) * 100).toFixed(2) + "%",
+            (parseFloat(item.WinWaterRate) * 100).toFixed(2) + "%",
+            parseFloat(item.OrderCount).toFixed(0),
+            parseFloat(item.CalAmount).toFixed(2),
+          ];
+
+          markdownTable += "| " + row.join(" | ") + " |\n";
+        });
+
+        // 构建请求数据，使用markdown格式内容
         const requestData = {
           game_category: this.game_category,
           issue_id: this.chartIssueId,
           tenant_id: this.tenant_id,
           ks_amount: this.ks_amount,
-          data: currentData,
+          data: markdownTable, // 使用markdown格式内容而不是原始数据
         };
 
         // 调用AI分析接口
