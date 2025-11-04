@@ -280,17 +280,18 @@
           </el-tabs>
         </el-col>
 
-        <el-col :span="5">
+        <el-col :span="7">
           <!-- 订单状态标签页 -->
           <el-tabs v-model="mark_state" @tab-click="handleMarkStateTabClick">
             <el-tab-pane label="全部状态" name="all"></el-tab-pane>
             <el-tab-pane label="未标记" name="1"></el-tab-pane>
             <el-tab-pane label="已标记" name="2"></el-tab-pane>
-            <el-tab-pane label="最近标记" name="3"></el-tab-pane>
+            <el-tab-pane label="自动标记" name="3"></el-tab-pane>
+            <el-tab-pane label="最近标记" name="10"></el-tab-pane>
           </el-tabs>
         </el-col>
 
-        <el-col :span="12">
+        <el-col :span="10">
           <!-- 玩法类型标签页 -->
           <el-tabs v-model="tabState" @tab-click="handleClick">
             <el-tab-pane
@@ -1213,6 +1214,8 @@ export default {
     getMarkStateText(markState) {
       if (markState === 2) {
         return "已标记";
+      } else if (markState == 3) {
+        return "自动标记";
       } else {
         return "未标记";
       }
