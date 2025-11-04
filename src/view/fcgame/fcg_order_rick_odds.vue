@@ -928,7 +928,8 @@ export default {
         this.aiAnalysisLoading = true;
 
         // 构建markdown表格内容（与copyPreLossData方法相同的逻辑）
-        let markdownTable = "# 预亏损率数据\n\n";
+        let markdownTable =
+          "根据以下的内容帮我分析出最合适的投资方案,并简要说明选择的原因\n\n";
 
         // 表头
         markdownTable +=
@@ -1030,7 +1031,8 @@ export default {
 
       try {
         // 构建markdown表格
-        let markdownTable = "# 预亏损率数据\n\n";
+        let markdownTable =
+          "根据以下的内容帮我分析出最合适的投资方案,并简要说明选择的原因\n\n";
 
         // 表头
         markdownTable +=
