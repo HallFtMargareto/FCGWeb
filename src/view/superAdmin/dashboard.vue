@@ -251,6 +251,16 @@
             >
           </el-table-column>
 
+          <el-table-column
+            prop="total_win_amount"
+            label="总中奖金额"
+            align="center"
+          >
+            <template slot-scope="scope"
+              >¥{{ scope.row.total_win_amount }}</template
+            >
+          </el-table-column>
+
           <el-table-column label="福彩 投注 / 中奖" align="center">
             <template slot-scope="scope"
               >¥{{ scope.row.fc_total_bet_amount }} /
@@ -274,15 +284,7 @@
               >¥{{ scope.row.total_commission }}</template
             >
           </el-table-column>
-          <el-table-column
-            prop="total_win_amount"
-            label="总中奖金额"
-            align="center"
-          >
-            <template slot-scope="scope"
-              >¥{{ scope.row.total_win_amount }}</template
-            >
-          </el-table-column>
+
           <el-table-column prop="total_profit" label="总利润" align="center">
             <template slot-scope="scope"
               >¥{{ scope.row.total_profit }}</template
