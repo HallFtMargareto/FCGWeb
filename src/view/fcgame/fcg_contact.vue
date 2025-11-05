@@ -268,7 +268,7 @@
               <el-input
                 v-model="odd.odds"
                 @input="
-                  odd.odds = odd.odds.replace(/^(\d+\.?\d{0,2}).*$/, '$1')
+                  odd.odds = odd.odds.replace(/^(\d+\.?\d{0,4}).*$/, '$1')
                 "
               >
                 @blur="odd.odds = parseFloat(odd.odds) || 0"
