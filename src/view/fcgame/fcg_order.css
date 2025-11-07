@@ -291,7 +291,7 @@
 .order-dialog {
   display: flex;
   flex-direction: column;
-  margin-top: 5%;
+  margin-top: 2% !important;
 }
 
 .order-dialog ::v-deep .el-dialog {
@@ -303,6 +303,21 @@
 
 .order-dialog ::v-deep .el-dialog__body {
   flex: 1;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+}
+
+/* 订单拆分详情弹窗样式 */
+.order-detail-dialog {
+  margin-top: 2%;
+}
+
+.order-detail-dialog ::v-deep .el-dialog {
+  margin: 0 auto !important;
+  max-height: calc(100vh - 30px);
+}
+
+.order-detail-dialog ::v-deep .el-dialog__body {
   overflow-y: auto;
   max-height: calc(100vh - 200px);
 }

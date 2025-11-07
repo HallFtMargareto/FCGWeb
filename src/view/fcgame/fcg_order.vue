@@ -281,7 +281,7 @@
         </el-col>
 
         <el-col :span="7">
-          <!-- 订单状态标签页 -->
+          <!-- 订单标记状态标签页 -->
           <el-tabs v-model="mark_state" @tab-click="handleMarkStateTabClick">
             <el-tab-pane label="全部状态" name="all"></el-tab-pane>
             <el-tab-pane label="未标记" name="1"></el-tab-pane>
@@ -579,6 +579,7 @@
       width="60%"
       @close="handleDialogClose"
       class="order-dialog"
+      top="5"
     >
       <el-form
         ref="editForm"
@@ -735,6 +736,8 @@
       :visible.sync="orderDetailDialogVisible"
       width="60%"
       center
+      class="order-detail-dialog"
+      top="5"
     >
       <div class="detail-section">
         <h3>投注文本</h3>
@@ -1052,6 +1055,63 @@ export default {
     };
   },
   methods: {
+    // 保存状态到localStorage
+    saveStateToLocalStorage() {
+      try {
+        const stateToSave = {
+          statusTabState: this.statusTabState,
+          mark_state: this.mark_state,
+          pageSize: this.pageSize,
+        };
+        localStorage.setItem("fcg_order_state", JSON.stringify(stateToSave));
+      } catch (error) {
+        console.error("保存状态到localStorage失败:", error);
+      }
+    },
+
+    // 从localStorage读取状态
+    loadStateFromLocalStorage() {
+      try {
+        const savedState = localStorage.getItem("fcg_order_state");
+        if (savedState) {
+          const parsedState = JSON.parse(savedState);
+          // 恢复状态
+          if (parsedState.statusTabState) {
+            this.statusTabState = parsedState.statusTabState;
+            // 同时更新搜索条件
+            if (parsedState.statusTabState === "all") {
+              delete this.searchInfo.order_status;
+            } else {
+              this.searchInfo.order_status = parsedState.statusTabState;
+            }
+          }
+
+          if (parsedState.mark_state) {
+            this.mark_state = parsedState.mark_state;
+            // 同时更新搜索条件
+            if (parsedState.mark_state === "all") {
+              delete this.searchInfo.mark_state;
+            } else {
+              this.searchInfo.mark_state = parsedState.mark_state;
+            }
+          }
+
+          if (parsedState.pageSize) {
+            this.pageSize = parsedState.pageSize;
+          }
+        }
+      } catch (error) {
+        console.error("从localStorage读取状态失败:", error);
+      }
+    },
+
+    // 重写handleSizeChange方法，添加localStorage保存功能
+    handleSizeChange(val) {
+      this.pageSize = val;
+      this.saveStateToLocalStorage(); // 保存状态到localStorage
+      this.showSummary = false;
+      this.getTableData();
+    },
     getTenantName(tenantId) {
       if (!tenantId || !this.tenants || this.tenants.length === 0) {
         return "";
@@ -1148,6 +1208,7 @@ export default {
       } else {
         this.searchInfo.order_status = tab.name;
       }
+      this.saveStateToLocalStorage(); // 保存状态到localStorage
       this.getTableData();
     },
 
@@ -1158,6 +1219,7 @@ export default {
       } else {
         this.searchInfo.mark_state = tab.name;
       }
+      this.saveStateToLocalStorage(); // 保存状态到localStorage
       this.getTableData();
     },
     // 获取订单状态类型
@@ -1472,6 +1534,7 @@ export default {
         });
         // 保存订单详情数据
         this.editFormData = res.data.refcg_order;
+        this.editFormData.source_content = res.data.refcg_order.bet_content;
       }
     },
     // 添加子订单
@@ -1634,6 +1697,9 @@ export default {
       console.time("fcg_order component created");
     }
 
+    // 从localStorage加载保存的状态
+    this.loadStateFromLocalStorage();
+
     // 获取激活的会话列表
     try {
       const res = await getFcgContactList({
@@ -1651,13 +1717,15 @@ export default {
       this.$message.error("获取会话列表异常");
     }
 
-    // 检查URL查询参数中的状态
+    // 检查URL查询参数中的状态（优先级高于localStorage）
     const status = this.$route.query.status;
     if (status) {
       // 设置状态标签页
       this.statusTabState = status;
       // 设置搜索条件
       this.searchInfo.order_status = status;
+      // 保存到localStorage
+      this.saveStateToLocalStorage();
     }
     await this.getTableData();
     if (process.env.NODE_ENV === "development") {
