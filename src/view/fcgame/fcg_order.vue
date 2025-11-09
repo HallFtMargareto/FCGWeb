@@ -573,338 +573,34 @@
     </div>
 
     <!-- 订单修改弹窗 -->
-    <el-dialog
+    <OrderEditDialog
+      ref="orderEditDialog"
+      v-model="openDialog"
       :title="dialogTitle"
-      :visible.sync="openDialog"
-      width="60%"
-      @close="handleDialogClose"
-      class="order-dialog"
-      top="5"
-    >
-      <el-form
-        ref="editForm"
-        :model="editFormData"
-        label-width="100px"
-        size="mini"
-      >
-        <el-row>
-          <!-- <el-col :span="12">
-            <el-form-item label="订单总金额">
-              <el-input v-model.number="editFormData.bet_amount" placeholder="请输入订单总金额"></el-input>
-            </el-form-item>
-          </el-col> -->
-          <el-col>
-            <el-form-item label="投注内容">
-              {{ editFormData.source_content }}
-            </el-form-item>
-          </el-col>
-          <el-col :span="19">
-            <el-form-item label="内容修改">
-              <el-input
-                type="textarea"
-                :rows="5"
-                v-model="editFormData.bet_content"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="5">
-            <el-button
-              style="margin-left: 5px; margin-top: 10px"
-              type="success"
-              @click="reidentify(editFormData)"
-              size="mini"
-              >重新识别</el-button
-            >
-          </el-col>
-        </el-row>
-
-        <div class="dialog-table-container">
-          <el-table
-            :data="editFormData.order_details"
-            border
-            style="width: 100%"
-            size="mini"
-            max-height="400"
-            highlight-current-row
-          >
-            <el-table-column label="游戏类型">
-              <template slot-scope="scope">
-                <el-select
-                  v-model="scope.row.game_type"
-                  placeholder="请选择游戏类型"
-                >
-                  <el-option
-                    v-for="item in gameTypes"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  >
-                  </el-option>
-                </el-select>
-              </template>
-            </el-table-column>
-
-            <el-table-column label="玩法">
-              <template slot-scope="scope">
-                <el-select
-                  v-model="scope.row.game_category"
-                  placeholder="请选择玩法"
-                >
-                  <el-option label="福彩" :value="1"></el-option>
-                  <el-option label="体彩" :value="2"></el-option>
-                  <el-option label="排列三" :value="3"></el-option>
-                </el-select>
-              </template>
-            </el-table-column>
-
-            <el-table-column label="投注号码">
-              <template slot-scope="scope">
-                <el-input
-                  v-model="scope.row.bet_number"
-                  placeholder="投注号码"
-                ></el-input>
-              </template>
-            </el-table-column>
-
-            <el-table-column label="注数">
-              <template slot-scope="scope">
-                <el-input
-                  v-model.number="scope.row.bet_count"
-                  placeholder="注数"
-                ></el-input>
-              </template>
-            </el-table-column>
-
-            <el-table-column label="投注金额">
-              <template slot-scope="scope">
-                <el-input
-                  v-model="scope.row.bet_amount"
-                  placeholder="投注金额"
-                ></el-input>
-              </template>
-            </el-table-column>
-
-            <el-table-column label="倍数">
-              <template slot-scope="scope">
-                <el-input
-                  v-model.number="scope.row.multiple"
-                  placeholder="倍数"
-                ></el-input>
-              </template>
-            </el-table-column>
-
-            <!-- <el-table-column label="订单金额">
-              <template slot-scope="scope">
-                <el-input v-model.number="scope.row.order_amount" placeholder="订单金额"></el-input>
-              </template>
-            </el-table-column> -->
-
-            <el-table-column label="操作">
-              <template slot-scope="scope">
-                <el-button
-                  type="danger"
-                  @click="removeOrderDetail(scope.$index)"
-                  size="mini"
-                  >删除</el-button
-                >
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-        <el-row>
-          <el-button
-            style="float: right"
-            type="primary"
-            @click="addOrderDetail"
-            size="mini"
-            >添加子订单</el-button
-          >
-        </el-row>
-      </el-form>
-
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="openDialog = false" size="small">取 消</el-button>
-        <el-button type="primary" @click="saveOrderEdit" size="small"
-          >确 定</el-button
-        >
-      </span>
-    </el-dialog>
+      :gameTypes="gameTypes"
+      @success="handleEditSuccess"
+    ></OrderEditDialog>
 
     <!-- 订单拆分详情弹窗 -->
-    <el-dialog
-      title="订单信息"
-      :visible.sync="orderDetailDialogVisible"
-      width="60%"
-      center
-      class="order-detail-dialog"
-      top="5"
-    >
-      <div class="detail-section">
-        <h3>投注文本</h3>
-        <code>{{ orderDetailData.content }}</code>
-      </div>
-
-      <div class="detail-section">
-        <h3>投注金额</h3>
-        <span>总金额:{{ orderDetailData.total_amount }}</span>
-      </div>
-
-      <!-- 显示split数据 -->
-      <div
-        v-if="orderDetailData.split && orderDetailData.split.length > 0"
-        class="detail-section"
-      >
-        <h3>拆分信息</h3>
-        <el-table
-          :data="orderDetailData.split"
-          size="small"
-          border
-          style="width: 100%"
-        >
-          <el-table-column
-            prop="bet_number"
-            label="投注号码"
-            align="center"
-          ></el-table-column>
-          <el-table-column
-            prop="game_category"
-            label="彩种"
-            align="center"
-            width="100"
-          >
-            <template slot-scope="scope">
-              {{ $utils.getGameCategoryName(scope.row.game_category) }}
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="game_type"
-            label="玩法"
-            align="center"
-            width="100"
-          >
-            <template slot-scope="scope">
-              {{ getGameTypeName(scope.row.game_type) }}
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="bet_num"
-            label="投注数量"
-            align="center"
-          ></el-table-column>
-          <el-table-column
-            prop="bet_amount"
-            label="投注金额"
-            align="center"
-          ></el-table-column>
-          <el-table-column prop="split_number" label="拆分信息" align="center">
-            <template slot-scope="scope">
-              <div class="split-numbers">
-                {{ scope.row.split_number }}
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="average_amount"
-            label="平均金额"
-            align="center"
-          ></el-table-column>
-          <el-table-column
-            prop="split_count"
-            label="拆分数量"
-            align="center"
-          ></el-table-column>
-          <!-- <el-table-column prop="ava_amount" label="单个号码金额" align="center"></el-table-column> -->
-        </el-table>
-      </div>
-
-      <div class="detail-section">
-        <h3>LLM报文</h3>
-        <code>{{ orderDetailData.msg }}</code>
-      </div>
-    </el-dialog>
+    <OrderDetailDialog
+      ref="orderDetailDialog"
+      v-model="orderDetailDialogVisible"
+      :gameTypes="gameTypes"
+    ></OrderDetailDialog>
 
     <!-- 导入订单弹窗 -->
-    <el-dialog
-      title="导入订单"
-      :visible.sync="importDialogVisible"
-      width="50%"
-      top="10vh"
-    >
-      <el-form label-width="100px">
-        <el-form-item label="选择会话" required>
-          <el-select
-            v-model="uploadExtraParams.contactId"
-            placeholder="请选择会话"
-            style="width: 100%"
-            filterable
-          >
-            <el-option
-              v-for="item in contactList"
-              :key="item.ID"
-              :label="item.nick_name || item.user_name"
-              :value="item.ID"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="选择文件">
-          <el-button @click="loadFile" icon="el-icon-sell">导入</el-button>
-        </el-form-item>
-
-        <uploadexcel
-          ref="uploadexcel"
-          action="FcgMessage"
-          :extraParams="uploadExtraParams"
-        ></uploadexcel>
-      </el-form>
-    </el-dialog>
+    <ImportOrderDialog
+      ref="importOrderDialog"
+      v-model="importDialogVisible"
+    ></ImportOrderDialog>
 
     <!-- 批量编辑弹窗 -->
-    <el-dialog
-      title="批量编辑投注内容"
-      :visible.sync="batchEditDialogVisible"
-      width="70%"
-      top="5vh"
-      :close-on-click-modal="false"
-    >
-      <div style="max-height: 60vh; overflow-y: auto">
-        <div v-if="batchEditFormData.orders.length === 0" class="empty-state">
-          暂无识别失败的订单数据
-        </div>
-        <div
-          v-for="order in batchEditFormData.orders"
-          :key="order.id"
-          style="
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ebeef5;
-            border-radius: 4px;
-          "
-        >
-          <div style="margin-bottom: 8px; font-weight: bold; color: #409eff">
-            订单ID: {{ order.id }}
-          </div>
-          <el-input
-            type="textarea"
-            :rows="3"
-            v-model="order.bet_content"
-            placeholder="请输入投注内容"
-          ></el-input>
-        </div>
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="batchEditDialogVisible = false" size="small"
-          >取 消</el-button
-        >
-        <el-button
-          type="primary"
-          @click="submitBatchEdit"
-          size="small"
-          :loading="batchEditLoading"
-          >确 定</el-button
-        >
-      </span>
-    </el-dialog>
+    <BatchEditDialog
+      ref="batchEditDialog"
+      v-model="batchEditDialogVisible"
+      :searchInfo="searchInfo"
+      @success="handleBatchEditSuccess"
+    ></BatchEditDialog>
   </div>
 </template>
 
@@ -913,7 +609,6 @@ import {
   createFcgOrder,
   deleteFcgOrder,
   updateFcgOrder,
-  findFcgOrder,
   getFcgOrderList,
   batchFcgOrderOperation,
   getFcgOrderSummary,
@@ -922,10 +617,20 @@ import { getFcgContactList } from "@/api/fcgame/fcg_contact.js";
 import infoList from "@/mixins/infoList";
 import { mapGetters } from "vuex";
 import TenantSelect from "@/components/tenant/index.vue";
+// 引入新创建的组件
+import OrderEditDialog from "./components/OrderEditDialog.vue";
+import OrderDetailDialog from "./components/OrderDetailDialog.vue";
+import ImportOrderDialog from "./components/ImportOrderDialog.vue";
+import BatchEditDialog from "./components/BatchEditDialog.vue";
+
 export default {
   name: "fcg_order",
   components: {
     TenantSelect,
+    OrderEditDialog,
+    OrderDetailDialog,
+    ImportOrderDialog,
+    BatchEditDialog,
   },
   mixins: [infoList],
   computed: {
@@ -982,45 +687,24 @@ export default {
   },
   data() {
     return {
-      uploadExtraParams: {
-        contactId: "", // 选中的会话ID
-      },
-
-      // 订单详情弹窗相关
-      orderDetailDialogVisible: false,
-      orderDetailData: {},
-
-      // 导入弹窗相关
-      importDialogVisible: false,
-      contactList: [], // 会话数据列表
-      selectedContact: "", // 选中的会话
-      importFile: null, // 选中的文件
-      uploadLoading: false, // 上传loading状态
-
-      // 批量编辑弹窗相关
-      batchEditDialogVisible: false,
-      batchEditLoading: false,
-      batchEditFormData: {
-        orders: [], // 格式: [{id: xx, bet_content: "xx"}]
-      },
-
-      listApi: getFcgOrderList,
+      // 弹窗显示状态
       openDialog: false,
+      orderDetailDialogVisible: false,
+      importDialogVisible: false,
+      batchEditDialogVisible: false,
+
+      // 弹窗标题
       dialogTitle: "",
+
+      // 其他数据
+      listApi: getFcgOrderList,
       type: "",
       multipleSelection: [],
       activeFilter: "all",
       // 防抖定时器
       searchDebounceTimer: null,
       formData: {},
-      // 添加编辑订单相关的数据
-      editFormData: {
-        ID: undefined,
-        order_no: "",
-        bet_amount: undefined,
-        source_content: "",
-        order_details: [],
-      },
+      contactList: [], // 会话数据列表
       tabState: "0",
       statusTabState: "all",
       mark_state: "all",
@@ -1126,16 +810,8 @@ export default {
     },
     async infoRow(row) {
       const orderId = row.order_id || row.ID;
-      const res = await findFcgOrder({ ID: orderId, action: "split_info" });
-      console.log(res);
-      if (res.code == 0) {
-        // 保存订单详情数据
-        this.orderDetailData = res.data;
-        // 解析msg字段中的JSON字符串
-        // this.orderDetailData.parsedMsg = res.data.msg;
-        // 显示弹窗
-        this.orderDetailDialogVisible = true;
-      }
+      // 使用组件的open方法
+      this.$refs.orderDetailDialog.open(orderId);
     },
     // 返回顶部功能
     handleBackToTop() {
@@ -1377,33 +1053,8 @@ export default {
       this.dialogTitle = "编辑订单";
       // 使用订单的原始ID，而不是可能被明细覆盖的ID
       const orderId = row.order_id || row.ID;
-      const res = await findFcgOrder({ ID: orderId });
-      if (res.code == 0) {
-        // 构造编辑表单数据
-        const order = res.data.refcg_order;
-        this.editFormData = {
-          ID: order.ID,
-          order_no: order.order_no,
-          bet_amount: order.bet_amount,
-          source_content: order.bet_content,
-          bet_content: order.bet_content,
-          order_details: order.order_details
-            ? order.order_details.map((detail) => {
-                return {
-                  ID: detail.ID,
-                  game_category: detail.game_category,
-                  game_type: detail.game_type,
-                  bet_number: detail.bet_number || "",
-                  bet_count: Number(detail.bet_count) || 0,
-                  bet_amount: detail.bet_amount || 0,
-                  multiple: detail.multiple || 1,
-                  order_amount: detail.bet_amount * detail.multiple || 0, // 计算订单金额
-                };
-              })
-            : [],
-        };
-        this.openDialog = true;
-      }
+      // 使用组件的open方法
+      this.$refs.orderEditDialog.open(orderId);
     },
     async deleteRow(row) {
       // 使用订单的原始ID，而不是可能被明细覆盖的ID
@@ -1520,172 +1171,25 @@ export default {
       this.searchInfo.action = "fcg_order";
       await this.$api.getExcel(this.searchInfo);
     },
-    async reidentify(row) {
-      //重新识别
-      const res = await findFcgOrder({
-        ID: row.ID,
-        bet_content: row.bet_content,
-        action: "reidentify",
-      });
-      if (res.code == 0) {
-        this.$message({
-          type: "success",
-          message: "识别成功",
-        });
-        // 保存订单详情数据
-        this.editFormData = res.data.refcg_order;
-        this.editFormData.source_content = res.data.refcg_order.bet_content;
-      }
+    // 处理编辑成功回调
+    handleEditSuccess() {
+      this.getTableData();
     },
-    // 添加子订单
-    addOrderDetail() {
-      this.editFormData.order_details.push({
-        game_category_name: "",
-        game_type_name: "",
-        bet_number: "",
-        bet_count: Number(0),
-        bet_amount: 0,
-        multiple: 1,
-        order_amount: 0,
-      });
-    },
-    // 删除子订单
-    removeOrderDetail(index) {
-      this.editFormData.order_details.splice(index, 1);
-    },
-    // 保存订单编辑
-    async saveOrderEdit() {
-      const res = await updateFcgOrder(this.editFormData);
-      if (res.code == 0) {
-        this.$message({
-          type: "success",
-          message: "订单编辑成功",
-        });
-        this.openDialog = false;
-        this.getTableData();
-      } else {
-        this.$message({
-          type: "error",
-          message: res.msg || "订单编辑失败",
-        });
-      }
-    },
-    // 关闭弹窗时的处理
-    handleDialogClose() {
-      this.editFormData = {
-        ID: undefined,
-        order_no: "",
-        bet_amount: undefined,
-        order_details: [],
-      };
+
+    // 处理批量编辑成功回调
+    handleBatchEditSuccess() {
+      this.getTableData();
     },
 
     // 导入相关方法
     // 修改导入按钮点击事件，打开弹窗而不是直接选择文件
     importExcel() {
-      this.importDialogVisible = true;
-      this.loadContactList();
-    },
-    loadFile() {
-      this.$refs.uploadexcel.chooseFile();
-    },
-
-    // 加载会话数据列表
-    async loadContactList() {
-      try {
-        const res = await getFcgContactList({ state: 1, pageSize: 10000 });
-        if (res.code === 0) {
-          this.contactList = res.data.list || [];
-        } else {
-          this.$message.error("获取会话数据失败");
-        }
-      } catch (error) {
-        console.error("获取会话数据异常:", error);
-        this.$message.error("获取会话数据异常");
-      }
+      this.$refs.importOrderDialog.open();
     },
 
     // 打开批量编辑弹窗
-    async openBatchEditDialog() {
-      try {
-        // 获取所有识别失败的订单数据
-        const searchParams = {
-          ...this.searchInfo,
-          order_status: "1", // 识别失败
-          page: 1,
-          pageSize: 1000, // 获取足够多的数据
-        };
-
-        const res = await getFcgOrderList(searchParams);
-        if (res.code === 0) {
-          const failedOrders = res.data.list || [];
-
-          // 格式化数据为批量编辑需要的格式
-          this.batchEditFormData.orders = failedOrders.map((order) => ({
-            id: order.ID,
-            bet_content: order.bet_content || "",
-          }));
-
-          this.batchEditDialogVisible = true;
-        } else {
-          this.$message.error("获取识别失败订单数据失败");
-        }
-      } catch (error) {
-        console.error("获取识别失败订单数据异常:", error);
-        this.$message.error("获取识别失败订单数据异常");
-      }
-    },
-
-    // 提交批量编辑
-    async submitBatchEdit() {
-      try {
-        this.batchEditLoading = true;
-
-        // 验证数据
-        if (this.batchEditFormData.orders.length === 0) {
-          this.$message.warning("没有需要编辑的订单数据");
-          return;
-        }
-
-        // 构建提交数据
-        const submitData = this.batchEditFormData.orders.map((order) => ({
-          id: order.id,
-          bet_content: order.bet_content,
-        }));
-
-        // 调用批量操作接口
-        const res = await batchFcgOrderOperation({
-          command: "batch_alter",
-          bet_contents: submitData,
-          ids: this.batchEditFormData.orders.map((order) => order.id),
-        });
-
-        if (res.code === 0) {
-          this.$message({
-            type: "success",
-            message: "批量编辑成功",
-          });
-
-          // 关闭弹窗
-          this.batchEditDialogVisible = false;
-
-          // 刷新列表数据
-          this.getTableData();
-        } else {
-          this.$message({
-            type: "error",
-            message: res.msg || "批量编辑失败",
-          });
-        }
-      } catch (error) {
-        console.error("批量编辑异常:", error);
-        this.$message({
-          type: "error",
-          message: "批量编辑异常",
-        });
-      } finally {
-        this.batchEditLoading = false;
-      }
+    openBatchEditDialog() {
+      this.$refs.batchEditDialog.open();
     },
   },
   async created() {
