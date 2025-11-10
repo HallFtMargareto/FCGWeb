@@ -10,16 +10,18 @@
           ></IssueSelect>
         </el-form-item>
 
-        <el-form-item label="所属组织">
-          <TenantSelect
-            v-model="searchInfo.tenant_id"
-            placeholder="请选择组织"
-            :autoSelectFirst="false"
-            clearable
-          ></TenantSelect>
-        </el-form-item>
+        <template v-if="userInfo.perm['host']">
+          <el-form-item label="所属组织">
+            <TenantSelect
+              v-model="searchInfo.tenant_id"
+              placeholder="请选择组织"
+              :autoSelectFirst="false"
+              clearable
+            ></TenantSelect>
+          </el-form-item>
+        </template>
 
-        <el-form-item label="会话名称">
+        <el-form-item label="所属会话">
           <el-select
             v-model="searchInfo.session_id"
             placeholder="请选择会话"
@@ -43,37 +45,6 @@
           ></el-input>
         </el-form-item>
 
-        <el-form-item label=" ">
-          <el-button
-            v-if="userInfo.perm['system.import']"
-            @click="importExcel"
-            icon="el-icon-sell"
-            >导入</el-button
-          >
-          <el-button
-            v-if="userInfo.perm['system.export']"
-            @click="exportExcel"
-            icon="el-icon-sold-out"
-            >导出</el-button
-          >
-        </el-form-item>
-
-        <el-form-item label="投注号码">
-          <el-input
-            v-model="searchInfo.bet_number"
-            placeholder="投注号码"
-            clearable
-          ></el-input>
-        </el-form-item>
-
-        <el-form-item label="订单ID">
-          <el-input
-            v-model="searchInfo.ID"
-            placeholder="投注号码"
-            clearable
-          ></el-input>
-        </el-form-item>
-
         <el-form-item label="彩票类型">
           <GCategory
             v-model.number="searchInfo.game_category"
@@ -83,184 +54,112 @@
           ></GCategory>
         </el-form-item>
 
-        <el-form-item label="识别难度">
-          <el-select
-            v-model="searchInfo.risk_level"
-            placeholder="请选择识别难度"
+        <template v-if="userInfo.perm['host']">
+          <el-form-item label="订单ID">
+            <el-input
+              v-model="searchInfo.ID"
+              placeholder="投注号码"
+              clearable
+            ></el-input>
+          </el-form-item>
+
+          <el-form-item label="投注号码">
+            <el-input
+              v-model="searchInfo.bet_number"
+              placeholder="投注号码"
+              clearable
+            ></el-input>
+          </el-form-item>
+
+          <el-form-item label="识别难度">
+            <el-select
+              v-model="searchInfo.risk_level"
+              placeholder="请选择识别难度"
+            >
+              <el-option label="容易" value="1"></el-option>
+              <el-option label="一般" value="2"></el-option>
+              <el-option label="困难" value="3"></el-option>
+              <el-option label="极难" value="4"></el-option>
+            </el-select>
+          </el-form-item>
+
+          <el-form-item label="用户名称">
+            <el-input
+              v-model="searchInfo.nick_name"
+              placeholder="用户名称"
+              clearable
+            ></el-input>
+          </el-form-item>
+
+          <el-form-item label="投注数量">
+            <el-input
+              v-model.number="searchInfo.bet_count"
+              placeholder="请输入"
+              clearable
+            ></el-input>
+          </el-form-item>
+
+          <el-form-item label="用户账号">
+            <el-input
+              v-model="searchInfo.user_name"
+              placeholder="用户账号"
+              clearable
+            ></el-input>
+          </el-form-item>
+
+          <el-form-item label="业务单号">
+            <el-input
+              v-model="searchInfo.order_no"
+              placeholder="业务单号"
+              clearable
+            ></el-input>
+          </el-form-item>
+
+          <el-form-item label="投注金额">
+            <el-input
+              v-model="searchInfo.bet_amount"
+              placeholder="投注总金额"
+              clearable
+            ></el-input>
+          </el-form-item>
+
+          <el-form-item label="中奖总金额">
+            <el-input
+              v-model="searchInfo.win_amount"
+              placeholder="中奖总金额"
+              clearable
+            ></el-input>
+          </el-form-item>
+
+          <el-form-item label="下单来源">
+            <el-input
+              v-model="searchInfo.source"
+              placeholder="下单来源(APP,WEB,第三方渠道等)"
+              clearable
+            ></el-input>
+          </el-form-item>
+
+          <el-form-item label="开始时间">
+            <datepicker v-model="searchInfo.startTime" type="datetime" />
+          </el-form-item>
+          <el-form-item label="结束时间">
+            <datepicker v-model="searchInfo.endTime" type="datetime" />
+          </el-form-item>
+        </template>
+
+        <el-form-item label="导入导出">
+          <el-button
+            v-if="userInfo.perm['system.import']"
+            @click="importExcel"
+            icon="el-icon-sell"
+            >导入</el-button
           >
-            <el-option label="容易" value="1"></el-option>
-            <el-option label="一般" value="2"></el-option>
-            <el-option label="困难" value="3"></el-option>
-            <el-option label="极难" value="4"></el-option>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="用户名称">
-          <el-input
-            v-model="searchInfo.nick_name"
-            placeholder="用户名称"
-            clearable
-          ></el-input>
-        </el-form-item>
-
-        <!-- <el-form-item label="订单筛选">
-          <el-select v-model="activeFilter" @change="filterOrders">
-            <el-option label="全部" value="all"></el-option>
-            <el-option label="已中奖" value="won"></el-option>
-            <el-option label="未中奖" value="lost"></el-option>
-          </el-select>
-        </el-form-item> -->
-
-        <!-- <el-form-item label="期号">
-          <el-input v-model="searchInfo.issue_no" placeholder="冗余的期号，便于查询" clearable></el-input>
-        </el-form-item> -->
-
-        <el-form-item label="投注数量">
-          <el-input
-            v-model.number="searchInfo.bet_count"
-            placeholder="请输入"
-            clearable
-          ></el-input>
-        </el-form-item>
-
-        <el-form-item label="用户账号">
-          <el-input
-            v-model="searchInfo.user_name"
-            placeholder="用户账号"
-            clearable
-          ></el-input>
-        </el-form-item>
-
-        <el-form-item label="业务单号">
-          <el-input
-            v-model="searchInfo.order_no"
-            placeholder="业务单号"
-            clearable
-          ></el-input>
-        </el-form-item>
-
-        <el-form-item label="投注金额">
-          <el-input
-            v-model="searchInfo.bet_amount"
-            placeholder="投注总金额"
-            clearable
-          ></el-input>
-        </el-form-item>
-
-        <!-- <el-form-item label="订单状态" prop="order_status">
-          <el-select v-model="searchInfo.order_status" placeholder="请选择">
-            <el-option label="待识别" value="0"></el-option>
-            <el-option label="识别失败" value="1"></el-option>
-            <el-option label="识别成功" value="2"></el-option>
-            <el-option label="未中奖" value="3"></el-option>
-            <el-option label="已中奖" value="3"></el-option>
-          </el-select>
-        </el-form-item> -->
-
-        <!-- <el-form-item label="支付状态" prop="pay_status">
-          <el-select v-model="searchInfo.pay_status" placeholder="请选择">
-            <el-option label="未支付" value="0"></el-option>
-            <el-option label="已支付" value="1"></el-option>
-            <el-option label="支付失败" value="2"></el-option>
-          </el-select>
-        </el-form-item> -->
-
-        <!-- <el-form-item label="支付渠道">
-          <el-input v-model="searchInfo.pay_channel" placeholder="支付渠道(余额/微信/支付宝/第三方)" clearable></el-input>
-        </el-form-item>
-
-        <el-form-item label="支付流水号">
-          <el-input v-model="searchInfo.transaction_id" placeholder="支付流水号" clearable></el-input>
-        </el-form-item> -->
-
-        <!-- <el-form-item label="支付时间">
-          <datepicker v-model="searchInfo.payment_time" type="datetime" placeholder="选择日期" style="width: 100%"
-            clearable />
-        </el-form-item> -->
-
-        <el-form-item label="中奖总金额">
-          <el-input
-            v-model="searchInfo.win_amount"
-            placeholder="中奖总金额"
-            clearable
-          ></el-input>
-        </el-form-item>
-
-        <!-- <el-form-item label="派奖状态（0=未派奖,1=待派奖,2=派奖中,3=已派奖,4=派奖失败）" prop="award_status">
-          <el-select v-model="searchInfo.award_status" placeholder="请选择">
-            <el-option key="true" label="是" value="true"></el-option>
-            <el-option key="false" label="否" value="false"></el-option>
-          </el-select>
-        </el-form-item> -->
-
-        <!-- <el-form-item label="实际派奖时间">
-          <datepicker v-model="searchInfo.award_time" type="datetime" placeholder="选择日期" style="width: 100%"
-            clearable />
-        </el-form-item> -->
-
-        <!-- <el-form-item label="撤单类型" prop="cancel_type">
-          <el-select v-model="searchInfo.cancel_type" placeholder="请选择">
-            <el-option label="用户取消" :value="0"></el-option>
-            <el-option label="系统超时" :value="1"></el-option>
-            <el-option label="风控" :value="2"></el-option>
-            <el-option label="人工" :value="3"></el-option>
-          </el-select>
-        </el-form-item> -->
-
-        <!-- <el-form-item label="退款金额（分）">
-          <el-input v-model="searchInfo.refund_amount" placeholder="退款金额（分）" clearable></el-input>
-        </el-form-item> -->
-
-        <!-- <el-form-item label="退款状态" prop="refund_status">
-          <el-select v-model="searchInfo.refund_status" placeholder="请选择">
-            <el-option label="无退款" :value="0"></el-option>
-            <el-option label="退款中" :value="1"></el-option>
-            <el-option label="已退款" :value="2"></el-option>
-            <el-option label="退款失败" :value="3"></el-option>
-          </el-select>
-        </el-form-item> -->
-
-        <el-form-item label="下单来源">
-          <el-input
-            v-model="searchInfo.source"
-            placeholder="下单来源(APP,WEB,第三方渠道等)"
-            clearable
-          ></el-input>
-        </el-form-item>
-
-        <!-- <el-form-item label="clientIp">
-          <el-input v-model="searchInfo.client_ip" placeholder="clientIp" clearable></el-input>
-        </el-form-item> -->
-
-        <!-- <el-form-item label="deviceId">
-          <el-input v-model="searchInfo.device_id" placeholder="deviceId" clearable></el-input>
-        </el-form-item> -->
-
-        <!-- <el-form-item label="风控分">
-          <el-input v-model.number="searchInfo.risk_score" placeholder="请输入" clearable></el-input>
-        </el-form-item> -->
-
-        <!-- <el-form-item label="乐观/悲观锁标志（简易）" prop="is_locked">
-          <el-select v-model="searchInfo.is_locked" placeholder="请选择">
-            <el-option key="true" label="是" value="true"></el-option>
-            <el-option key="false" label="否" value="false"></el-option>
-          </el-select>
-        </el-form-item>
-
-
-        <el-form-item label="乐观锁版本号(更新时+1)">
-          <el-input v-model.number="searchInfo.version" placeholder="请输入" clearable></el-input>
-        </el-form-item> -->
-
-        <!-- <el-form-item label="扩展字段（备用）">
-          <el-input v-model="searchInfo.ext" placeholder="扩展字段（备用）" clearable></el-input>
-        </el-form-item> -->
-
-        <el-form-item label="开始时间">
-          <datepicker v-model="searchInfo.startTime" type="datetime" />
-        </el-form-item>
-        <el-form-item label="结束时间">
-          <datepicker v-model="searchInfo.endTime" type="datetime" />
+          <el-button
+            v-if="userInfo.perm['fcg_order.export']"
+            @click="exportExcel"
+            icon="el-icon-sold-out"
+            >导出</el-button
+          >
         </el-form-item>
       </searchform>
     </div>
@@ -370,11 +269,12 @@
               type="text"
               size="mini"
               icon="el-icon-warning-outline"
+              v-if="userInfo.perm['host']"
             >
               订单信息
             </el-button>
             <el-button
-              v-if="userInfo.perm['system.update']"
+              v-if="userInfo.perm['fcg_order.update']"
               @click="editRow(orderGroup)"
               type="text"
               size="mini"
@@ -389,7 +289,7 @@
               icon-color="red"
               title="确定要撤销这个订单吗？"
               @confirm="deleteRow(orderGroup)"
-              v-if="userInfo.perm['system.delete']"
+              v-if="userInfo.perm['fcg_order.delete']"
             >
               <el-button
                 type="text"
@@ -824,10 +724,10 @@ export default {
     // 获取风险级别文本
     getRiskLevelText(score) {
       const numScore = parseInt(score) || 0;
-      if (numScore >= 0 && numScore <= 20) return "容易";
-      if (numScore >= 21 && numScore <= 40) return "一般";
-      if (numScore >= 41 && numScore <= 60) return "困难";
-      if (numScore >= 61 && numScore <= 100) return "极难";
+      if (numScore >= 0 && numScore <= 40) return "容易";
+      if (numScore >= 41 && numScore <= 80) return "一般";
+      if (numScore >= 81 && numScore <= 100) return "困难";
+      if (numScore >= 100 && numScore <= 10000) return "极难";
       return "未知";
     },
 

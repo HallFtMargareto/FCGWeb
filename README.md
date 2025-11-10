@@ -21,6 +21,12 @@ pnpm run build
 
 
 
+## host权限
+```
+v-if="this.$store.state.user.userInfo.perm['host']"
+```
+
+
 ## 查询组件
 ```
  <el-form-item label="彩期">

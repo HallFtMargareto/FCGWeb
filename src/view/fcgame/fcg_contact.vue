@@ -14,7 +14,10 @@
           ></el-input>
         </el-form-item>
 
-        <el-form-item label="所属组织">
+        <el-form-item
+          label="所属组织"
+          v-if="this.$store.state.user.userInfo.perm['host']"
+        >
           <TenantSelect
             v-model="searchInfo.tenant_id"
             placeholder="请选择组织"
@@ -121,7 +124,11 @@
       <el-table-column label="会话标识" prop="user_name" width="300">
       </el-table-column>
 
-      <el-table-column label="所属组织" width="300">
+      <el-table-column
+        label="所属组织"
+        width="300"
+        v-if="this.$store.state.user.userInfo.perm['host']"
+      >
         <template slot-scope="scope">
           {{ getTenantName(scope.row.tenant_id) }}
         </template>

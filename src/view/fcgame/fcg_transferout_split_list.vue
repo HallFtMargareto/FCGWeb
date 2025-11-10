@@ -11,7 +11,10 @@
           ></IssueSelect>
         </el-form-item>
 
-        <el-form-item label="所属组织">
+        <el-form-item
+          label="所属组织"
+          v-if="this.$store.state.user.userInfo.perm['host']"
+        >
           <TenantSelect
             v-model="searchInfo.tenant_id"
             placeholder="请选择组织"

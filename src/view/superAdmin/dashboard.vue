@@ -6,34 +6,23 @@
         <p>当前统计期号：{{ summaryData.issue_no }}</p>
       </div>
       <div class="quick-nav">
-        <!-- <el-select
-          v-model="searchInfo.issue_no"
-          placeholder="请选择彩票期号"
-          style="width: 200px; margin-right: 10px"
-          @change="changeSelect"
-        >
-          <el-option
-            v-for="issue in lotteryIssues"
-            :key="issue.id"
-            :label="issue.issue_no"
-            :value="issue.issue_no"
-          ></el-option>
-        </el-select> -->
-        <!-- <el-button type="primary" @click="queryOrderByIssue">查询订单</el-button> -->
-
         <IssueSelect
           v-model="searchInfo.issue_id"
           placeholder="请选择彩期"
           clearable
         ></IssueSelect>
-        -
-        <TenantSelect
-          v-model="searchInfo.tenant_id"
-          placeholder="请选择组织"
-          :autoSelectFirst="false"
-          clearable
-        ></TenantSelect>
-        -
+
+        <template v-if="this.$store.state.user.userInfo.perm['host']">
+          -
+          <TenantSelect
+            v-model="searchInfo.tenant_id"
+            placeholder="请选择组织"
+            :autoSelectFirst="false"
+            clearable
+          ></TenantSelect>
+          -
+        </template>
+
         <el-button @click="changeSelect">查询</el-button>
       </div>
     </el-card>
