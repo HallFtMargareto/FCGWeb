@@ -14,10 +14,7 @@
           ></el-input>
         </el-form-item>
 
-        <el-form-item
-          label="所属组织"
-          v-if="this.$store.state.user.userInfo.perm['host']"
-        >
+        <el-form-item label="所属组织" v-if="userInfo.perm['host']">
           <TenantSelect
             v-model="searchInfo.tenant_id"
             placeholder="请选择组织"
@@ -127,7 +124,7 @@
       <el-table-column
         label="所属组织"
         width="300"
-        v-if="this.$store.state.user.userInfo.perm['host']"
+        v-if="userInfo.perm['host']"
       >
         <template slot-scope="scope">
           {{ getTenantName(scope.row.tenant_id) }}
@@ -194,7 +191,7 @@
       <el-table-column label="操作" fixed="right" width="200">
         <template slot-scope="scope">
           <el-button
-            v-if="userInfo.perm['system.update']"
+            v-if="userInfo.perm['fcg_contact.update']"
             @click="editRow(scope.row)"
             type="text"
             size="small"
@@ -237,7 +234,7 @@
         ></el-switch>
       </el-form-item>
 
-      <el-form-item label="所属组织">
+      <el-form-item label="所属组织" v-if="userInfo.perm['host']">
         <TenantSelect
           v-model="formData.tenant_id"
           placeholder="请选择组织"

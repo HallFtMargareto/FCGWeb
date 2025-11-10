@@ -7,12 +7,7 @@
     class="order-dialog"
     top="5"
   >
-    <el-form
-      ref="editForm"
-      :model="formData"
-      label-width="100px"
-      size="mini"
-    >
+    <el-form ref="editForm" :model="formData" label-width="100px" size="mini">
       <el-row>
         <el-col>
           <el-form-item label="投注内容">
@@ -127,13 +122,23 @@
         </el-table>
       </div>
       <el-row>
-        <el-button
-          style="float: right"
-          type="primary"
-          @click="addOrderDetail"
-          size="mini"
-          >添加子订单</el-button
-        >
+        <el-col :span="12">
+          <div style="padding: 8px 0">
+            <span>总数量: {{ totalCount }}</span>
+            <span style="margin-left: 20px"
+              >金额合计: {{ totalBetAmount }}</span
+            >
+          </div>
+        </el-col>
+        <el-col :span="12">
+          <el-button
+            style="float: right"
+            type="primary"
+            @click="addOrderDetail"
+            size="mini"
+            >添加子订单</el-button
+          >
+        </el-col>
       </el-row>
     </el-form>
 
@@ -155,18 +160,18 @@ export default {
     // 控制弹窗显示/隐藏
     value: {
       type: Boolean,
-      default: false
+      default: false,
     },
     // 弹窗标题
     title: {
       type: String,
-      default: "编辑订单"
+      default: "编辑订单",
     },
     // 游戏类型选项
     gameTypes: {
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
   data() {
     return {
@@ -186,12 +191,28 @@ export default {
         return this.value;
       },
       set(val) {
-        this.$emit('input', val);
-      }
+        this.$emit("input", val);
+      },
     },
     dialogTitle() {
       return this.title;
-    }
+    },
+    // 计算总数量
+    totalCount() {
+      return this.formData.order_details.length;
+    },
+    // 计算投注金额总合计
+    totalBetAmount() {
+      if (
+        !this.formData.order_details ||
+        this.formData.order_details.length === 0
+      ) {
+        return 0;
+      }
+      return this.formData.order_details.reduce((sum, item) => {
+        return sum + (Number(item.bet_amount) || 0);
+      }, 0);
+    },
   },
   methods: {
     // 打开弹窗并加载数据
@@ -231,7 +252,7 @@ export default {
         this.$message.error("获取订单数据异常");
       }
     },
-    
+
     // 重新识别
     async reidentify() {
       try {
@@ -256,7 +277,7 @@ export default {
         this.$message.error("重新识别异常");
       }
     },
-    
+
     // 添加子订单
     addOrderDetail() {
       this.formData.order_details.push({
@@ -269,12 +290,12 @@ export default {
         order_amount: 0,
       });
     },
-    
+
     // 删除子订单
     removeOrderDetail(index) {
       this.formData.order_details.splice(index, 1);
     },
-    
+
     // 保存订单编辑
     async saveOrderEdit() {
       try {
@@ -297,7 +318,7 @@ export default {
         this.$message.error("保存订单编辑异常");
       }
     },
-    
+
     // 关闭弹窗时的处理
     handleDialogClose() {
       this.formData = {
