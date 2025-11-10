@@ -194,9 +194,10 @@
         </el-form-item>
 
         <el-form-item
-          label="所属租户"
+          label="所属组织"
           label-width="80px"
           v-if="this.$store.state.user.userInfo.perm['host']"
+          prop="tenantId"
         >
           <el-select
             v-model="userInfo.tenantId"
@@ -207,7 +208,7 @@
             <el-option
               v-for="item in reslist.tenants"
               :key="item.ID"
-              :label="item.enterprise_name"
+              :label="item.platform_name"
               :value="item.ID"
             ></el-option>
           </el-select>
@@ -300,6 +301,9 @@ export default {
         ],
         authorityId: [
           { required: true, message: "请选择账号所属角色", trigger: "blur" },
+        ],
+        tenantId: [
+          { required: true, message: "请选择账号所属组织", trigger: "blur" },
         ],
       },
 

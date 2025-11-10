@@ -1,4 +1,4 @@
-const title = 'RtpSystem'
+const title = 'FTGSass'
 
 export default function getPageTitle(pageTitle) {
     if (pageTitle) {
