@@ -51,18 +51,18 @@
           <el-input v-model.number="searchInfo.local_type" placeholder="本地类型" clearable></el-input>
         </el-form-item> -->
 
-        <el-form-item label="备注">
+        <!-- <el-form-item label="备注">
           <el-input
             v-model="searchInfo.remark"
             placeholder="备注信息"
             clearable
           ></el-input>
-        </el-form-item>
+        </el-form-item> -->
 
-        <el-form-item label="描述">
+        <el-form-item label="所属账号">
           <el-input
-            v-model="searchInfo.description"
-            placeholder="描述信息"
+            v-model="searchInfo.owner"
+            placeholder="所属账号"
             clearable
           ></el-input>
         </el-form-item>
@@ -123,12 +123,15 @@
 
       <el-table-column
         label="所属组织"
-        width="300"
+        width="200"
         v-if="userInfo.perm['host']"
       >
         <template slot-scope="scope">
           {{ getTenantName(scope.row.tenant_id) }}
         </template>
+      </el-table-column>
+
+      <el-table-column label="所属账号" prop="owner_nick_name" width="200">
       </el-table-column>
 
       <el-table-column label="会话状态" prop="state">
