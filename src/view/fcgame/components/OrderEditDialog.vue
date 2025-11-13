@@ -320,7 +320,15 @@ export default {
     },
 
     // 关闭弹窗时的处理
-    handleDialogClose() {
+    async handleDialogClose() {
+      await findFcgOrder(
+        {
+          ID: this.formData.ID,
+          action: "cancel_edit",
+        },
+        { donNotShowLoading: true }
+      );
+
       this.formData = {
         ID: undefined,
         order_no: "",

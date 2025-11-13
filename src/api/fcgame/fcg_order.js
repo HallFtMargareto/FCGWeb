@@ -29,21 +29,23 @@ export const deleteFcgOrderByIds = (data) => {
 }
 
 // 更新FcgOrder
-export const updateFcgOrder = (data) => {
+export const updateFcgOrder = (data, config = {}) => {
     return service({
         url: "/fcg_order/update",
         method: 'put',
-        data
+        data,
+        ...config
     })
 }
 
 
 // 用id查询FcgOrder
-export const findFcgOrder = (params) => {
+export const findFcgOrder = (params, config = {}) => {
     return service({
         url: "/fcg_order/find",
         method: 'get',
-        params
+        params,
+        ...config
     })
 }
 

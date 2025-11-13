@@ -274,7 +274,9 @@
               订单信息
             </el-button>
             <el-button
-              v-if="userInfo.perm['fcg_order.update']"
+              v-if="
+                userInfo.perm['fcg_order.update'] && orderGroup.order_status > 0
+              "
               @click="editRow(orderGroup)"
               type="text"
               size="mini"
