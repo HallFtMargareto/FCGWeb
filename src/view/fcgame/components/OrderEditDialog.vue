@@ -244,8 +244,6 @@ export default {
               : [],
           };
           this.visible = true;
-        } else {
-          this.$message.error("获取订单数据失败");
         }
       } catch (error) {
         console.error("获取订单数据异常:", error);
