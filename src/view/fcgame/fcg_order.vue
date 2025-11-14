@@ -99,21 +99,21 @@
             ></el-input>
           </el-form-item>
 
-          <el-form-item label="用户账号">
+          <!-- <el-form-item label="用户账号">
             <el-input
               v-model="searchInfo.user_name"
               placeholder="用户账号"
               clearable
             ></el-input>
-          </el-form-item>
+          </el-form-item> -->
 
-          <el-form-item label="业务单号">
+          <!-- <el-form-item label="业务单号">
             <el-input
               v-model="searchInfo.order_no"
               placeholder="业务单号"
               clearable
             ></el-input>
-          </el-form-item>
+          </el-form-item> -->
 
           <el-form-item label="投注金额">
             <el-input
@@ -123,21 +123,21 @@
             ></el-input>
           </el-form-item>
 
-          <el-form-item label="中奖总金额">
+          <el-form-item label="中奖金额">
             <el-input
               v-model="searchInfo.win_amount"
-              placeholder="中奖总金额"
+              placeholder="中奖金额"
               clearable
             ></el-input>
           </el-form-item>
 
-          <el-form-item label="下单来源">
+          <!-- <el-form-item label="下单来源">
             <el-input
               v-model="searchInfo.source"
               placeholder="下单来源(APP,WEB,第三方渠道等)"
               clearable
             ></el-input>
-          </el-form-item>
+          </el-form-item> -->
 
           <el-form-item label="开始时间">
             <datepicker v-model="searchInfo.startTime" type="datetime" />
@@ -146,6 +146,17 @@
             <datepicker v-model="searchInfo.endTime" type="datetime" />
           </el-form-item>
         </template>
+
+        <el-form-item label="排序方式">
+          <el-select
+            v-model="searchInfo.sort_num"
+            placeholder="请选择订单排序方式"
+          >
+            <el-option label="发送顺序" value="1"></el-option>
+            <el-option label="投注金额从大到小" value="2"></el-option>
+            <el-option label="中奖金额从大到小" value="3"></el-option>
+          </el-select>
+        </el-form-item>
 
         <el-form-item label="导入导出">
           <el-button
@@ -349,15 +360,15 @@
               <el-descriptions-item label="识别难度">
                 {{ getRiskLevelText(orderGroup.risk_score) }}
               </el-descriptions-item>
-              <el-descriptions-item label="总投注">
-                {{ orderGroup.total_bet_count }}
+              <el-descriptions-item label="号码数量">
+                {{ orderGroup.order_num }}
               </el-descriptions-item>
               <el-descriptions-item label="识别耗时">{{
                 orderGroup.message ? orderGroup.message.llmcons_at : ""
               }}</el-descriptions-item>
-              <el-descriptions-item label="期号">{{
-                orderGroup.issue_no || orderGroup.issue_no_display
-              }}</el-descriptions-item>
+              <el-descriptions-item label="投注数量">
+                {{ orderGroup.total_bet_count }}
+              </el-descriptions-item>
               <el-descriptions-item label="订单状态">
                 <el-tag
                   :type="getOrderStatusType(orderGroup.order_status)"
