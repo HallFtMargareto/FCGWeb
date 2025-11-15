@@ -191,14 +191,14 @@
           clearable
         ></el-input>
       </el-form-item>
-      <el-form-item label="转出费率">
+      <!-- <el-form-item label="转出费率">
         <el-input
           v-model.number="formData.trans_water_rate"
           placeholder="请输入转出费率"
           type="number"
           step="1"
         ></el-input>
-      </el-form-item>
+      </el-form-item> -->
     </dialogform>
 
     <uploadexcel ref="uploadexcel" action="FcgLotteryIssue"></uploadexcel>
