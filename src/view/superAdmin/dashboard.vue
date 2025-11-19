@@ -12,7 +12,7 @@
           clearable
         ></IssueSelect>
 
-        <template v-if="this.$store.state.user.userInfo.perm['host']">
+        <template v-if="userInfo.perm['host']">
           -
           <TenantSelect
             v-model="searchInfo.tenant_id"
@@ -209,11 +209,83 @@
       </el-card>
     </div>
 
+    <!-- 组织统计表格 -->
+    <el-card
+      class="table-card"
+      shadow="never"
+      :body-style="{ padding: '16px' }"
+      style="margin-bottom: 20px"
+      v-if="userInfo.perm['host'] && this.summaryData.tenant_stats != null"
+    >
+      <div slot="header" class="card-header">
+        <span>组织统计</span>
+      </div>
+      <div class="table-container">
+        <el-table :data="tenantStatsData" size="small" style="width: 100%">
+          <el-table-column
+            prop="name"
+            label="组织名称"
+            align="center"
+          ></el-table-column>
+          <el-table-column
+            prop="total_bet_amount"
+            label="总投注金额"
+            align="center"
+          >
+            <template slot-scope="scope"
+              >¥{{ scope.row.total_bet_amount }}</template
+            >
+          </el-table-column>
+
+          <el-table-column
+            prop="total_win_amount"
+            label="总中奖金额"
+            align="center"
+          >
+            <template slot-scope="scope"
+              >¥{{ scope.row.total_win_amount }}</template
+            >
+          </el-table-column>
+
+          <el-table-column label="福彩 投注 / 中奖" align="center">
+            <template slot-scope="scope"
+              >¥{{ scope.row.fc_total_bet_amount }} /
+              <span class="winam">¥{{ scope.row.fc_total_win_amount }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="体彩 投注 / 中奖" align="center">
+            <template slot-scope="scope"
+              >¥{{ scope.row.tc_total_bet_amount }} /
+              <span class="winam">¥{{ scope.row.tc_total_win_amount }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            prop="total_commission"
+            label="总佣金"
+            align="center"
+          >
+            <template slot-scope="scope"
+              >¥{{ scope.row.total_commission }}</template
+            >
+          </el-table-column>
+
+          <el-table-column prop="total_profit" label="总利润" align="center">
+            <template slot-scope="scope"
+              >¥{{ scope.row.total_profit }}</template
+            >
+          </el-table-column>
+        </el-table>
+      </div>
+    </el-card>
+
     <!-- 会话统计表格 -->
     <el-card
       class="table-card"
       shadow="never"
       :body-style="{ padding: '16px' }"
+      style="margin-bottom: 20px"
     >
       <div slot="header" class="card-header">
         <span>会话统计</span>
@@ -288,6 +360,7 @@
       class="table-card"
       shadow="never"
       :body-style="{ padding: '16px' }"
+      style="margin-bottom: 20px"
     >
       <div slot="header" class="card-header">
         <span>玩法统计</span>
@@ -345,6 +418,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters("user", ["userInfo"]),
     ...mapGetters("common", ["siteInfo"]),
     // 总投注金额
     totalBetAmount() {
@@ -493,6 +567,9 @@ export default {
           typeText: typeMap[item.game_type] || `玩法${item.game_type}`,
         };
       });
+    },
+    tenantStatsData() {
+      return this.summaryData.tenant_stats || [];
     },
     // 会话统计数据
     sessionStatsData() {
