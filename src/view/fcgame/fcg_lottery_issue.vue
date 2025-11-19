@@ -146,6 +146,15 @@
             icon="el-icon-edit"
             >编辑</el-button
           >
+
+          <el-button
+            v-if="userInfo.perm['host']"
+            @click="handleResetDraw(scope.row)"
+            type="text"
+            size="small"
+            icon=""
+            >清除开奖</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
@@ -382,6 +391,26 @@ export default {
     async exportExcel() {
       this.searchInfo.action = "fcg_lottery_issue";
       await this.$api.getExcel(this.searchInfo);
+    },
+    async handleResetDraw(row) {
+      this.$confirm("确定要清除开奖数据吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then(async () => {
+        const ids = [row.ID];
+        const res = await batchFcgLotteryIssueOperation({
+          ids,
+          command: "reset_draw",
+        });
+        if (res.code == 0) {
+          this.$message({
+            type: "success",
+            message: "操作成功",
+          });
+          this.getTableData();
+        }
+      });
     },
   },
   async created() {
