@@ -155,6 +155,7 @@
             <el-option label="发送顺序" value="1"></el-option>
             <el-option label="投注金额从大到小" value="2"></el-option>
             <el-option label="中奖金额从大到小" value="3"></el-option>
+            <el-option label="投注数量从大到小" value="4"></el-option>
           </el-select>
         </el-form-item>
 
@@ -782,6 +783,8 @@ export default {
     },
 
     handleClick(tab) {
+      // 重置页码并重新获取数据
+      this.page = 1;
       if (tab.name == 0) {
         this.searchInfo.game_type = undefined;
       } else {
@@ -792,6 +795,8 @@ export default {
 
     // 处理订单状态标签页点击
     handleStatusTabClick(tab) {
+      // 重置页码并重新获取数据
+      this.page = 1;
       if (tab.name === "all") {
         delete this.searchInfo.order_status;
       } else {
@@ -803,6 +808,8 @@ export default {
 
     // 处理标记状态标签页点击
     handleMarkStateTabClick(tab) {
+      // 重置页码并重新获取数据
+      this.page = 1;
       if (tab.name === "all") {
         delete this.searchInfo.mark_state;
       } else {
