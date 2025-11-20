@@ -363,18 +363,18 @@
       style="margin-bottom: 20px"
     >
       <div slot="header" class="card-header">
-        <span>玩法统计</span>
+        <span>游戏统计</span>
       </div>
       <div class="table-container">
         <el-table :data="gameTypeData" size="small" style="width: 100%">
-          <el-table-column
+          <!-- <el-table-column
             prop="game_type"
             label="玩法ID"
             align="center"
-          ></el-table-column>
+          ></el-table-column> -->
           <el-table-column
             prop="typeText"
-            label="玩法名称"
+            label="游戏类型"
             align="center"
           ></el-table-column>
           <el-table-column
@@ -385,6 +385,11 @@
           <el-table-column prop="gt_bet_amount" label="投注金额" align="center">
             <template slot-scope="scope"
               >¥{{ scope.row.gt_bet_amount }}</template
+            >
+          </el-table-column>
+          <el-table-column prop="gt_win_amount" label="中奖金额" align="center">
+            <template slot-scope="scope"
+              >¥{{ scope.row.gt_win_amount }}</template
             >
           </el-table-column>
         </el-table>
