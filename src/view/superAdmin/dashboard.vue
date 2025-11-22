@@ -565,6 +565,8 @@ export default {
         21: "包对子",
         22: "包对一",
         23: "豹子",
+        24: "组三两码",
+        25: "组三三码",
       };
       return (this.summaryData.game_type_stats || []).map((item) => {
         return {
