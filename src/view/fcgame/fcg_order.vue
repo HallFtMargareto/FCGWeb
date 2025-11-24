@@ -54,15 +54,15 @@
           ></GCategory>
         </el-form-item>
 
-        <template v-if="userInfo.perm['host']">
-          <el-form-item label="订单ID">
-            <el-input
-              v-model="searchInfo.ID"
-              placeholder="投注号码"
-              clearable
-            ></el-input>
-          </el-form-item>
+        <el-form-item label="订单ID">
+          <el-input
+            v-model="searchInfo.ID"
+            placeholder="订单ID"
+            clearable
+          ></el-input>
+        </el-form-item>
 
+        <template v-if="userInfo.perm['host']">
           <el-form-item label="投注号码">
             <el-input
               v-model="searchInfo.bet_number"
@@ -223,6 +223,9 @@
           <el-button icon="el-icon-s-unfold" @click="openBatchEditDialog"
             >批量编辑</el-button
           >
+          <!-- <el-button icon="el-icon-delete" @click="openBatchEditDialog"
+            >批量撤单</el-button
+          > -->
         </el-col>
         <el-col :span="statusTabState === '1' ? 20 : 24">
           <!-- 数据合计,按需求启用 -->
