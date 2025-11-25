@@ -223,9 +223,14 @@
           <el-button icon="el-icon-s-unfold" @click="openBatchEditDialog"
             >批量编辑</el-button
           >
-          <!-- <el-button icon="el-icon-delete" @click="openBatchEditDialog"
+          <el-button
+            v-if="userInfo.perm['host']"
+            icon="el-icon-delete"
+            @click="handleBatchDelete"
+            :disabled="multipleSelection.length === 0"
+            class="batch-operation-btn"
             >批量撤单</el-button
-          > -->
+          >
         </el-col>
         <el-col :span="statusTabState === '1' ? 20 : 24">
           <!-- 数据合计,按需求启用 -->
@@ -258,8 +263,16 @@
         v-for="(orderGroup, index) in groupedTableData"
         :key="index"
         class="order-card"
+        :class="{ selected: orderGroup.selected }"
         shadow="hover"
       >
+        <!-- 订单选择框 -->
+        <div class="card-checkbox" v-if="statusTabState === '1'">
+          <el-checkbox
+            v-model="orderGroup.selected"
+            @change="handleOrderSelectionChange(orderGroup)"
+          ></el-checkbox>
+        </div>
         <!-- 订单功能区 -->
         <div class="card-title">
           <div class="left-content">
@@ -1023,6 +1036,102 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
+
+    // 处理订单选择变化
+    handleOrderSelectionChange(orderGroup) {
+      // 更新multipleSelection数组
+      if (orderGroup.selected) {
+        // 如果选中，添加到选择数组
+        if (
+          !this.multipleSelection.find(
+            (item) =>
+              (item.order_id || item.ID) ===
+              (orderGroup.order_id || orderGroup.ID)
+          )
+        ) {
+          this.multipleSelection.push(orderGroup);
+        }
+      } else {
+        // 如果取消选中，从选择数组中移除
+        this.multipleSelection = this.multipleSelection.filter(
+          (item) =>
+            (item.order_id || item.ID) !==
+            (orderGroup.order_id || orderGroup.ID)
+        );
+      }
+    },
+
+    // 清空所有选择
+    clearSelections() {
+      this.multipleSelection = [];
+      // 清空所有订单的选中状态
+      if (this.groupedTableData && this.groupedTableData.length > 0) {
+        this.groupedTableData.forEach((order) => {
+          this.$set(order, "selected", false);
+        });
+      }
+    },
+
+    // 批量撤单处理方法
+    handleBatchDelete() {
+      if (this.multipleSelection.length === 0) {
+        this.$message({
+          type: "warning",
+          message: "请选择需要撤单的订单",
+        });
+        return;
+      }
+
+      this.$confirm(
+        `确定要撤销选中的 ${this.multipleSelection.length} 个订单吗？`,
+        "批量撤单确认",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }
+      )
+        .then(async () => {
+          try {
+            const ids = this.multipleSelection.map(
+              (item) => item.order_id || item.ID
+            );
+            const res = await batchFcgOrderOperation({
+              command: "remove",
+              ids: ids,
+            });
+
+            if (res.code === 0) {
+              this.$message({
+                type: "success",
+                message: `成功撤销 ${this.multipleSelection.length} 个订单`,
+              });
+              // 清空选择
+              this.clearSelections();
+              // 刷新数据
+              this.getTableData();
+            } else {
+              this.$message({
+                type: "error",
+                message: res.msg || "批量撤单失败",
+              });
+            }
+          } catch (error) {
+            console.error("批量撤单异常:", error);
+            this.$message({
+              type: "error",
+              message: "批量撤单异常，请稍后重试",
+            });
+          }
+        })
+        .catch(() => {
+          // 用户取消操作
+          this.$message({
+            type: "info",
+            message: "已取消批量撤单",
+          });
+        });
+    },
     handleCommand(command) {
       this.$confirm("是否要执行批量操作?", "提示", {
         confirmButtonText: "确定",
@@ -1154,6 +1263,8 @@ export default {
       // 保存到localStorage
       this.saveStateToLocalStorage();
     }
+    // 清空选择状态
+    this.clearSelections();
     await this.getTableData();
     if (process.env.NODE_ENV === "development") {
       console.timeEnd("fcg_order component created");
