@@ -54,15 +54,15 @@
           ></GCategory>
         </el-form-item>
 
-        <template v-if="userInfo.perm['host']">
-          <el-form-item label="订单ID">
-            <el-input
-              v-model="searchInfo.ID"
-              placeholder="投注号码"
-              clearable
-            ></el-input>
-          </el-form-item>
+        <el-form-item label="订单ID">
+          <el-input
+            v-model="searchInfo.ID"
+            placeholder="订单ID"
+            clearable
+          ></el-input>
+        </el-form-item>
 
+        <template v-if="userInfo.perm['host']">
           <el-form-item label="投注号码">
             <el-input
               v-model="searchInfo.bet_number"
@@ -99,21 +99,21 @@
             ></el-input>
           </el-form-item>
 
-          <el-form-item label="用户账号">
+          <!-- <el-form-item label="用户账号">
             <el-input
               v-model="searchInfo.user_name"
               placeholder="用户账号"
               clearable
             ></el-input>
-          </el-form-item>
+          </el-form-item> -->
 
-          <el-form-item label="业务单号">
+          <!-- <el-form-item label="业务单号">
             <el-input
               v-model="searchInfo.order_no"
               placeholder="业务单号"
               clearable
             ></el-input>
-          </el-form-item>
+          </el-form-item> -->
 
           <el-form-item label="投注金额">
             <el-input
@@ -123,21 +123,21 @@
             ></el-input>
           </el-form-item>
 
-          <el-form-item label="中奖总金额">
+          <el-form-item label="中奖金额">
             <el-input
               v-model="searchInfo.win_amount"
-              placeholder="中奖总金额"
+              placeholder="中奖金额"
               clearable
             ></el-input>
           </el-form-item>
 
-          <el-form-item label="下单来源">
+          <!-- <el-form-item label="下单来源">
             <el-input
               v-model="searchInfo.source"
               placeholder="下单来源(APP,WEB,第三方渠道等)"
               clearable
             ></el-input>
-          </el-form-item>
+          </el-form-item> -->
 
           <el-form-item label="开始时间">
             <datepicker v-model="searchInfo.startTime" type="datetime" />
@@ -146,6 +146,18 @@
             <datepicker v-model="searchInfo.endTime" type="datetime" />
           </el-form-item>
         </template>
+
+        <el-form-item label="排序方式">
+          <el-select
+            v-model="searchInfo.sort_num"
+            placeholder="请选择订单排序方式"
+          >
+            <el-option label="发送顺序" value="1"></el-option>
+            <el-option label="投注金额从大到小" value="2"></el-option>
+            <el-option label="中奖金额从大到小" value="3"></el-option>
+            <el-option label="投注数量从大到小" value="4"></el-option>
+          </el-select>
+        </el-form-item>
 
         <el-form-item label="导入导出">
           <el-button
@@ -211,6 +223,14 @@
           <el-button icon="el-icon-s-unfold" @click="openBatchEditDialog"
             >批量编辑</el-button
           >
+          <el-button
+            v-if="userInfo.perm['host']"
+            icon="el-icon-delete"
+            @click="handleBatchDelete"
+            :disabled="multipleSelection.length === 0"
+            class="batch-operation-btn"
+            >批量撤单</el-button
+          >
         </el-col>
         <el-col :span="statusTabState === '1' ? 20 : 24">
           <!-- 数据合计,按需求启用 -->
@@ -243,8 +263,16 @@
         v-for="(orderGroup, index) in groupedTableData"
         :key="index"
         class="order-card"
+        :class="{ selected: orderGroup.selected }"
         shadow="hover"
       >
+        <!-- 订单选择框 -->
+        <div class="card-checkbox" v-if="statusTabState === '1'">
+          <el-checkbox
+            v-model="orderGroup.selected"
+            @change="handleOrderSelectionChange(orderGroup)"
+          ></el-checkbox>
+        </div>
         <!-- 订单功能区 -->
         <div class="card-title">
           <div class="left-content">
@@ -349,15 +377,15 @@
               <el-descriptions-item label="识别难度">
                 {{ getRiskLevelText(orderGroup.risk_score) }}
               </el-descriptions-item>
-              <el-descriptions-item label="总投注">
-                {{ orderGroup.total_bet_count }}
+              <el-descriptions-item label="号码数量">
+                {{ orderGroup.order_num }}
               </el-descriptions-item>
               <el-descriptions-item label="识别耗时">{{
                 orderGroup.message ? orderGroup.message.llmcons_at : ""
               }}</el-descriptions-item>
-              <el-descriptions-item label="期号">{{
-                orderGroup.issue_no || orderGroup.issue_no_display
-              }}</el-descriptions-item>
+              <el-descriptions-item label="投注数量">
+                {{ orderGroup.total_bet_count }}
+              </el-descriptions-item>
               <el-descriptions-item label="订单状态">
                 <el-tag
                   :type="getOrderStatusType(orderGroup.order_status)"
@@ -771,6 +799,8 @@ export default {
     },
 
     handleClick(tab) {
+      // 重置页码并重新获取数据
+      this.page = 1;
       if (tab.name == 0) {
         this.searchInfo.game_type = undefined;
       } else {
@@ -781,6 +811,8 @@ export default {
 
     // 处理订单状态标签页点击
     handleStatusTabClick(tab) {
+      // 重置页码并重新获取数据
+      this.page = 1;
       if (tab.name === "all") {
         delete this.searchInfo.order_status;
       } else {
@@ -792,6 +824,8 @@ export default {
 
     // 处理标记状态标签页点击
     handleMarkStateTabClick(tab) {
+      // 重置页码并重新获取数据
+      this.page = 1;
       if (tab.name === "all") {
         delete this.searchInfo.mark_state;
       } else {
@@ -1002,6 +1036,102 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
+
+    // 处理订单选择变化
+    handleOrderSelectionChange(orderGroup) {
+      // 更新multipleSelection数组
+      if (orderGroup.selected) {
+        // 如果选中，添加到选择数组
+        if (
+          !this.multipleSelection.find(
+            (item) =>
+              (item.order_id || item.ID) ===
+              (orderGroup.order_id || orderGroup.ID)
+          )
+        ) {
+          this.multipleSelection.push(orderGroup);
+        }
+      } else {
+        // 如果取消选中，从选择数组中移除
+        this.multipleSelection = this.multipleSelection.filter(
+          (item) =>
+            (item.order_id || item.ID) !==
+            (orderGroup.order_id || orderGroup.ID)
+        );
+      }
+    },
+
+    // 清空所有选择
+    clearSelections() {
+      this.multipleSelection = [];
+      // 清空所有订单的选中状态
+      if (this.groupedTableData && this.groupedTableData.length > 0) {
+        this.groupedTableData.forEach((order) => {
+          this.$set(order, "selected", false);
+        });
+      }
+    },
+
+    // 批量撤单处理方法
+    handleBatchDelete() {
+      if (this.multipleSelection.length === 0) {
+        this.$message({
+          type: "warning",
+          message: "请选择需要撤单的订单",
+        });
+        return;
+      }
+
+      this.$confirm(
+        `确定要撤销选中的 ${this.multipleSelection.length} 个订单吗？`,
+        "批量撤单确认",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }
+      )
+        .then(async () => {
+          try {
+            const ids = this.multipleSelection.map(
+              (item) => item.order_id || item.ID
+            );
+            const res = await batchFcgOrderOperation({
+              command: "remove",
+              ids: ids,
+            });
+
+            if (res.code === 0) {
+              this.$message({
+                type: "success",
+                message: `成功撤销 ${this.multipleSelection.length} 个订单`,
+              });
+              // 清空选择
+              this.clearSelections();
+              // 刷新数据
+              this.getTableData();
+            } else {
+              this.$message({
+                type: "error",
+                message: res.msg || "批量撤单失败",
+              });
+            }
+          } catch (error) {
+            console.error("批量撤单异常:", error);
+            this.$message({
+              type: "error",
+              message: "批量撤单异常，请稍后重试",
+            });
+          }
+        })
+        .catch(() => {
+          // 用户取消操作
+          this.$message({
+            type: "info",
+            message: "已取消批量撤单",
+          });
+        });
+    },
     handleCommand(command) {
       this.$confirm("是否要执行批量操作?", "提示", {
         confirmButtonText: "确定",
@@ -1133,6 +1263,8 @@ export default {
       // 保存到localStorage
       this.saveStateToLocalStorage();
     }
+    // 清空选择状态
+    this.clearSelections();
     await this.getTableData();
     if (process.env.NODE_ENV === "development") {
       console.timeEnd("fcg_order component created");

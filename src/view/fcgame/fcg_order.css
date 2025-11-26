@@ -288,3 +288,35 @@
 }
 
 /* 这些样式已经移动到各自的组件中 */
+
+/* 订单卡片选择框样式 */
+.card-checkbox {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 10;
+}
+
+.order-card {
+  position: relative;
+}
+
+.order-card .el-card__body {
+  padding-left: 45px;
+}
+
+/* 选中状态卡片样式 */
+.order-card.selected {
+  border: 2px solid #409eff;
+  box-shadow: 0 2px 12px 0 rgba(64, 158, 255, 0.2);
+}
+
+/* 批量操作按钮样式 */
+.batch-operation-btn {
+  margin-left: 10px;
+}
+
+.batch-operation-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

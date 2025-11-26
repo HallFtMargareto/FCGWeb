@@ -26,7 +26,8 @@ module.exports = {
             // 把key的路径代理到target位置
             // detail: https://cli.vuejs.org/config/#devserver-proxy
             [process.env.VUE_APP_BASE_API]: { //需要代理的路径   例如 '/api'
-                target: `http://115.190.130.54:9051/`, //代理到 目标路径
+                target: `http://192.168.1.67:9051/`, //代理到 目标路径
+                // target: `http://115.190.130.54:9051/`, //代理到 目标路径
                 // target: `http://127.0.0.1:888/`, //代理到 目标路径
                 // target: `http://go.dgzyx.cn/`, //代理到 目标路径
                 changeOrigin: true,

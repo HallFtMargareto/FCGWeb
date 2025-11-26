@@ -69,12 +69,12 @@
           align="center"
           width="80"
         ></el-table-column>
-        <el-table-column prop="ID" label="会话" align="center">
+        <el-table-column prop="ID" label="会话" align="center" width="200">
           <template slot-scope="scope">
             <div>{{ scope.row.message.session_name }}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="ID" label="用户" align="center">
+        <el-table-column prop="ID" label="用户" align="center" width="200">
           <template slot-scope="scope">
             <div>{{ scope.row.user.nickname }}</div>
           </template>
@@ -83,10 +83,15 @@
           prop="bet_content"
           label="投注内容"
           align="center"
-          width="500"
         ></el-table-column>
         <!-- <el-table-column prop="bet_amount" label="投注金额" align="center"></el-table-column> -->
-        <el-table-column prop="win_amount" label="奖金" align="center">
+        <el-table-column
+          prop="win_amount"
+          label="奖金"
+          align="center"
+          width="100"
+          sortable
+        >
           <template slot-scope="scope">
             <div style="color: #f56c6c">{{ scope.row.win_amount }}</div>
           </template>

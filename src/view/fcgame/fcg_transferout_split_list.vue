@@ -98,7 +98,7 @@
         <!-- 总计数据 -->
         <div class="total-summary">
           <h4 class="summary-subtitle">总计</h4>
-          <el-descriptions :column="3" border>
+          <el-descriptions :column="4" border>
             <el-descriptions-item label="总交易笔数">
               <span class="summary-value">{{
                 summaryData.totalSummary.totalTransCount || 0
@@ -112,6 +112,11 @@
             <el-descriptions-item label="总中奖金额">
               <span class="summary-value amount">{{
                 summaryData.totalSummary.totalWinAmount || 0
+              }}</span>
+            </el-descriptions-item>
+            <el-descriptions-item label="总返水金额">
+              <span class="summary-value amount">{{
+                summaryData.totalSummary.totalWaterAmount || 0
               }}</span>
             </el-descriptions-item>
           </el-descriptions>
@@ -198,12 +203,12 @@
         </template>
       </el-table-column>
 
-      <!-- <el-table-column label="彩期ID" prop="issue_id">
+      <el-table-column label="水费" prop="water_amount">
         <template slot-scope="scope">
-          <span class="issue-id">{{ scope.row.issue_id }}</span>
+          {{ scope.row.water_amount }}
         </template>
       </el-table-column>
-
+      <!-- 
       <el-table-column label="租户ID" prop="tenant_id">
         <template slot-scope="scope">
           <span class="tenant-id">{{ scope.row.tenant_id }}</span>

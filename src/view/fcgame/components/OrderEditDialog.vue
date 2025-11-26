@@ -227,7 +227,10 @@ export default {
             order_no: order.order_no,
             bet_amount: order.bet_amount,
             source_content: order.bet_content,
-            bet_content: order.bet_content,
+            bet_content:
+              order.is_ai_analysis == 1
+                ? order.analysis_content
+                : order.bet_content,
             order_details: order.order_details
               ? order.order_details.map((detail) => {
                   return {
@@ -244,8 +247,6 @@ export default {
               : [],
           };
           this.visible = true;
-        } else {
-          this.$message.error("获取订单数据失败");
         }
       } catch (error) {
         console.error("获取订单数据异常:", error);
