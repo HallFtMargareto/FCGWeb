@@ -111,6 +111,16 @@
                 <el-switch v-model="config.fcgame.auto_award"></el-switch>
               </el-form-item>
             </el-col>
+            <el-col :span="24">
+              <el-form-item label="默认转单组织ID" prop="trans_tenant_id">
+                <el-input
+                  v-model.number="config.fcgame.trans_tenant_id"
+                  placeholder="默认转单组织ID"
+                  clearable
+                  :style="{ width: '26%' }"
+                ></el-input>
+              </el-form-item>
+            </el-col>
             <!-- <el-col :span="24">
               <el-form-item label="全局状态" prop="open_state">
                 <el-switch v-model="config.fcgame.global_state"></el-switch>
@@ -149,6 +159,15 @@
             <el-col :span="24">
               <el-form-item label="自动开奖" prop="open_state">
                 <el-switch v-model="config.tcgame.auto_award"></el-switch>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="默认转单组织ID" prop="trans_tenant_id">
+                <el-input
+                  v-model.number="config.tcgame.trans_tenant_id"
+                  placeholder="默认转单组织ID"
+                  :style="{ width: '26%' }"
+                ></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="24">
