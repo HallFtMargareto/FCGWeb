@@ -9,13 +9,19 @@
   >
     <el-form ref="editForm" :model="formData" label-width="100px" size="mini">
       <el-row>
-        <el-col>
-          <el-form-item label="投注内容">
-            {{ formData.source_content }}
+        <el-col :span="8">
+          <el-form-item label="原内容">
+            <el-input
+              type="textarea"
+              :rows="5"
+              v-model="formData.source_content"
+              readonly
+              disabled
+            ></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="19">
-          <el-form-item label="内容修改">
+        <el-col :span="16">
+          <el-form-item label="修改内容">
             <el-input
               type="textarea"
               :rows="5"
@@ -23,12 +29,10 @@
             ></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="5">
-          <el-button
-            style="margin-left: 5px; margin-top: 10px"
-            type="success"
-            @click="reidentify"
-            size="mini"
+      </el-row>
+      <el-row>
+        <el-col :span="24" style="text-align: right">
+          <el-button type="success" @click="reidentify" size="mini"
             >重新识别</el-button
           >
         </el-col>
@@ -257,6 +261,9 @@ export default {
     // 重新识别
     async reidentify() {
       try {
+        // 保存原始内容，防止被覆盖
+        const originalSourceContent = this.formData.source_content;
+
         const res = await findFcgOrder({
           ID: this.formData.ID,
           bet_content: this.formData.bet_content,
@@ -267,9 +274,9 @@ export default {
             type: "success",
             message: "识别成功",
           });
-          // 保存订单详情数据
+          // 保存订单详情数据，但保留原始内容
           this.formData = res.data.refcg_order;
-          this.formData.source_content = res.data.refcg_order.bet_content;
+          this.formData.source_content = originalSourceContent;
         } else {
           this.$message.error("识别失败");
         }
