@@ -953,8 +953,9 @@ export default {
           game_category: this.game_category,
           ids: [this.chartIssueId],
           issue_id: this.chartIssueId,
-          command: "fast_transfer", // 使用fast_transfer命令
+          command: "transfer", // 使用fast_transfer命令
           transfer_list: transfer_list,
+          fast_trans: true,
         };
 
         // 调用API接口
