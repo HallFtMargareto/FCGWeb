@@ -90,7 +90,7 @@
         rickDataInfo.rick_order.length > 0
       "
     >
-      <div class="total-info">
+      <div class="total-info-with-button">
         <el-descriptions title="风控信息" :column="3" border>
           <el-descriptions-item label="总投注">{{
             rickDataInfo.total_info.totalBet
@@ -118,6 +118,15 @@
                     <el-descriptions-item label="总转投金额">{{ rickDataInfo.total_info.totaltransferStake
                     }}</el-descriptions-item> -->
         </el-descriptions>
+        <el-button
+          type="warning"
+          :disabled="multipleSelection.length === 0"
+          :loading="fastTransferLoading"
+          @click="handleFastTransfer"
+          size="medium"
+        >
+          快速转出
+        </el-button>
       </div>
       <el-table
         :data="filteredRickOrder"
@@ -566,6 +575,7 @@ export default {
       batchThreshold: 50, // 批次拆分阈值
       aiAnalysisLoading: false, // AI分析加载状态
       aiAnalysisContent: "", // AI分析内容
+      fastTransferLoading: false, // 快速转出按钮加载状态
     };
   },
   methods: {
@@ -913,6 +923,56 @@ export default {
       }
     },
 
+    // 处理快速转出按钮点击
+    async handleFastTransfer() {
+      // 判断是否有选择数据
+      if (this.multipleSelection.length === 0) {
+        this.$message.warning("请选择数据");
+        return;
+      }
+
+      // 调用快速转出方法
+      await this.fastTransferData(this.multipleSelection);
+    },
+
+    // 快速转出数据到后台
+    async fastTransferData(validData) {
+      try {
+        this.fastTransferLoading = true;
+
+        // 构建transfer_list数据
+        const transfer_list = validData.map((item) => ({
+          split_number: item.split_number,
+          trans_count: item.trans_count,
+          trans_amount: item.trans_amount,
+          tenant_id: this.tenant_id,
+        }));
+
+        // 构建请求数据
+        const requestData = {
+          game_category: this.game_category,
+          ids: [this.chartIssueId],
+          issue_id: this.chartIssueId,
+          command: "fast_transfer", // 使用fast_transfer命令
+          transfer_list: transfer_list,
+        };
+
+        // 调用API接口
+        const res = await batchFcgOrderSplitNumberOperation(requestData);
+
+        if (res.code === 0) {
+          this.$message.success("快速转出成功");
+        } else {
+          this.$message.error(res.msg || "快速转出失败");
+        }
+      } catch (error) {
+        this.$message.error("快速转出失败");
+        console.error("快速转出失败:", error);
+      } finally {
+        this.fastTransferLoading = false;
+      }
+    },
+
     // AI分析功能
     async handleAIAnalysis() {
       // 获取当前筛选后的数据
@@ -1173,11 +1233,23 @@ export default {
   font-weight: bold;
 }
 
-.total-info {
+.total-info-with-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-top: 20px;
   padding: 10px;
   border: 1px solid #ebeef5;
   border-radius: 4px;
+}
+
+.total-info-with-button .el-descriptions {
+  flex: 1;
+}
+
+.total-info-with-button .el-button {
+  margin-left: 20px;
+  flex-shrink: 0;
 }
 
 /* 预亏损弹窗样式 */
