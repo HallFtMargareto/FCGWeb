@@ -125,7 +125,7 @@
           @click="handleFastTransfer"
           size="medium"
         >
-          快速转出
+          快速转单
         </el-button>
       </div>
       <el-table

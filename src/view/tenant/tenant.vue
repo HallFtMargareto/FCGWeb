@@ -335,6 +335,16 @@
             clearable
           ></el-switch>
         </el-form-item>
+        <el-form-item label="快速转单" prop="fast_trans">
+          <el-switch
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            active-text="启用"
+            inactive-text="禁用"
+            v-model="formData.fast_trans"
+            clearable
+          ></el-switch>
+        </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input
             v-model="formData.remark"
