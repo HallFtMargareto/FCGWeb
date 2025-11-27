@@ -207,6 +207,13 @@
             >编辑</el-button
           >
 
+          <el-button
+            type="text"
+            size="small"
+            icon="el-icon-edit"
+            @click="openChatDialog(scope.row)"
+            >发送订单</el-button
+          >
           <!-- <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
             title="确定要删除吗？" @confirm="deleteRow(scope.row)" v-if="userInfo.perm['system.delete']">
             <el-button type="text" size="small" icon="el-icon-delete" slot="reference">删除</el-button>
@@ -314,6 +321,12 @@
       action="FcgContact"
       :extraParams="uploadExtraParams"
     ></uploadexcel>
+
+    <!-- 聊天对话框组件 -->
+    <chat-dialog
+      :visible.sync="chatDialogVisible"
+      :contact-data="currentContact"
+    />
   </div>
 </template>
 
@@ -327,6 +340,7 @@ import {
   batchFcgContactOperation,
   getFcgContactSummary,
 } from "@/api/fcgame/fcg_contact";
+import ChatDialog from "@/components/chat/ChatDialog.vue";
 import { getFcgOdds } from "@/api/fcgame/fcg_game";
 import infoList from "@/mixins/infoList";
 import { mapGetters } from "vuex";
@@ -334,6 +348,9 @@ import { formatTimeToStr } from "@/utils/date";
 export default {
   name: "fcg_contact",
   mixins: [infoList],
+  components: {
+    ChatDialog,
+  },
   computed: {
     ...mapGetters("user", ["userInfo"]),
     ...mapGetters("gameInfo", ["tenants"]),
@@ -354,6 +371,8 @@ export default {
         // 例如：tenant_id: 123, category: 'import' 等
         // 这些参数会被自动添加到上传URL的查询字符串中
       },
+      chatDialogVisible: false,
+      currentContact: {},
       formData: {
         tenant_id: undefined,
         username: "",
@@ -581,6 +600,11 @@ export default {
       }
       const tenant = this.tenants.find((t) => t.ID === tenantId);
       return tenant ? tenant.platform_name : "";
+    },
+    // 打开聊天对话框
+    openChatDialog(contact) {
+      this.currentContact = contact;
+      this.chatDialogVisible = true;
     },
   },
   async created() {
