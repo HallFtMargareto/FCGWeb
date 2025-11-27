@@ -539,6 +539,36 @@
 import { mapGetters } from "vuex";
 import { getFcgOrderSummary } from "@/api/fcgame/fcg_order";
 import * as echarts from "echarts";
+import "./dashboard.scss";
+
+// 游戏类型映射常量，避免重复定义
+const GAME_TYPE_MAP = {
+  1: "直选",
+  2: "组三",
+  3: "组六",
+  4: "组六四码",
+  5: "组六五码",
+  6: "组六六码",
+  7: "组六七码",
+  8: "组六八码",
+  9: "组三四码",
+  10: "组三五码",
+  11: "组三六码",
+  12: "组三七码",
+  13: "组三八码",
+  14: "独胆",
+  15: "一码不定位",
+  16: "一码定位",
+  17: "双飞",
+  18: "两码定位",
+  19: "复试重复号",
+  20: "复试",
+  21: "包对子",
+  22: "包对一",
+  23: "豹子",
+  24: "组三两码",
+  25: "组三三码",
+};
 
 export default {
   name: "DashboardPage",
@@ -685,37 +715,10 @@ export default {
     },
     // 玩法数据
     gameTypeData() {
-      const typeMap = {
-        1: "单选",
-        2: "组三(对子)",
-        3: "组六(无重复)",
-        4: "组六四码",
-        5: "组六五码",
-        6: "组六六码",
-        7: "组六七码",
-        8: "组六八码",
-        9: "组三四码",
-        10: "组三五码",
-        11: "组三六码",
-        12: "组三七码",
-        13: "组三八码",
-        14: "独胆",
-        15: "一码不定位",
-        16: "一码定位",
-        17: "两码不定位(双飞)",
-        18: "两码定位",
-        19: "复试重复号",
-        20: "复试(三不同号)",
-        21: "包对子",
-        22: "包对一",
-        23: "豹子",
-        24: "组三两码",
-        25: "组三三码",
-      };
       return (this.summaryData.game_type_stats || []).map((item) => {
         return {
           ...item,
-          typeText: typeMap[item.game_type] || `玩法${item.game_type}`,
+          typeText: GAME_TYPE_MAP[item.game_type] || `玩法${item.game_type}`,
         };
       });
     },
@@ -778,34 +781,7 @@ export default {
   methods: {
     // 获取游戏类型文本
     getGameTypeText(gameType) {
-      const typeMap = {
-        1: "单选",
-        2: "组三(对子)",
-        3: "组六(无重复)",
-        4: "组六四码",
-        5: "组六五码",
-        6: "组六六码",
-        7: "组六七码",
-        8: "组六八码",
-        9: "组三四码",
-        10: "组三五码",
-        11: "组三六码",
-        12: "组三七码",
-        13: "组三八码",
-        14: "独胆",
-        15: "一码不定位",
-        16: "一码定位",
-        17: "两码不定位(双飞)",
-        18: "两码定位",
-        19: "复试重复号",
-        20: "复试(三不同号)",
-        21: "包对子",
-        22: "包对一",
-        23: "豹子",
-        24: "组三两码",
-        25: "组三三码",
-      };
-      return typeMap[gameType] || `玩法${gameType}`;
+      return GAME_TYPE_MAP[gameType] || `玩法${gameType}`;
     },
     // 获取订单数量标签类型
     getCountTagType(count) {
@@ -819,7 +795,9 @@ export default {
       const betAmount = parseFloat(item.gt_bet_amount || 0);
       const winAmount = parseFloat(item.gt_win_amount || 0);
       if (betAmount === 0) return 0;
-      return parseFloat(((winAmount / betAmount) * 100).toFixed(2));
+      const rate = parseFloat(((winAmount / betAmount) * 100).toFixed(2));
+      // 确保返回值在 0-100 范围内
+      return Math.min(100, Math.max(0, rate));
     },
     // 获取中奖率颜色
     getWinRateColor(rate) {
@@ -832,7 +810,11 @@ export default {
     getBetAmountPercentage(amount) {
       const total = parseFloat(this.totalGameTypeBetAmount);
       if (total === 0) return 0;
-      return parseFloat(((parseFloat(amount) / total) * 100).toFixed(2));
+      const percentage = parseFloat(
+        ((parseFloat(amount) / total) * 100).toFixed(2)
+      );
+      // 确保返回值在 0-100 范围内
+      return Math.min(100, Math.max(0, percentage));
     },
     // 获取利润颜色
     getProfitColor(profit) {
@@ -1031,7 +1013,7 @@ export default {
           data: data.map((item) => item.name),
           axisLabel: {
             interval: 0,
-            rotate: 45,
+            rotate: 0,
           },
         },
         series: [
@@ -1134,7 +1116,9 @@ export default {
         0
       );
       if (totalCount === 0) return 0;
-      return parseFloat(((count / totalCount) * 100).toFixed(1));
+      const percentage = parseFloat(((count / totalCount) * 100).toFixed(1));
+      // 确保返回值在 0-100 范围内
+      return Math.min(100, Math.max(0, percentage));
     },
     // 加载数据
     async loadData() {
@@ -1195,341 +1179,3 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
-.dashboard-container {
-  padding: 20px;
-  background-color: #f5f5f5;
-  min-height: 100vh;
-}
-
-.welcome-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  margin-bottom: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 8px;
-}
-
-.welcome-info h3 {
-  margin: 0 0 10px 0;
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.welcome-info p {
-  margin: 0;
-  opacity: 0.9;
-}
-
-.quick-nav .el-button {
-  background-color: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.4);
-  }
-}
-
-.stat-cards {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.stat-card {
-  background-color: white;
-  border-radius: 8px;
-  transition: transform 0.2s;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-}
-
-.stat-item {
-  text-align: center;
-}
-
-.stat-label {
-  font-size: 14px;
-  color: #606266;
-  margin-bottom: 8px;
-}
-
-.stat-value {
-  font-size: 24px;
-  font-weight: 600;
-  color: #303133;
-}
-
-.stat-value.profit {
-  color: #f56c6c;
-}
-.winam {
-  color: #f56c6c;
-}
-
-.charts-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.chart-card,
-.table-card {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  font-weight: 600;
-  border-bottom: 1px solid #ebeef5;
-}
-
-.card-header > span {
-  flex: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-header > span > span:last-child {
-  text-align: right;
-}
-
-.chart-container,
-.table-container {
-  padding: 16px 0;
-}
-
-/* 响应式布局 */
-@media screen and (max-width: 1200px) {
-  .stat-cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .charts-row {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .dashboard-container {
-    padding: 10px;
-  }
-
-  .welcome-card {
-    flex-direction: column;
-    text-align: center;
-
-    .quick-nav {
-      margin-top: 15px;
-    }
-  }
-
-  .stat-cards {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-}
-
-/* 玩法统计可视化样式 */
-.header-actions {
-  display: flex;
-  align-items: center;
-}
-
-.game-stats-cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.stat-card-item {
-  display: flex;
-  align-items: center;
-  padding: 16px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-}
-
-.stat-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 12px;
-
-  i {
-    font-size: 24px;
-  }
-}
-
-.stat-content {
-  flex: 1;
-}
-
-.stat-title {
-  font-size: 14px;
-  color: #909399;
-  margin-bottom: 4px;
-}
-
-.stat-value {
-  font-size: 18px;
-  font-weight: 600;
-  color: #303133;
-}
-
-.game-stats-charts {
-  margin-top: 20px;
-}
-
-.chart-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 20px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.chart-item {
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-
-  &.full-width {
-    grid-column: 1 / -1;
-  }
-}
-
-.chart-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #303133;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #ebeef5;
-}
-
-.chart-content {
-  height: 300px;
-  width: 100%;
-}
-
-.amount-text {
-  font-weight: 500;
-
-  &.win-amount {
-    color: #f56c6c;
-  }
-}
-
-.game-table-container {
-  width: 100%;
-
-  .el-table {
-    width: 100% !important;
-
-    .el-table__body-wrapper {
-      width: 100% !important;
-    }
-
-    .el-table__header-wrapper {
-      width: 100% !important;
-    }
-
-    table {
-      width: 100% !important;
-    }
-
-    // 确保进度条列的样式正确
-    .el-progress {
-      width: 100%;
-      min-width: 120px; // 设置最小宽度，确保进度条有足够空间
-      white-space: nowrap; // 防止文本换行
-
-      .el-progress-bar {
-        padding-right: 45px; // 为百分比文本预留更多空间
-        margin-right: -45px; // 抵消内边距，保持总宽度一致
-      }
-
-      .el-progress__text {
-        min-width: 45px; // 确保文本有足够空间
-        text-align: right;
-        font-size: 12px;
-        white-space: nowrap; // 防止百分比文本换行
-      }
-    }
-  }
-}
-
-// 为所有表格中的进度条添加统一样式
-.el-table {
-  .el-progress {
-    width: 100%;
-    min-width: 120px;
-    white-space: nowrap;
-
-    .el-progress-bar {
-      padding-right: 45px;
-      margin-right: -45px;
-    }
-
-    .el-progress__text {
-      min-width: 45px;
-      text-align: right;
-      font-size: 12px;
-      white-space: nowrap;
-    }
-  }
-}
-
-/* 响应式布局调整 */
-@media screen and (max-width: 1200px) {
-  .game-stats-cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .chart-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .game-stats-cards {
-    grid-template-columns: 1fr;
-  }
-
-  .chart-content {
-    height: 250px;
-  }
-}
-</style>
