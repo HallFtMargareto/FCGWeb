@@ -116,6 +116,14 @@
       </el-table-column> -->
 
       <el-table-column label="会话名称" prop="nick_name" width="300">
+        <template slot-scope="scope">
+          <el-link
+            :underline="false"
+            type="primary"
+            @click="openChatDialog(scope.row)"
+            >{{ scope.row.nick_name }}</el-link
+          >
+        </template>
       </el-table-column>
 
       <el-table-column label="会话标识" prop="user_name" width="300">
@@ -210,7 +218,7 @@
           <el-button
             type="text"
             size="small"
-            icon="el-icon-edit"
+            icon="el-icon-s-promotion"
             @click="openChatDialog(scope.row)"
             >发送订单</el-button
           >
