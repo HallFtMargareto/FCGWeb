@@ -7,7 +7,13 @@
     class="order-dialog"
     top="5"
   >
-    <el-form ref="editForm" :model="formData" label-width="100px" size="mini">
+    <el-form
+      ref="editForm"
+      :model="formData"
+      label-position="top"
+      label-width="100px"
+      size="mini"
+    >
       <el-row>
         <el-col :span="8">
           <el-form-item label="原内容">
@@ -26,6 +32,7 @@
               type="textarea"
               :rows="5"
               v-model="formData.bet_content"
+              style="margin-left: 5px"
             ></el-input>
           </el-form-item>
         </el-col>
@@ -203,6 +210,9 @@ export default {
     },
     // 计算总数量
     totalCount() {
+      if (!this.formData.order_details) {
+        return 0;
+      }
       return this.formData.order_details.length;
     },
     // 计算投注金额总合计
@@ -277,6 +287,10 @@ export default {
           // 保存订单详情数据，但保留原始内容
           this.formData = res.data.refcg_order;
           this.formData.source_content = originalSourceContent;
+          // 确保 order_details 是一个数组
+          if (!this.formData.order_details) {
+            this.formData.order_details = [];
+          }
         } else {
           this.$message.error("识别失败");
         }
@@ -288,6 +302,9 @@ export default {
 
     // 添加子订单
     addOrderDetail() {
+      if (!this.formData.order_details) {
+        this.formData.order_details = [];
+      }
       this.formData.order_details.push({
         game_category_name: "",
         game_type_name: "",
@@ -301,6 +318,12 @@ export default {
 
     // 删除子订单
     removeOrderDetail(index) {
+      if (
+        !this.formData.order_details ||
+        this.formData.order_details.length === 0
+      ) {
+        return;
+      }
       this.formData.order_details.splice(index, 1);
     },
 
