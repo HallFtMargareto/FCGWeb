@@ -13,8 +13,7 @@ module.exports = {
         port: 8080,
         disableHostCheck: true,
         allowedHosts: [
-            'node.dgzyx.cn', // 允许访问的域名地址，即花生壳内网穿透的地址
-            '.dgzyx.cn'   // .是二级域名的通配符   
+            '*.com', // 允许访问的域名地址，即花生壳内网穿透的地址
         ],
         open: true,  //是否自动打开chrome
         overlay: {
@@ -29,14 +28,14 @@ module.exports = {
                 target: `http://192.168.1.67:9051/`, //代理到 目标路径
                 // target: `http://115.190.130.54:9051/`, //代理到 目标路径
                 // target: `http://127.0.0.1:888/`, //代理到 目标路径
-                // target: `http://go.dgzyx.cn/`, //代理到 目标路径
+                // target: `http://go.ftcmsy365.com/`, //代理到 目标路径
                 changeOrigin: true,
                 pathRewrite: { // 修改路径数据
                     ['^' + process.env.VUE_APP_BASE_API]: '' // 举例 '^/api:""' 把路径中的/api字符串删除
                 }
             },
             '/uploads': {
-                target: 'http://115.190.130.54:9051/',  // 你的后端地址
+                target: 'http://192.168.1.67:9051/',  // 你的后端地址
                 changeOrigin: true,
             },
         },
