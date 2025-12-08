@@ -1,5 +1,6 @@
 <template>
   <div>
+    <SystemNotice />
     <GlobalLoading :loadingFlag="loadingFlag" text="正在加载中" />
     <StatisticsDisplay
       :visible="showStatistics"
@@ -132,6 +133,7 @@ import BottomInfo from "@/view/layout/bottomInfo/bottomInfo";
 import { mapGetters, mapActions } from "vuex";
 import CustomPic from "@/components/customPic";
 import GlobalLoading from "@/components/common/GlobalLoading";
+import SystemNotice from "@/components/common/SystemNotice";
 import StatisticsDisplay from "@/components/statistics/StatisticsDisplay";
 import FloatingStatisticsIcon from "@/components/statistics/FloatingStatisticsIcon";
 
@@ -158,6 +160,7 @@ export default {
     BottomInfo,
     CustomPic,
     GlobalLoading,
+    SystemNotice,
     StatisticsDisplay,
     FloatingStatisticsIcon,
   },
