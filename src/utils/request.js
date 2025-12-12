@@ -100,9 +100,10 @@ service.interceptors.response.use(
                         store.commit('user/LoginOut');
                     }, 1500);
                     return
+                } else {
+                    store.commit('user/LoginOut');
                 }
             }
-            store.commit('user/LoginOut');
             return response.data.msg ? response.data : response;
         }
     },
