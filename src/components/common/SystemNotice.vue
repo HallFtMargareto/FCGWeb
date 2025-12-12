@@ -20,45 +20,12 @@ export default {
   data() {
     return {
       isVisible: true,
-      scrollCount: 0,
-      maxScrollCount: 3,
       noticeText:
-        "本平台提供的所有数据及分析结果，仅为信息参考与交流目的，不构成任何形式的投资或购买建议。为保障您的合法权益，购买彩票请务必通过国家批准的官方正规渠道进行",
-      animationDuration: "20s", // 滚动动画持续时间
+        "温馨提示：平台生成的所有数据及模拟分析结果仅为信息参考与交流目的，不构成任何形式的投资或购买建议。为保障您的合法权益，购买彩票请务必通过国家批准的官方正规渠道进行。",
+      animationDuration: "40s", // 滚动动画持续时间
     };
   },
-  mounted() {
-    // 监听动画迭代事件
-    this.$nextTick(() => {
-      const noticeContent = this.$el.querySelector(".notice-content");
-      if (noticeContent) {
-        noticeContent.addEventListener(
-          "animationiteration",
-          this.handleAnimationIteration
-        );
-      }
-    });
-  },
-  beforeDestroy() {
-    // 组件销毁前移除事件监听
-    const noticeContent = this.$el.querySelector(".notice-content");
-    if (noticeContent) {
-      noticeContent.removeEventListener(
-        "animationiteration",
-        this.handleAnimationIteration
-      );
-    }
-  },
   methods: {
-    handleAnimationIteration() {
-      this.scrollCount++;
-      if (this.scrollCount >= this.maxScrollCount) {
-        // 滚动3次后延迟隐藏组件
-        setTimeout(() => {
-          this.isVisible = false;
-        }, 1000); // 等待最后一次滚动完成
-      }
-    },
     closeNotice() {
       this.isVisible = false;
     },
@@ -69,16 +36,23 @@ export default {
 <style scoped>
 .system-notice {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background-color: #fff3cd;
-  border-bottom: 1px solid #ffeaa7;
-  overflow: hidden;
-  z-index: 2000; /* 确保在最上层显示 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  top: 15px;
+  left: 20%;
+  width: 70%;
+  /* background-color: #fff3cd; */
+  /* border-bottom: 1px solid #ffeaa7; */
+  /* overflow: hidden; */
+  z-index: 2000;
+  /* -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
   justify-content: space-between;
 }
 
@@ -98,7 +72,7 @@ export default {
 }
 
 .notice-text {
-  color: #856404;
+  color: red;
   font-size: 14px;
   font-weight: 500;
   padding-right: 50px; /* 确保两次滚动之间有间隔 */
