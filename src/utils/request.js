@@ -18,7 +18,7 @@ const showLoading = () => {
     if (loadingTimeout) {
         clearTimeout(loadingTimeout)
     }
-    
+
     // 对于快速请求(小于400ms)，确保也能显示loading
     loadingTimeout = setTimeout(() => {
         if (activeAxios > 0) {
@@ -30,7 +30,7 @@ const showLoading = () => {
 // 优化后的 closeLoading 函数
 const closeLoading = () => {
     activeAxios = Math.max(0, activeAxios - 1); // 防止计数器变为负数
-    
+
     if (activeAxios <= 0) {
         if (loadingTimeout) {
             clearTimeout(loadingTimeout)
@@ -89,8 +89,20 @@ service.interceptors.response.use(
                 });
             }
             if (response.data.data && response.data.data.reload) {
-                store.commit('user/LoginOut');
+                if (response.data.data.reason != "") {
+                    Message({
+                        showClose: true,
+                        message: response.data.data.reason,
+                        type: 'error'
+                    })
+                    // 延迟1.5秒后执行登出，给用户足够时间看到消息
+                    setTimeout(() => {
+                        store.commit('user/LoginOut');
+                    }, 1500);
+                    return
+                }
             }
+            store.commit('user/LoginOut');
             return response.data.msg ? response.data : response;
         }
     },
