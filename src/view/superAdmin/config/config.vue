@@ -65,6 +65,17 @@
                 </el-form-item>
               </el-col>
               <el-col :span="24">
+                <el-form-item label="网站顶部提示" prop="site_tips">
+                  <el-input
+                    v-model="config.site.site_tips"
+                    type="textarea"
+                    placeholder="请输入网站顶部提示"
+                    :autosize="{ minRows: 4, maxRows: 4 }"
+                    :style="{ width: '100%' }"
+                  ></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
                 <el-form-item label="网站关闭提示" prop="site_remark">
                   <el-input
                     v-model="config.site.site_remark"

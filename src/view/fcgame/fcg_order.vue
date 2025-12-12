@@ -1227,7 +1227,6 @@ export default {
   async created() {
     await this.$nextTick();
     await new Promise((resolve) => setTimeout(resolve, 0));
-    console.log(this.searchInfo);
     // 性能监控：记录组件创建时间
     if (process.env.NODE_ENV === "development") {
       console.time("fcg_order component created");

@@ -15,13 +15,27 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 export default {
   name: "SystemNotice",
+  computed: {
+    ...mapGetters("common", ["siteInfo"]),
+  },
+  watch: {
+    siteInfo: {
+      handler(newVal) {
+        if (newVal && newVal.site_tips) {
+          this.noticeText = newVal.site_tips;
+        }
+      },
+      immediate: true,
+      deep: true,
+    },
+  },
   data() {
     return {
       isVisible: true,
-      noticeText:
-        "温馨提示：平台生成的所有数据及模拟分析结果仅为信息参考与交流目的，不构成任何形式的投资或购买建议。为保障您的合法权益，购买彩票请务必通过国家批准的官方正规渠道进行。",
+      noticeText: "",
       animationDuration: "40s", // 滚动动画持续时间
     };
   },
@@ -30,6 +44,9 @@ export default {
       this.isVisible = false;
     },
   },
+  created() {
+    this.$store.dispatch("common/updateSiteData");
+  },
 };
 </script>
 
@@ -37,8 +54,10 @@ export default {
 .system-notice {
   position: fixed;
   top: 15px;
-  left: 20%;
-  width: 70%;
+  /* left: 20%;
+  width: 70%; */
+  left: 30%;
+  width: 55%;
   /* background-color: #fff3cd; */
   /* border-bottom: 1px solid #ffeaa7; */
   /* overflow: hidden; */
