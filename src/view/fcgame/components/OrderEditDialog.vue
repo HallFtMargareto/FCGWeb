@@ -39,7 +39,8 @@
       </el-row>
       <el-row>
         <el-col :span="24" style="text-align: right">
-          <el-button type="success" @click="reidentify" size="mini"
+          <el-button @click="reidentify(true)" size="mini">后台识别</el-button>
+          <el-button type="success" @click="reidentify(false)" size="mini"
             >重新识别</el-button
           >
         </el-col>
@@ -194,6 +195,7 @@ export default {
         bet_content: "",
         order_details: [],
       },
+      backend: false,
     };
   },
   computed: {
@@ -269,7 +271,25 @@ export default {
     },
 
     // 重新识别
-    async reidentify() {
+    async reidentify(backend) {
+      this.backend = backend;
+      if (backend) {
+        const res = await findFcgOrder({
+          ID: this.formData.ID,
+          bet_content: this.formData.bet_content,
+          action: "reidentify",
+          backend: backend,
+        });
+        if (res.code == 0) {
+          this.$message({
+            type: "success",
+            message: "操作成功",
+          });
+        }
+        this.visible = false;
+        return;
+      }
+
       try {
         // 保存原始内容，防止被覆盖
         const originalSourceContent = this.formData.source_content;
@@ -278,6 +298,7 @@ export default {
           ID: this.formData.ID,
           bet_content: this.formData.bet_content,
           action: "reidentify",
+          backend: backend,
         });
         if (res.code == 0) {
           this.$message({
@@ -352,6 +373,10 @@ export default {
 
     // 关闭弹窗时的处理
     async handleDialogClose() {
+      //如果是后台识别,不要释放锁
+      if (this.backend) {
+        return;
+      }
       await findFcgOrder(
         {
           ID: this.formData.ID,
@@ -360,6 +385,7 @@ export default {
         { donNotShowLoading: true }
       );
 
+      this.backend = false;
       this.formData = {
         ID: undefined,
         order_no: "",
