@@ -37,7 +37,14 @@
         </el-form-item>
 
         <el-form-item label="风险比例">
-          <el-input v-model="prate" placeholder="请输入风险比例"></el-input>
+          <el-input v-model="prate" placeholder="风险比例筛选"></el-input>
+        </el-form-item>
+
+        <el-form-item label="转出单量">
+          <el-input
+            v-model.number="search_trans_count"
+            placeholder="转出单量筛选"
+          ></el-input>
         </el-form-item>
 
         <el-form-item label=" ">
@@ -55,7 +62,6 @@
             placeholder="拆分单量"
           ></el-input>
         </el-form-item>
-
         <!-- <el-form-item label="阈值比例">
                     <el-input v-model="alpha" :min="0" :max="1" :step="0.1" placeholder="请输入阈值比例"></el-input>
                 </el-form-item>
@@ -518,7 +524,7 @@ export default {
 
       return filteredData;
     },
-    // 根据风险比例过滤后的订单数据
+    // 根据风险比例和转出单量过滤后的订单数据（AND逻辑）
     filteredRickOrder() {
       if (
         !this.rickDataInfo.rick_order ||
@@ -527,16 +533,37 @@ export default {
         return [];
       }
 
-      // 如果没有输入风险比例，返回所有数据
-      if (!this.prate || this.prate === "") {
+      // 获取筛选条件
+      const riskRatioFilter = this.prate ? parseFloat(this.prate) || 0 : null;
+      const transCountFilter = this.search_trans_count
+        ? parseFloat(this.search_trans_count) || 0
+        : null;
+
+      // 如果没有任何筛选条件，返回所有数据
+      if (riskRatioFilter === null && transCountFilter === null) {
         return this.rickDataInfo.rick_order;
       }
 
-      const filterValue = parseFloat(this.prate) || 0;
-
       return this.rickDataInfo.rick_order.filter((item) => {
         const riskRatio = parseFloat(item.risk_ratio) || 0;
-        return riskRatio > filterValue;
+        const transCount = parseFloat(item.trans_count) || 0;
+
+        // 根据存在的筛选条件进行AND逻辑筛选
+        let passRiskRatio = true;
+        let passTransCount = true;
+
+        // 如果有风险比例筛选条件
+        if (riskRatioFilter !== null) {
+          passRiskRatio = riskRatio > riskRatioFilter;
+        }
+
+        // 如果有转出单量筛选条件
+        if (transCountFilter !== null) {
+          passTransCount = transCount > transCountFilter;
+        }
+
+        // 返回同时满足所有条件的数据
+        return passRiskRatio && passTransCount;
       });
     },
   },
@@ -572,6 +599,7 @@ export default {
       // 复制loading状态
       copyLoading: false,
       prate: null, //风险比例数字帅选
+      search_trans_count: null, //转出单量
       batchThreshold: 50, // 批次拆分阈值
       aiAnalysisLoading: false, // AI分析加载状态
       aiAnalysisContent: "", // AI分析内容
