@@ -187,54 +187,50 @@
       ref="multipleTable"
       :show-summary="showSummary"
       :summary-method="getSummaries"
-      border
+      style="width: 100%"
     >
-      <el-table-column type="selection"></el-table-column>
-      <el-table-column label="ID" prop="ID" sortable></el-table-column>
-
-      <!-- <el-table-column label="企业名称" prop="enterprise_name">
-      </el-table-column> -->
+      <el-table-column type="selection" width="55"></el-table-column>
+      <el-table-column
+        label="ID"
+        prop="ID"
+        sortable
+        width="80"
+      ></el-table-column>
 
       <el-table-column label="组织名称" prop="platform_name"> </el-table-column>
 
-      <el-table-column label="APP标识" prop="application"> </el-table-column>
-
-      <!-- <el-table-column label="企业ID" prop="enterprise_id"> </el-table-column> -->
-
-      <!-- <el-table-column label="组织标识-租户编码" prop="organization">
-      </el-table-column> -->
-
-      <!--
-      <el-table-column label="租户管理员主键" prop="admin_id">
+      <!-- <el-table-column label="APP标识" prop="application" width="100">
       </el-table-column>
 
-      <el-table-column label="联系人" prop="contact"> </el-table-column>
+      <el-table-column label="联系人" prop="contact" width="100">
+      </el-table-column>
 
-      <el-table-column label="账号" prop="account"> </el-table-column>
+      <el-table-column label="手机" prop="phone" width="120"> </el-table-column> -->
 
-      <el-table-column label="手机" prop="phone"> </el-table-column>
+      <el-table-column label="备注" prop="remark" show-overflow-tooltip>
+      </el-table-column>
 
-      <el-table-column label="域名" prop="domain"> </el-table-column>
+      <el-table-column label="状态" prop="enabled" align="center">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.enabled ? 'success' : 'danger'" size="mini">
+            {{ scope.row.enabled ? "启用" : "禁用" }}
+          </el-tag>
+        </template>
+      </el-table-column>
 
-      <el-table-column label="邮箱" prop="email"> </el-table-column> 
-      <el-table-column label="租户套餐" prop="package_id"> </el-table-column>
-      -->
-      <el-table-column label="联系人" prop="contact"> </el-table-column>
+      <el-table-column label="快速转单" prop="fast_trans" align="center">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.fast_trans ? 'success' : 'info'" size="mini">
+            {{ scope.row.fast_trans ? "启用" : "禁用" }}
+          </el-tag>
+        </template>
+      </el-table-column>
 
-      <el-table-column label="手机" prop="phone"> </el-table-column>
-
-      <!-- <el-table-column label="到期时间" prop="expires"> </el-table-column> -->
-
-      <el-table-column label="备注" prop="remark"> </el-table-column>
-
-      <!-- <el-table-column label="创建人" prop="create_by"> </el-table-column>
-
-      <el-table-column label="更新人" prop="update_by"> </el-table-column> -->
-      <el-table-column prop="created_at" label="时间" sortable="custom">
+      <el-table-column prop="created_at" label="创建时间" sortable="custom">
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
       </el-table-column>
 
-      <el-table-column label="操作" fixed="right">
+      <el-table-column label="操作" fixed="right" width="200">
         <template slot-scope="scope">
           <el-button
             v-if="userInfo.perm['system.update']"
@@ -402,6 +398,7 @@ export default {
         package_id: undefined,
         user_quantity: 10,
         enabled: true,
+        fast_trans: false,
         remark: "",
         create_by: "",
         update_by: "",
@@ -470,7 +467,26 @@ export default {
     },
     closeDialog() {
       this.$refs["ruleForm"].resetFields();
-      this.formData = {};
+      this.formData = {
+        organization: "",
+        application: "",
+        enterprise_id: undefined,
+        enterprise_name: "",
+        platform_name: "",
+        admin_id: undefined,
+        contact: "",
+        account: "",
+        phone: "",
+        domain: "",
+        email: "",
+        package_id: undefined,
+        user_quantity: 10,
+        enabled: true,
+        fast_trans: false,
+        remark: "",
+        create_by: "",
+        update_by: "",
+      };
       this.dialogFormVisible = false;
     },
     async enterDialog() {
