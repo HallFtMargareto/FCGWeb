@@ -7,7 +7,10 @@
       :floating="true"
       @close="closeStatistics"
     />
-    <FloatingStatisticsIcon @toggle-statistics="toggleStatistics" />
+    <FloatingStatisticsIcon
+      v-if="userInfo.perm['host']"
+      @toggle-statistics="toggleStatistics"
+    />
     <el-container class="layout-cont">
       <el-container
         :class="[isSider ? 'openside' : 'hideside', isMobile ? 'mobile' : '']"
