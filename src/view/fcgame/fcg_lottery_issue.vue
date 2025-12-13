@@ -136,7 +136,7 @@
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
       </el-table-column>
 
-      <el-table-column label="操作" fixed="right" width="200">
+      <el-table-column label="操作" fixed="right" width="300">
         <template slot-scope="scope">
           <el-button
             v-if="userInfo.perm['system.update']"
@@ -146,7 +146,22 @@
             icon="el-icon-edit"
             >编辑</el-button
           >
-
+          <el-button
+            v-if="scope.row.trans_state == 0"
+            @click="onTransState(scope.row)"
+            type="text"
+            size="small"
+            icon="el-icon-check"
+            >开启转单</el-button
+          >
+          <el-button
+            v-if="scope.row.trans_state == 1"
+            @click="onTransState(scope.row)"
+            type="text"
+            size="small"
+            icon="el-icon-close"
+            >关闭转单</el-button
+          >
           <el-button
             v-if="userInfo.perm['host']"
             @click="handleResetDraw(scope.row)"
@@ -267,6 +282,26 @@ export default {
       this.page = 1;
       this.pageSize = 10;
       this.getTableData();
+    },
+    async onTransState(row) {
+      let command = "";
+      if (row.trans_state == 1) {
+        command = "trans_close";
+      } else if (row.trans_state == 0) {
+        command = "trans_open";
+      }
+      const ids = [row.ID];
+      const res = await batchFcgLotteryIssueOperation({
+        ids,
+        command: command,
+      });
+      if (res.code == 0) {
+        this.$message({
+          type: "success",
+          message: "操作成功",
+        });
+        this.getTableData();
+      }
     },
     createRow() {
       this.formData = {};
