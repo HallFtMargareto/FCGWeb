@@ -8,7 +8,7 @@
       <div class="quick-nav">
         <IssueSelect
           v-model="searchInfo.issue_id"
-          placeholder="请选择彩期"
+          placeholder="请选择期号"
         ></IssueSelect>
 
         <template v-if="userInfo.perm['host']">
@@ -74,7 +74,11 @@
 
     <!-- 订单状态分布、彩种分布、转出明细 -->
     <div class="charts-row">
-      <el-card class="chart-card" shadow="never">
+      <el-card
+        class="chart-card"
+        shadow="never"
+        :body-style="{ padding: '10px' }"
+      >
         <div slot="header" class="card-header">
           <span
             ><span>订单状态分布</span><span>{{ totalOrderCount }}</span></span
@@ -86,18 +90,21 @@
               prop="statusText"
               label="订单状态"
               align="center"
+              width="80"
             ></el-table-column>
             <el-table-column
               prop="order_count"
               label="数量"
               align="center"
+              width="60"
             ></el-table-column>
-            <el-table-column label="占比" align="left" width="200">
+            <el-table-column label="占比" align="left">
               <template slot-scope="scope">
                 <el-progress
                   :percentage="getOrderStatusPercentage(scope.row.order_count)"
                   :show-text="true"
                   size="mini"
+                  :stroke-width="6"
                 ></el-progress>
               </template>
             </el-table-column>
@@ -108,7 +115,7 @@
       <el-card
         class="chart-card"
         shadow="never"
-        :body-style="{ padding: '12px' }"
+        :body-style="{ padding: '10px' }"
       >
         <div slot="header" class="card-header">
           <span
@@ -122,11 +129,13 @@
               prop="categoryText"
               label="彩种"
               align="center"
+              width="70"
             ></el-table-column>
             <el-table-column
               prop="gc_count"
               label="订单数量"
               align="center"
+              width="100"
             ></el-table-column>
             <el-table-column
               prop="gc_bet_amount"
@@ -144,7 +153,7 @@
       <el-card
         class="chart-card"
         shadow="never"
-        :body-style="{ padding: '12px' }"
+        :body-style="{ padding: '10px' }"
       >
         <div slot="header" class="card-header">
           <span
@@ -161,11 +170,13 @@
               prop="game_category_name"
               label="彩种"
               align="center"
+              width="70"
             ></el-table-column>
             <el-table-column
               prop="total_count"
-              label="转出订单数"
+              label="转出数量"
               align="center"
+              width="100"
             ></el-table-column>
             <el-table-column
               prop="total_amount"
@@ -180,7 +191,11 @@
               prop="total_win_amount"
               label="中奖金额"
               align="center"
-            ></el-table-column>
+            >
+              <template slot-scope="scope"
+                >¥{{ scope.row.total_win_amount }}</template
+              >
+            </el-table-column>
           </el-table>
         </div>
       </el-card>
@@ -377,7 +392,12 @@
         <span>会话统计</span>
       </div>
       <div class="table-container">
-        <el-table :data="sessionStatsData" size="small" style="width: 100%">
+        <el-table
+          border
+          :data="sessionStatsData"
+          size="small"
+          style="width: 100%"
+        >
           <!-- <el-table-column
             prop="session_id"
             label="会话ID"
@@ -1321,7 +1341,7 @@ export default {
 
 .table-container ::v-deep .el-table .cell {
   padding: 0 8px;
-  line-height: 1.4;
+  /* line-height: 1.4; */
 }
 /* 固定列样式 */
 .table-container ::v-deep .el-table__fixed-right {

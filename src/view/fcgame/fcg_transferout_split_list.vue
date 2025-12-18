@@ -3,10 +3,10 @@
   <div class="fcg-transferout-split-list">
     <div class="search-term">
       <searchform size="mini" :maxShow="3" @search="onQuery">
-        <el-form-item label="彩期">
+        <el-form-item label="期号">
           <IssueSelect
             v-model="searchInfo.issue_id"
-            placeholder="请选择彩期"
+            placeholder="请选择期号"
             clearable
           ></IssueSelect>
         </el-form-item>
@@ -56,10 +56,10 @@
           ></el-input>
         </el-form-item>
 
-        <el-form-item label="彩期ID">
+        <el-form-item label="期号ID">
           <el-input
             v-model.number="searchInfo.issue_id"
-            placeholder="请输入彩期ID"
+            placeholder="请输入期号ID"
             clearable
           ></el-input>
         </el-form-item>
@@ -309,10 +309,10 @@
           placeholder="请输入交易金额"
         ></el-input>
       </el-form-item>
-      <el-form-item label="彩期ID" prop="issue_id">
+      <el-form-item label="期号ID" prop="issue_id">
         <el-input
           v-model.number="formData.issue_id"
-          placeholder="请输入彩期ID"
+          placeholder="请输入期号ID"
           clearable
         ></el-input>
       </el-form-item>
@@ -599,7 +599,7 @@ export default {
           if (!this.searchInfo.issue_id) {
             this.$message({
               type: "error",
-              message: "请先选择彩期",
+              message: "请先选择期号",
             });
             return;
           }

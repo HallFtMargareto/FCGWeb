@@ -2,10 +2,10 @@
   <div>
     <div class="search-term">
       <searchform size="mini" :maxShow="5" @search="getChartData">
-        <el-form-item label="彩期">
+        <el-form-item label="期号">
           <IssueSelect
             v-model="chartIssueId"
-            placeholder="请选择彩期"
+            placeholder="请选择期号"
             clearable
           ></IssueSelect>
         </el-form-item>

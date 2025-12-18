@@ -29,10 +29,10 @@ v-if="this.$store.state.user.userInfo.perm['host']"
 
 ## 查询组件
 ```
- <el-form-item label="彩期">
+ <el-form-item label="期号">
           <IssueSelect
             v-model="searchInfo.issue_id"
-            placeholder="请选择彩期"
+            placeholder="请选择期号"
             clearable
           ></IssueSelect>
         </el-form-item>

@@ -2,10 +2,10 @@
   <div>
     <div class="search-term">
       <searchform size="mini" :maxShow="4" @search="onQuery">
-        <el-form-item label="彩期">
+        <el-form-item label="期号">
           <IssueSelect
             v-model="searchInfo.issue_id"
-            placeholder="请选择彩期"
+            placeholder="请选择期号"
             clearable
           ></IssueSelect>
         </el-form-item>
@@ -461,11 +461,11 @@
                   ¥ {{ scope.row.bet_amount }}
                 </template>
               </el-table-column>
-              <el-table-column
+              <!-- <el-table-column
                 prop="multiple"
                 label="倍投"
                 align="center"
-              ></el-table-column>
+              ></el-table-column> -->
               <el-table-column
                 prop="odds"
                 label="赔率"
