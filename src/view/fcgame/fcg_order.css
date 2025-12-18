@@ -1,4 +1,13 @@
 /* 表格样式 - Excel风格 */
+
+.admin-box .el-table th {
+  padding: 0px 0 !important;
+}
+
+.admin-box .el-table td {
+  padding: 2.3px 0 !important;
+}
+
 .el-pagination {
   padding: 0 !important;
 }
@@ -195,14 +204,14 @@
 .left-panel {
   width: 700px;
   min-width: 600px;
-  height: 300px;
+  height: 240px;
   overflow-y: auto;
 }
 
 .right-panel {
   flex: 1;
   min-width: 400px;
-  height: 300px;
+  height: 240px;
   overflow-y: auto;
 }
 
@@ -242,13 +251,13 @@
   .left-panel {
     width: 500px;
     min-width: 500px;
-    max-height: 350px;
+    max-height: 240px;
     overflow-y: auto;
   }
 
   .right-panel {
     min-width: 300px;
-    max-height: 350px;
+    max-height: 240px;
     overflow-y: auto;
   }
 }
@@ -261,13 +270,13 @@
   .left-panel {
     width: 400px;
     min-width: 400px;
-    height: 350px;
+    height: 240px;
     overflow-y: auto;
   }
 
   .right-panel {
     min-width: 350px;
-    height: 350px;
+    height: 240px;
     overflow-y: auto;
   }
 }
@@ -282,7 +291,7 @@
     width: 100%;
     min-width: 100%;
     height: auto;
-    max-height: 400px;
+    max-height: 240px;
     overflow-y: auto;
   }
 }
