@@ -355,7 +355,7 @@
           </el-table-column>
 
           <!-- 收益统计 -->
-          <el-table-column label="总利润" align="center">
+          <el-table-column label="总利润" align="center" fixed="right">
             <template slot-scope="scope">
               <span
                 :style="{
@@ -370,13 +370,8 @@
     </el-card>
 
     <!-- 会话统计表格 -->
-    <el-card
-      class="table-card"
-      shadow="never"
-      :body-style="{ padding: '16px' }"
-      style="margin-bottom: 20px"
-    >
-      <div slot="header" class="card-header">
+    <el-card class="table-card" shadow="never" style="margin-bottom: 20px">
+      <div slot="header">
         <span>会话统计</span>
       </div>
       <div class="table-container">
@@ -450,12 +445,7 @@
     </el-card>
 
     <!-- 玩法统计可视化 -->
-    <el-card
-      class="table-card"
-      shadow="never"
-      :body-style="{ padding: '16px' }"
-      style="margin-bottom: 20px"
-    >
+    <el-card class="table-card" shadow="never" style="margin-bottom: 20px">
       <div slot="header" class="card-header">
         <span>游戏统计</span>
         <div class="header-actions">
@@ -1302,8 +1292,15 @@ export default {
 
 
 <style scoped>
+.el-table thead.is-group th.el-table__cell {
+  background: #fff !important;
+}
+.el-table__cell {
+  background: #fff !important;
+}
 .card-header {
   border-bottom: 0px solid #ebeef5;
+  padding: 0;
 }
 
 /* 组织统计表格样式优化 */
@@ -1317,8 +1314,6 @@ export default {
 }
 
 .table-container ::v-deep .el-table th {
-  background-color: #f5f7fa;
-  color: #606266;
   font-weight: 600;
 }
 
@@ -1330,12 +1325,6 @@ export default {
   padding: 0 8px;
   line-height: 1.4;
 }
-
-/* 表头分组样式 */
-.table-container ::v-deep .el-table__header-wrapper .el-table__header {
-  background-color: #f5f7fa;
-}
-
 /* 固定列样式 */
 .table-container ::v-deep .el-table__fixed-right {
   background-color: #fff;
