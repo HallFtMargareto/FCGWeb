@@ -227,9 +227,11 @@
               align="center"
               width="100"
             >
-              <template slot-scope="scope"
-                >¥{{ scope.row.total_commission }}</template
-              >
+              <template slot-scope="scope">
+                <span style="color: #667de8"
+                  >¥{{ scope.row.total_commission }}</span
+                >
+              </template>
             </el-table-column>
 
             <el-table-column
@@ -388,7 +390,7 @@
           ></el-table-column>
           <el-table-column
             prop="total_bet_amount"
-            label="总投注金额"
+            label="投注金额"
             align="center"
           >
             <template slot-scope="scope"
@@ -398,7 +400,7 @@
 
           <el-table-column
             prop="total_win_amount"
-            label="总中奖金额"
+            label="中奖金额"
             align="center"
           >
             <template slot-scope="scope"
@@ -420,17 +422,13 @@
             </template>
           </el-table-column>
 
-          <el-table-column
-            prop="total_commission"
-            label="总佣金"
-            align="center"
-          >
+          <el-table-column prop="total_commission" label="佣金" align="center">
             <template slot-scope="scope"
               >¥{{ scope.row.total_commission }}</template
             >
           </el-table-column>
 
-          <el-table-column label="总利润" align="center">
+          <el-table-column label="预计利润" align="center">
             <template slot-scope="scope">
               <span
                 :style="{
