@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="search-term">
-      <searchform size="mini" :maxShow="6" @search="getChartData">
-        <el-form-item label="彩期">
+      <searchform size="mini" :maxShow="10" @search="getChartData">
+        <el-form-item label="期号">
           <IssueSelect
             v-model="chartIssueId"
-            placeholder="请选择彩期"
+            placeholder="请选择期号"
             clearable
           ></IssueSelect>
         </el-form-item>
@@ -33,17 +33,39 @@
           <el-input
             v-model="ks_amount"
             placeholder="请输入预赔付金额"
+            clearable
           ></el-input>
-        </el-form-item>
-
-        <el-form-item label="风险比例">
-          <el-input v-model="prate" placeholder="风险比例筛选"></el-input>
         </el-form-item>
 
         <el-form-item label="转出单量">
           <el-input
             v-model.number="search_trans_count"
             placeholder="转出单量筛选"
+            clearable
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item label="风险比例">
+          <el-input
+            v-model="prate"
+            placeholder="风险比例筛选"
+            clearable
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item label="拆分号码">
+          <el-input
+            v-model="split_number"
+            placeholder="拆分号码筛选"
+            @input="handleSplitNumberFilter"
+            clearable
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item label="拆分单量">
+          <el-input
+            v-model.number="batchThreshold"
+            placeholder="拆分单量"
           ></el-input>
         </el-form-item>
 
@@ -56,12 +78,6 @@
           >
         </el-form-item>
 
-        <el-form-item label="拆分单量">
-          <el-input
-            v-model.number="batchThreshold"
-            placeholder="拆分单量"
-          ></el-input>
-        </el-form-item>
         <!-- <el-form-item label="阈值比例">
                     <el-input v-model="alpha" :min="0" :max="1" :step="0.1" placeholder="请输入阈值比例"></el-input>
                 </el-form-item>
@@ -535,12 +551,15 @@ export default {
 
       // 获取筛选条件
       const riskRatioFilter = this.prate ? parseFloat(this.prate) || 0 : null;
+      const splitNumberFilter = this.split_number
+        ? this.split_number.toString().trim()
+        : null;
       // const transCountFilter = this.search_trans_count
       //   ? parseFloat(this.search_trans_count) || 0
       //   : null;
 
       // 如果没有任何筛选条件，返回所有数据
-      if (riskRatioFilter === null) {
+      if (riskRatioFilter === null && splitNumberFilter === null) {
         return this.rickDataInfo.rick_order;
       }
       // if (riskRatioFilter === null && transCountFilter === null) {
@@ -549,15 +568,24 @@ export default {
 
       return this.rickDataInfo.rick_order.filter((item) => {
         const riskRatio = parseFloat(item.risk_ratio) || 0;
+        const splitNumber = item.split_number
+          ? item.split_number.toString()
+          : "";
         // const transCount = parseFloat(item.trans_count) || 0;
 
         // 根据存在的筛选条件进行AND逻辑筛选
         let passRiskRatio = true;
+        let passSplitNumber = true;
         // let passTransCount = true;
 
         // 如果有风险比例筛选条件
         if (riskRatioFilter !== null) {
           passRiskRatio = riskRatio > riskRatioFilter;
+        }
+
+        // 如果有拆分号码筛选条件
+        if (splitNumberFilter !== null) {
+          passSplitNumber = splitNumber.includes(splitNumberFilter);
         }
 
         // 如果有转出单量筛选条件
@@ -567,7 +595,7 @@ export default {
 
         // 返回同时满足所有条件的数据
         // return passRiskRatio && passTransCount;
-        return passRiskRatio;
+        return passRiskRatio && passSplitNumber;
       });
     },
   },
@@ -580,6 +608,7 @@ export default {
       multipleSelection: [],
       chartIssueId: 0,
       tenant_id: null,
+      split_number: null,
       game_category: 1, // 默认福彩
       maxValue: 0,
       // 期号列表
@@ -759,6 +788,12 @@ export default {
     handlePreLossFilter() {
       // 这个方法主要用于触发计算属性的重新计算
       // 实际的筛选逻辑在 filteredPreLossData 计算属性中
+    },
+
+    // 处理拆分号码筛选
+    handleSplitNumberFilter() {
+      // 这个方法主要用于触发计算属性的重新计算
+      // 实际的筛选逻辑在 filteredRickOrder 计算属性中
     },
 
     // 清除预亏损数据筛选

@@ -23,7 +23,7 @@
       </div>
     </el-card>
 
-    <!-- 统计卡片 -->
+    <!-- 顶部统计卡片 -->
     <div class="stat-cards">
       <el-card class="stat-card" shadow="never">
         <div class="stat-item">
@@ -72,7 +72,7 @@
       </el-card>
     </div>
 
-    <!-- 图表部分 -->
+    <!-- 订单状态分布、彩种分布、转出明细 -->
     <div class="charts-row">
       <el-card class="chart-card" shadow="never">
         <div slot="header" class="card-header">
