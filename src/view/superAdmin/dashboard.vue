@@ -9,7 +9,6 @@
         <IssueSelect
           v-model="searchInfo.issue_id"
           placeholder="请选择彩期"
-          clearable
         ></IssueSelect>
 
         <template v-if="userInfo.perm['host']">
@@ -20,53 +19,34 @@
             :autoSelectFirst="false"
             clearable
           ></TenantSelect>
-          -
         </template>
-
-        <el-button @click="changeSelect">查询</el-button>
       </div>
     </el-card>
 
     <!-- 统计卡片 -->
     <div class="stat-cards">
-      <el-card
-        class="stat-card"
-        shadow="never"
-        :body-style="{ padding: '16px' }"
-      >
+      <el-card class="stat-card" shadow="never">
         <div class="stat-item">
-          <div class="stat-label">总投注金额</div>
+          <div class="stat-label">投注金额</div>
           <div class="stat-value">¥{{ totalBetAmount }}</div>
         </div>
       </el-card>
-      <el-card
-        class="stat-card"
-        shadow="never"
-        :body-style="{ padding: '16px' }"
-      >
+      <el-card class="stat-card" shadow="never">
         <div class="stat-item">
-          <div class="stat-label">总佣金</div>
+          <div class="stat-label">佣金</div>
           <div class="stat-value">¥{{ totalCommission }}</div>
         </div>
       </el-card>
-      <el-card
-        class="stat-card"
-        shadow="never"
-        :body-style="{ padding: '16px' }"
-      >
+      <el-card class="stat-card" shadow="never">
         <div class="stat-item">
-          <div class="stat-label">总中奖金额</div>
+          <div class="stat-label">中奖金额</div>
           <div class="stat-value">¥{{ totalWinAmount }}</div>
         </div>
       </el-card>
 
-      <el-card
-        class="stat-card"
-        shadow="never"
-        :body-style="{ padding: '16px' }"
-      >
+      <el-card class="stat-card" shadow="never">
         <div class="stat-item">
-          <div class="stat-label">总转出金额</div>
+          <div class="stat-label">总转出</div>
           <div class="stat-value">
             ¥{{ totalTransferOutAmount }} /
             <span style="color: #667de8"
@@ -79,13 +59,9 @@
           </div>
         </div>
       </el-card>
-      <el-card
-        class="stat-card"
-        shadow="never"
-        :body-style="{ padding: '16px' }"
-      >
+      <el-card class="stat-card" shadow="never">
         <div class="stat-item">
-          <div class="stat-label">总利润</div>
+          <div class="stat-label">利润</div>
           <div
             class="stat-value profit"
             :style="{ color: getProfitColor(totalProfit) }"
@@ -98,11 +74,7 @@
 
     <!-- 图表部分 -->
     <div class="charts-row">
-      <el-card
-        class="chart-card"
-        shadow="never"
-        :body-style="{ padding: '12px' }"
-      >
+      <el-card class="chart-card" shadow="never">
         <div slot="header" class="card-header">
           <span
             ><span>订单状态分布</span><span>{{ totalOrderCount }}</span></span
@@ -222,64 +194,174 @@
       style="margin-bottom: 20px"
       v-if="userInfo.perm['host'] && this.summaryData.tenant_stats != null"
     >
-      <div slot="header" class="card-header">
+      <div slot="header">
         <span>组织统计</span>
       </div>
       <div class="table-container">
         <el-table :data="tenantStatsData" size="small" style="width: 100%">
+          <!-- 基本信息 -->
           <el-table-column
             prop="name"
             label="组织名称"
             align="center"
+            width="120"
+            fixed="left"
           ></el-table-column>
-          <el-table-column
-            prop="total_bet_amount"
-            label="总投注金额"
-            align="center"
-          >
-            <template slot-scope="scope"
-              >¥{{ scope.row.total_bet_amount }}</template
+
+          <!-- 投注与中奖统计 -->
+          <el-table-column label="投注统计" align="center">
+            <el-table-column
+              prop="total_bet_amount"
+              label="总投注金额"
+              align="center"
+              width="120"
             >
-          </el-table-column>
+              <template slot-scope="scope"
+                >¥{{ scope.row.total_bet_amount }}</template
+              >
+            </el-table-column>
 
-          <el-table-column
-            prop="total_win_amount"
-            label="总中奖金额"
-            align="center"
-          >
-            <template slot-scope="scope"
-              >¥{{ scope.row.total_win_amount }}</template
+            <el-table-column
+              prop="total_commission"
+              label="总佣金"
+              align="center"
+              width="100"
             >
-          </el-table-column>
+              <template slot-scope="scope"
+                >¥{{ scope.row.total_commission }}</template
+              >
+            </el-table-column>
 
-          <el-table-column label="福彩 投注 / 中奖" align="center">
-            <template slot-scope="scope"
-              >¥{{ scope.row.fc_total_bet_amount }} /
-              <span class="winam">¥{{ scope.row.fc_total_win_amount }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="体彩 投注 / 中奖" align="center">
-            <template slot-scope="scope"
-              >¥{{ scope.row.tc_total_bet_amount }} /
-              <span class="winam">¥{{ scope.row.tc_total_win_amount }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column
-            prop="total_commission"
-            label="总佣金"
-            align="center"
-          >
-            <template slot-scope="scope"
-              >¥{{ scope.row.total_commission }}</template
+            <el-table-column
+              prop="total_win_amount"
+              label="总中奖金额"
+              align="center"
+              width="120"
             >
+              <template slot-scope="scope"
+                >¥{{ scope.row.total_win_amount }}</template
+              >
+            </el-table-column>
           </el-table-column>
 
-          <el-table-column prop="total_profit" label="总利润" align="center">
+          <!-- 彩种分类统计 -->
+          <el-table-column label="彩种统计" align="center">
+            <el-table-column label="福彩" align="center">
+              <el-table-column
+                prop="fc_total_bet_amount"
+                label="投注"
+                align="center"
+                width="100"
+              >
+                <template slot-scope="scope"
+                  >¥{{ scope.row.fc_total_bet_amount }}</template
+                >
+              </el-table-column>
+              <el-table-column
+                prop="fc_total_win_amount"
+                label="中奖"
+                align="center"
+                width="100"
+              >
+                <template slot-scope="scope"
+                  ><span class="winam"
+                    >¥{{ scope.row.fc_total_win_amount }}</span
+                  ></template
+                >
+              </el-table-column>
+              <el-table-column
+                prop="fc_total_trans_amount"
+                label="转出"
+                align="center"
+                width="100"
+              >
+                <template slot-scope="scope"
+                  >¥{{ scope.row.fc_total_trans_amount }}</template
+                >
+              </el-table-column>
+            </el-table-column>
+            <el-table-column label="体彩" align="center">
+              <el-table-column
+                prop="tc_total_bet_amount"
+                label="投注"
+                align="center"
+                width="100"
+              >
+                <template slot-scope="scope"
+                  >¥{{ scope.row.tc_total_bet_amount }}</template
+                >
+              </el-table-column>
+              <el-table-column
+                prop="tc_total_win_amount"
+                label="中奖"
+                align="center"
+                width="100"
+              >
+                <template slot-scope="scope"
+                  ><span class="winam"
+                    >¥{{ scope.row.tc_total_win_amount }}</span
+                  ></template
+                >
+              </el-table-column>
+              <el-table-column
+                prop="tc_total_trans_amount"
+                label="转出"
+                align="center"
+                width="100"
+              >
+                <template slot-scope="scope"
+                  >¥{{ scope.row.tc_total_trans_amount }}</template
+                >
+              </el-table-column>
+            </el-table-column>
+          </el-table-column>
+
+          <!-- 转出统计 -->
+          <el-table-column label="转出统计" align="center">
+            <el-table-column
+              prop="total_trans_amount"
+              label="转出"
+              align="center"
+              width="100"
+            >
+              <template slot-scope="scope"
+                >¥{{ scope.row.total_trans_amount }}</template
+              >
+            </el-table-column>
+            <el-table-column
+              prop="total_water_amount"
+              label="佣金"
+              align="center"
+              width="100"
+            >
+              <template slot-scope="scope"
+                ><span style="color: #667de8"
+                  >¥{{ scope.row.total_water_amount }}</span
+                ></template
+              >
+            </el-table-column>
+            <el-table-column
+              prop="total_trans_win_amount"
+              label="中奖"
+              align="center"
+              width="100"
+            >
+              <template slot-scope="scope"
+                ><span style="color: rgb(103, 194, 58)"
+                  >¥{{ scope.row.total_trans_win_amount }}</span
+                ></template
+              >
+            </el-table-column>
+          </el-table-column>
+
+          <!-- 收益统计 -->
+          <el-table-column label="总利润" align="center">
             <template slot-scope="scope">
-              <span :style="{ color: getProfitColor(scope.row.total_profit) }"
-                >¥{{ scope.row.total_profit }}</span
+              <span
+                :style="{
+                  color: getProfitColor(calculateTenantProfit(scope.row)),
+                }"
+                >¥{{ calculateTenantProfit(scope.row) }}</span
               >
             </template>
           </el-table-column>
@@ -353,10 +435,13 @@
             >
           </el-table-column>
 
-          <el-table-column prop="total_profit" label="总利润" align="center">
+          <el-table-column label="总利润" align="center">
             <template slot-scope="scope">
-              <span :style="{ color: getProfitColor(scope.row.total_profit) }"
-                >¥{{ scope.row.total_profit }}</span
+              <span
+                :style="{
+                  color: getProfitColor(calculateSessionProfit(scope.row)),
+                }"
+                >¥{{ calculateSessionProfit(scope.row) }}</span
               >
             </template>
           </el-table-column>
@@ -647,7 +732,7 @@ export default {
           ).toFixed(2)
         : "0.00";
     },
-    // 总利润 = 总投注金额 - 总佣金 - 总中奖金额 - 总转出金额
+    // 总利润 = 总投注金额 - 总佣金 - 总中奖金额 - 总转出 + 转出佣金 + 转出中奖
     totalProfit() {
       const totalBet = parseFloat(this.totalBetAmount);
       const totalCommission = parseFloat(this.totalCommission);
@@ -825,6 +910,37 @@ export default {
         return "#f56c6c"; // 红色
       }
       return "#303133"; // 默认颜色
+    },
+    // 计算组织总利润 = 总投注金额 - 总佣金 - 总中奖金额 - 总转出 + 转出佣金 + 转出中奖
+    calculateTenantProfit(tenant) {
+      const totalBet = parseFloat(tenant.total_bet_amount || 0);
+      const totalCommission = parseFloat(tenant.total_commission || 0);
+      const totalWin = parseFloat(tenant.total_win_amount || 0);
+      const totalTransferOut = parseFloat(tenant.total_trans_amount || 0);
+      const totalTransferOutWaterAmount = parseFloat(
+        tenant.total_water_amount || 0
+      );
+      const totalTransferOutWinAmount = parseFloat(
+        tenant.total_trans_win_amount || 0
+      );
+
+      const profit =
+        totalBet -
+        totalCommission -
+        totalWin -
+        totalTransferOut +
+        totalTransferOutWaterAmount +
+        totalTransferOutWinAmount;
+      return profit.toFixed(2);
+    },
+    // 计算会话总利润 = 总投注金额 - 总佣金 - 总中奖金额
+    calculateSessionProfit(session) {
+      const totalBet = parseFloat(session.total_bet_amount || 0);
+      const totalCommission = parseFloat(session.total_commission || 0);
+      const totalWin = parseFloat(session.total_win_amount || 0);
+
+      const profit = totalBet - totalCommission - totalWin;
+      return profit.toFixed(2);
     },
     // 初始化图表
     initCharts() {
@@ -1060,9 +1176,6 @@ export default {
       };
       window.removeEventListener("resize", this.handleResize);
     },
-    changeSelect() {
-      this.loadData();
-    },
     formattedVal(val) {
       return (val / 10000).toFixed(2);
     },
@@ -1166,6 +1279,14 @@ export default {
         });
       }
     },
+    // 监听期号变化，自动加载数据
+    "searchInfo.issue_id"() {
+      this.loadData();
+    },
+    // 监听组织变化，自动加载数据
+    "searchInfo.tenant_id"() {
+      this.loadData();
+    },
   },
   created() {
     this.loadData();
@@ -1179,3 +1300,63 @@ export default {
 };
 </script>
 
+
+<style scoped>
+.card-header {
+  border-bottom: 0px solid #ebeef5;
+}
+
+/* 组织统计表格样式优化 */
+.table-container {
+  overflow-x: auto;
+}
+
+.table-container ::v-deep .el-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table-container ::v-deep .el-table th {
+  background-color: #f5f7fa;
+  color: #606266;
+  font-weight: 600;
+}
+
+.table-container ::v-deep .el-table td {
+  padding: 8px 0;
+}
+
+.table-container ::v-deep .el-table .cell {
+  padding: 0 8px;
+  line-height: 1.4;
+}
+
+/* 表头分组样式 */
+.table-container ::v-deep .el-table__header-wrapper .el-table__header {
+  background-color: #f5f7fa;
+}
+
+/* 固定列样式 */
+.table-container ::v-deep .el-table__fixed-right {
+  background-color: #fff;
+}
+
+/* 数据行悬停效果 */
+.table-container ::v-deep .el-table__body tr:hover > td {
+  background-color: #f5f7fa !important;
+}
+
+/* 金额样式 */
+.winam {
+  color: #67c23a;
+  font-weight: 500;
+}
+
+/* 响应式调整 */
+@media (max-width: 1400px) {
+  .table-container ::v-deep .el-table .cell {
+    padding: 0 4px;
+    font-size: 12px;
+  }
+}
+</style>
