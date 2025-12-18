@@ -535,22 +535,25 @@ export default {
 
       // 获取筛选条件
       const riskRatioFilter = this.prate ? parseFloat(this.prate) || 0 : null;
-      const transCountFilter = this.search_trans_count
-        ? parseFloat(this.search_trans_count) || 0
-        : null;
+      // const transCountFilter = this.search_trans_count
+      //   ? parseFloat(this.search_trans_count) || 0
+      //   : null;
 
       // 如果没有任何筛选条件，返回所有数据
-      if (riskRatioFilter === null && transCountFilter === null) {
+      if (riskRatioFilter === null) {
         return this.rickDataInfo.rick_order;
       }
+      // if (riskRatioFilter === null && transCountFilter === null) {
+      //   return this.rickDataInfo.rick_order;
+      // }
 
       return this.rickDataInfo.rick_order.filter((item) => {
         const riskRatio = parseFloat(item.risk_ratio) || 0;
-        const transCount = parseFloat(item.trans_count) || 0;
+        // const transCount = parseFloat(item.trans_count) || 0;
 
         // 根据存在的筛选条件进行AND逻辑筛选
         let passRiskRatio = true;
-        let passTransCount = true;
+        // let passTransCount = true;
 
         // 如果有风险比例筛选条件
         if (riskRatioFilter !== null) {
@@ -558,12 +561,13 @@ export default {
         }
 
         // 如果有转出单量筛选条件
-        if (transCountFilter !== null) {
-          passTransCount = transCount > transCountFilter;
-        }
+        // if (transCountFilter !== null) {
+        //   passTransCount = transCount > transCountFilter;
+        // }
 
         // 返回同时满足所有条件的数据
-        return passRiskRatio && passTransCount;
+        // return passRiskRatio && passTransCount;
+        return passRiskRatio;
       });
     },
   },
@@ -661,6 +665,7 @@ export default {
           // beta: this.beta,
           ks_amount: this.ks_amount,
           tenant_id: this.tenant_id,
+          trans_count: this.search_trans_count,
         });
         if (res.code === 0 && res.data) {
           this.rickDataInfo = res.data;
