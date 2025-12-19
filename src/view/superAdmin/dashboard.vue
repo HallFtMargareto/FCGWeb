@@ -72,135 +72,6 @@
       </el-card>
     </div>
 
-    <!-- 订单状态分布、彩种分布、转出明细 -->
-    <div class="charts-row">
-      <el-card
-        class="chart-card"
-        shadow="never"
-        :body-style="{ padding: '10px' }"
-      >
-        <div slot="header" class="card-header">
-          <span
-            ><span>订单状态分布</span><span>{{ totalOrderCount }}</span></span
-          >
-        </div>
-        <div class="chart-container">
-          <el-table :data="orderStatusData" size="mini" style="width: 100%">
-            <el-table-column
-              prop="statusText"
-              label="订单状态"
-              align="center"
-              width="80"
-            ></el-table-column>
-            <el-table-column
-              prop="order_count"
-              label="数量"
-              align="center"
-              width="60"
-            ></el-table-column>
-            <el-table-column label="占比" align="left">
-              <template slot-scope="scope">
-                <el-progress
-                  :percentage="getOrderStatusPercentage(scope.row.order_count)"
-                  :show-text="true"
-                  size="mini"
-                  :stroke-width="6"
-                ></el-progress>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-card>
-
-      <el-card
-        class="chart-card"
-        shadow="never"
-        :body-style="{ padding: '10px' }"
-      >
-        <div slot="header" class="card-header">
-          <span
-            ><span>彩种分布</span
-            ><span>{{ totalGameCategoryCount }}</span></span
-          >
-        </div>
-        <div class="chart-container">
-          <el-table :data="gameCategoryData" size="mini" style="width: 100%">
-            <el-table-column
-              prop="categoryText"
-              label="彩种"
-              align="center"
-              width="70"
-            ></el-table-column>
-            <el-table-column
-              prop="gc_count"
-              label="订单数量"
-              align="center"
-              width="100"
-            ></el-table-column>
-            <el-table-column
-              prop="gc_bet_amount"
-              label="投注金额"
-              align="center"
-            >
-              <template slot-scope="scope"
-                >¥{{ scope.row.gc_bet_amount }}</template
-              >
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-card>
-
-      <el-card
-        class="chart-card"
-        shadow="never"
-        :body-style="{ padding: '10px' }"
-      >
-        <div slot="header" class="card-header">
-          <span
-            ><span>转出明细</span><span>{{ totalTransferOutCount }}</span></span
-          >
-        </div>
-        <div class="chart-container">
-          <el-table
-            :data="transferOutDetailsData"
-            size="mini"
-            style="width: 100%"
-          >
-            <el-table-column
-              prop="game_category_name"
-              label="彩种"
-              align="center"
-              width="70"
-            ></el-table-column>
-            <el-table-column
-              prop="total_count"
-              label="转出数量"
-              align="center"
-              width="100"
-            ></el-table-column>
-            <el-table-column
-              prop="total_amount"
-              label="转出金额"
-              align="center"
-            >
-              <template slot-scope="scope"
-                >¥{{ scope.row.total_amount }}</template
-              >
-            </el-table-column>
-            <el-table-column
-              prop="total_win_amount"
-              label="中奖金额"
-              align="center"
-            >
-              <template slot-scope="scope"
-                >¥{{ scope.row.total_win_amount }}</template
-              >
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-card>
-    </div>
-
     <!-- 组织统计表格 -->
     <el-card
       class="table-card"
@@ -337,7 +208,7 @@
           <el-table-column label="转出统计" align="center">
             <el-table-column
               prop="total_trans_amount"
-              label="转出"
+              label="总转出"
               align="center"
               width="100"
             >
@@ -386,6 +257,135 @@
       </div>
     </el-card>
 
+    <!-- 订单状态分布、彩种分布、转出明细 -->
+    <div class="charts-row">
+      <el-card
+        class="chart-card"
+        shadow="never"
+        :body-style="{ padding: '10px' }"
+      >
+        <div slot="header" class="card-header">
+          <span
+            ><span>订单状态分布</span><span>{{ totalOrderCount }}</span></span
+          >
+        </div>
+        <div class="chart-container">
+          <el-table :data="orderStatusData" size="mini" style="width: 100%">
+            <el-table-column
+              prop="statusText"
+              label="订单状态"
+              align="center"
+              width="80"
+            ></el-table-column>
+            <el-table-column
+              prop="order_count"
+              label="数量"
+              align="center"
+              width="60"
+            ></el-table-column>
+            <el-table-column label="占比" align="left">
+              <template slot-scope="scope">
+                <el-progress
+                  :percentage="getOrderStatusPercentage(scope.row.order_count)"
+                  :show-text="true"
+                  size="mini"
+                  :stroke-width="6"
+                ></el-progress>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </el-card>
+
+      <el-card
+        class="chart-card"
+        shadow="never"
+        :body-style="{ padding: '10px' }"
+      >
+        <div slot="header" class="card-header">
+          <span
+            ><span>彩种分布</span
+            ><span>{{ totalGameCategoryCount }}</span></span
+          >
+        </div>
+        <div class="chart-container">
+          <el-table :data="gameCategoryData" size="mini" style="width: 100%">
+            <el-table-column
+              prop="categoryText"
+              label="彩种"
+              align="center"
+              width="70"
+            ></el-table-column>
+            <el-table-column
+              prop="gc_count"
+              label="订单数量"
+              align="center"
+              width="100"
+            ></el-table-column>
+            <el-table-column
+              prop="gc_bet_amount"
+              label="投注金额"
+              align="center"
+            >
+              <template slot-scope="scope"
+                >¥{{ scope.row.gc_bet_amount }}</template
+              >
+            </el-table-column>
+          </el-table>
+        </div>
+      </el-card>
+
+      <el-card
+        class="chart-card"
+        shadow="never"
+        :body-style="{ padding: '10px' }"
+      >
+        <div slot="header" class="card-header">
+          <span
+            ><span>转出明细</span><span>{{ totalTransferOutCount }}</span></span
+          >
+        </div>
+        <div class="chart-container">
+          <el-table
+            :data="transferOutDetailsData"
+            size="mini"
+            style="width: 100%"
+          >
+            <el-table-column
+              prop="game_category_name"
+              label="彩种"
+              align="center"
+              width="70"
+            ></el-table-column>
+            <el-table-column
+              prop="total_count"
+              label="转出数量"
+              align="center"
+              width="100"
+            ></el-table-column>
+            <el-table-column
+              prop="total_amount"
+              label="转出金额"
+              align="center"
+            >
+              <template slot-scope="scope"
+                >¥{{ scope.row.total_amount }}</template
+              >
+            </el-table-column>
+            <el-table-column
+              prop="total_win_amount"
+              label="中奖金额"
+              align="center"
+            >
+              <template slot-scope="scope"
+                >¥{{ scope.row.total_win_amount }}</template
+              >
+            </el-table-column>
+          </el-table>
+        </div>
+      </el-card>
+    </div>
+
     <!-- 会话统计表格 -->
     <el-card class="table-card" shadow="never" style="margin-bottom: 20px">
       <div slot="header">
@@ -418,6 +418,14 @@
             >
           </el-table-column>
 
+          <el-table-column prop="total_commission" label="佣金" align="center">
+            <template slot-scope="scope"
+              ><span style="color: #667de8"
+                >¥{{ scope.row.total_commission }}</span
+              >
+            </template>
+          </el-table-column>
+
           <el-table-column
             prop="total_win_amount"
             label="中奖金额"
@@ -440,12 +448,6 @@
               >¥{{ scope.row.tc_total_bet_amount }} /
               <span class="winam">¥{{ scope.row.tc_total_win_amount }}</span>
             </template>
-          </el-table-column>
-
-          <el-table-column prop="total_commission" label="佣金" align="center">
-            <template slot-scope="scope"
-              >¥{{ scope.row.total_commission }}</template
-            >
           </el-table-column>
 
           <el-table-column label="预计利润" align="center">
