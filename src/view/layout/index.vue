@@ -246,10 +246,48 @@ export default {
         })();
       };
     },
+    // 检查并显示系统公告
+    checkAndShowAnnouncement() {
+      // 如果公告内容长度为0，不显示
+      if (
+        !this.siteInfo ||
+        !this.siteInfo.site_remark ||
+        this.siteInfo.site_remark.length === 0
+      ) {
+        return;
+      }
+
+      // 如果公告长度与已保存的长度一致，不显示
+      if (this.siteInfo.site_remark.length === this.siteRemarkLen) {
+        return;
+      }
+
+      // 显示公告弹窗
+      this.$confirm(this.siteInfo.site_remark, "系统公告", {
+        confirmButtonText: "确定",
+        showCancelButton: false,
+        dangerouslyUseHTMLString: false,
+        type: "info",
+      })
+        .then(() => {
+          // 用户关闭弹窗后，更新公告长度
+          this.$store.commit(
+            "common/setSiteRemarkLen",
+            this.siteInfo.site_remark.length
+          );
+        })
+        .catch(() => {
+          // 即使点击取消或关闭，也要更新长度
+          this.$store.commit(
+            "common/setSiteRemarkLen",
+            this.siteInfo.site_remark.length
+          );
+        });
+    },
   },
   computed: {
     ...mapGetters("user", ["userInfo"]),
-    ...mapGetters("common", ["siteInfo"]),
+    ...mapGetters("common", ["siteInfo", "siteRemarkLen"]),
     title() {
       return this.$route.meta.title || "当前页面";
     },
@@ -257,14 +295,24 @@ export default {
       return this.$route.matched;
     },
   },
-  mounted() {
+  async mounted() {
     //全局刷新后处理
     this.windowInit();
 
     //更新公共数据
     // this.$store.dispatch("product/updateProductList");
-    this.$store.dispatch("common/updateCommonData");
-    this.$store.dispatch("common/updateSiteData");
+
+    // 使用 async/await 等待数据加载完成
+    try {
+      await this.$store.dispatch("common/updateCommonData");
+      await this.$store.dispatch("common/updateSiteData");
+    } catch (error) {
+      console.error("加载数据失败:", error);
+    }
+
+    //检查是否弹窗
+    this.checkAndShowAnnouncement();
+
     // 获取期号统计数据
     // this.$store
     //   .dispatch("statistics/fetchLatestIssueStatistics")
@@ -276,7 +324,6 @@ export default {
   },
   created() {
     // 游戏信息已在路由守卫中预加载，这里不再重复加载
-    console.log(this.siteInfo);
   },
 };
 </script>

@@ -16,7 +16,7 @@ Vue.use(Vuex)
 
 const vuexLocal = new VuexPersistence({
     storage: window.localStorage,
-    modules: ['user']
+    modules: ['user', 'common']
 })
 export const store = new Vuex.Store({
     modules: {

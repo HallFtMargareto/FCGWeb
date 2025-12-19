@@ -8,8 +8,9 @@ export const common = {
         baseInfo: {},
         siteInfo: {},
         commonData: {},
-        alpha: 0.8, // 默认阈值比例
-        beta: 0.5   // 默认目标线比例
+        alpha: 0.8,        // 默认阈值比例
+        beta: 0.5,         // 默认目标线比例
+        siteRemarkLen: 0,  //系统公告字数
     },
     mutations: {
         setBaseInfo(state, list) {
@@ -26,6 +27,9 @@ export const common = {
         },
         setBeta(state, value) {
             state.beta = value
+        },
+        setSiteRemarkLen(state, value) {
+            state.siteRemarkLen = value
         }
     },
     actions: {
@@ -55,6 +59,9 @@ export const common = {
         },
         siteInfo(state) {
             return state.siteInfo
+        },
+        siteRemarkLen(state) {
+            return state.siteRemarkLen
         }
     }
 }
