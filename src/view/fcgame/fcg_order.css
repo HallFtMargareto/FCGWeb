@@ -1,15 +1,20 @@
 /* 表格样式 - Excel风格 */
+.el-pagination {
+  padding: 0 !important;
+}
 
-.admin-box .el-table th {
+/* 全局表格内边距样式 - 确保样式生效 */
+.card-container .el-table th {
   padding: 0px 0 !important;
 }
 
-.admin-box .el-table td {
-  padding: 2.3px 0 !important;
+/* 右侧面板表格样式 */
+.right-panel .el-table th {
+  padding: 0px 0 !important;
 }
 
-.el-pagination {
-  padding: 0 !important;
+.right-panel .el-table td {
+  padding: 3.33px 0 !important;
 }
 
 .excel-table {
@@ -81,10 +86,10 @@
   font-weight: 600;
   /* background-color: #f0f9ff; */
   padding: 4px 8px;
-  border-radius: 4px;
+  /* border-radius: 4px; */
   font-size: 13px;
   color: #1f2937;
-  border: 1px solid #e1f5fe;
+  /* border: 1px solid #e1f5fe; */
   word-break: break-all;
   line-height: 1.4;
 }
