@@ -88,10 +88,15 @@
 }
 
 .stat-cards {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 12px;
     margin-bottom: 16px;
+}
+
+.stat-cards .stat-card {
+    flex: 1;
+    min-width: fit-content;
 }
 
 .stat-card {
@@ -129,7 +134,7 @@
     font-weight: 700;
     color: #303133;
     line-height: 1.2;
-    word-break: break-all;
+    white-space: nowrap;
 }
 
 .stat-value.profit {

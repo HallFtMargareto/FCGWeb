@@ -75,9 +75,10 @@
 
       <el-card class="stat-card" shadow="never">
         <div class="stat-item">
-          <div class="stat-label">总转出</div>
+          <div class="stat-label">转出</div>
           <div class="stat-value">
-            ¥{{ totalTransferOutAmount }} /
+            ¥{{ totalTransferOutAmount }}
+            /
             <span style="color: #667de8"
               >¥{{ totalTransferOutWaterAmount }}</span
             >
