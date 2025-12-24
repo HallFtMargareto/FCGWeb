@@ -140,15 +140,25 @@
                     <el-descriptions-item label="总转投金额">{{ rickDataInfo.total_info.totaltransferStake
                     }}</el-descriptions-item> -->
         </el-descriptions>
-        <el-button
-          type="warning"
-          :disabled="multipleSelection.length === 0"
-          :loading="fastTransferLoading"
-          @click="handleFastTransfer"
-          size="medium"
-        >
-          快速转单
-        </el-button>
+        <div class="button-column">
+          <el-button
+            type="warning"
+            :disabled="multipleSelection.length === 0"
+            :loading="fastTransferLoading"
+            @click="handleFastTransfer(false)"
+            size="medium"
+          >
+            快速转单
+          </el-button>
+          <el-button
+            :disabled="multipleSelection.length === 0"
+            :loading="fastTransferLoading"
+            @click="handleFastTransfer(true)"
+            size="medium"
+          >
+            模拟转出
+          </el-button>
+        </div>
       </div>
       <el-table
         :data="filteredRickOrder"
@@ -433,6 +443,63 @@
         </el-table-column>
       </el-table>
     </el-dialog>
+
+    <!-- 模拟转出结果弹窗 -->
+    <el-dialog
+      title="模拟转出结果"
+      :visible.sync="showSimulateDialog"
+      width="70%"
+      :close-on-click-modal="false"
+    >
+      <!-- 汇总信息 -->
+      <el-descriptions :column="4" border style="margin-bottom: 15px">
+        <el-descriptions-item label="总交易数">
+          <span class="summary-value">{{
+            simulateSummary.totalTransCount || 0
+          }}</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="总交易金额">
+          <span class="summary-value amount">{{
+            simulateSummary.totalTransAmount || 0
+          }}</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="总中奖金额">
+          <span class="summary-value amount">{{
+            simulateSummary.totalWinAmount || 0
+          }}</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="总佣金">
+          <span class="summary-value amount">{{
+            simulateSummary.totalWaterAmount || 0
+          }}</span>
+        </el-descriptions-item>
+      </el-descriptions>
+
+      <el-table :data="simulateResultData" border stripe max-height="500">
+        <el-table-column type="index" label="序号" width="60" align="center">
+        </el-table-column>
+        <el-table-column label="游戏类别" prop="game_category" align="center">
+          <template slot-scope="scope">
+            <el-tag size="mini" type="primary">{{
+              scope.row.game_category === 1 ? "福彩" : "体彩"
+            }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="号码" prop="split_number" align="center">
+        </el-table-column>
+        <el-table-column label="交易笔数" prop="trans_count" align="center">
+        </el-table-column>
+        <el-table-column label="交易金额" prop="trans_amount" align="center">
+        </el-table-column>
+        <el-table-column label="中奖金额" prop="win_amount" align="center">
+        </el-table-column>
+        <el-table-column label="水费" prop="water_amount" align="center">
+        </el-table-column>
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="showSimulateDialog = false">关 闭</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -637,6 +704,14 @@ export default {
       aiAnalysisLoading: false, // AI分析加载状态
       aiAnalysisContent: "", // AI分析内容
       fastTransferLoading: false, // 快速转出按钮加载状态
+      showSimulateDialog: false, // 模拟转出结果弹窗显示状态
+      simulateResultData: [], // 模拟转出结果数据
+      simulateSummary: {
+        totalTransCount: 0,
+        totalTransAmount: 0,
+        totalWinAmount: 0,
+        totalWaterAmount: 0,
+      }, // 模拟转出汇总数据
     };
   },
   methods: {
@@ -992,7 +1067,7 @@ export default {
     },
 
     // 处理快速转出按钮点击
-    async handleFastTransfer() {
+    async handleFastTransfer(emulated) {
       // 判断是否有选择数据
       if (this.multipleSelection.length === 0) {
         this.$message.warning("请选择数据");
@@ -1000,11 +1075,11 @@ export default {
       }
 
       // 调用快速转出方法
-      await this.fastTransferData(this.multipleSelection);
+      await this.fastTransferData(this.multipleSelection, emulated);
     },
 
     // 快速转出数据到后台
-    async fastTransferData(validData) {
+    async fastTransferData(validData, emulated) {
       try {
         this.fastTransferLoading = true;
 
@@ -1024,13 +1099,22 @@ export default {
           command: "transfer", // 使用fast_transfer命令
           transfer_list: transfer_list,
           fast_trans: true,
+          emulated: emulated,
         };
 
         // 调用API接口
         const res = await batchFcgOrderSplitNumberOperation(requestData);
 
         if (res.code === 0) {
-          this.$message.success("快速转出成功");
+          if (emulated) {
+            // 模拟转出，显示结果弹窗
+            this.simulateResultData = res.data.trans || [];
+            // 计算汇总数据
+            this.calculateSimulateSummary();
+            this.showSimulateDialog = true;
+          } else {
+            this.$message.success("快速转出成功");
+          }
         } else {
           this.$message.error(res.msg || "快速转出失败");
         }
@@ -1040,6 +1124,26 @@ export default {
       } finally {
         this.fastTransferLoading = false;
       }
+    },
+
+    // 计算模拟转出汇总数据
+    calculateSimulateSummary() {
+      const data = this.simulateResultData;
+      this.simulateSummary = {
+        totalTransCount: data.reduce(
+          (sum, item) => sum + (parseInt(item.trans_count) || 0),
+          0
+        ),
+        totalTransAmount: data
+          .reduce((sum, item) => sum + (parseFloat(item.trans_amount) || 0), 0)
+          .toFixed(2),
+        totalWinAmount: data
+          .reduce((sum, item) => sum + (parseFloat(item.win_amount) || 0), 0)
+          .toFixed(2),
+        totalWaterAmount: data
+          .reduce((sum, item) => sum + (parseFloat(item.water_amount) || 0), 0)
+          .toFixed(2),
+      };
     },
 
     // AI分析功能
@@ -1319,6 +1423,31 @@ export default {
 .total-info-with-button .el-button {
   margin-left: 20px;
   flex-shrink: 0;
+}
+
+.button-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-left: 10px;
+  margin-top: 20px;
+  flex-shrink: 0;
+}
+
+.button-column .el-button {
+  margin-left: 0;
+}
+
+/* 模拟转出弹窗汇总样式 */
+.summary-value {
+  font-weight: 600;
+  color: #409eff;
+  font-size: 13px;
+}
+
+.summary-value.amount {
+  color: #67c23a;
+  font-size: 14px;
 }
 
 /* 预亏损弹窗样式 */
