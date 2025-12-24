@@ -155,9 +155,17 @@
               align="center"
               width="120"
             >
-              <template slot-scope="scope"
-                >¥{{ scope.row.total_win_amount }}</template
-              >
+              <template slot-scope="scope">
+                <span
+                  :style="{
+                    color: getWinAmountColor(
+                      scope.row.total_win_amount,
+                      scope.row.total_bet_amount
+                    ),
+                  }"
+                  >¥{{ scope.row.total_win_amount }}</span
+                >
+              </template>
             </el-table-column>
           </el-table-column>
 
@@ -180,11 +188,17 @@
                 align="center"
                 width="100"
               >
-                <template slot-scope="scope"
-                  ><span class="winam"
+                <template slot-scope="scope">
+                  <span
+                    :style="{
+                      color: getWinAmountColor(
+                        scope.row.fc_total_win_amount,
+                        scope.row.fc_total_bet_amount
+                      ),
+                    }"
                     >¥{{ scope.row.fc_total_win_amount }}</span
-                  ></template
-                >
+                  >
+                </template>
               </el-table-column>
               <el-table-column
                 prop="fc_total_trans_amount"
@@ -214,11 +228,17 @@
                 align="center"
                 width="100"
               >
-                <template slot-scope="scope"
-                  ><span class="winam"
+                <template slot-scope="scope">
+                  <span
+                    :style="{
+                      color: getWinAmountColor(
+                        scope.row.tc_total_win_amount,
+                        scope.row.tc_total_bet_amount
+                      ),
+                    }"
                     >¥{{ scope.row.tc_total_win_amount }}</span
-                  ></template
-                >
+                  >
+                </template>
               </el-table-column>
               <el-table-column
                 prop="tc_total_trans_amount"
@@ -263,11 +283,17 @@
               align="center"
               width="100"
             >
-              <template slot-scope="scope"
-                ><span style="color: rgb(103, 194, 58)"
+              <template slot-scope="scope">
+                <span
+                  :style="{
+                    color: getWinAmountColor(
+                      scope.row.total_trans_amount,
+                      scope.row.total_trans_win_amount
+                    ),
+                  }"
                   >¥{{ scope.row.total_trans_win_amount }}</span
-                ></template
-              >
+                >
+              </template>
             </el-table-column>
           </el-table-column>
 
@@ -948,6 +974,17 @@ export default {
         return "#67c23a"; // 绿色
       } else if (profitValue < 0) {
         return "#f56c6c"; // 红色
+      }
+      return "#303133"; // 默认颜色
+    },
+    // 获取中奖金额颜色
+    getWinAmountColor(winAmount, betAmount) {
+      const win = parseFloat(winAmount || 0);
+      const bet = parseFloat(betAmount || 0);
+      if (win > bet) {
+        return "#f56c6c"; // 中奖金额大于投注金额，红色
+      } else if (win < bet) {
+        return "#67c23a"; // 中奖金额小于投注金额，绿色
       }
       return "#303133"; // 默认颜色
     },
