@@ -76,11 +76,11 @@
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item label="网站关闭提示" prop="site_remark">
+                <el-form-item label="系统公告内容" prop="site_remark">
                   <el-input
                     v-model="config.site.site_remark"
                     type="textarea"
-                    placeholder="请输入网站关闭提示"
+                    placeholder="请输入系统公告内容"
                     :autosize="{ minRows: 4, maxRows: 4 }"
                     :style="{ width: '100%' }"
                   ></el-input>

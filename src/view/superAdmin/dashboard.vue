@@ -3,23 +3,52 @@
     <el-card class="welcome-card" shadow="never">
       <div class="welcome-info">
         <h3>{{ getGreeting() }}, 管理员</h3>
-        <p>当前统计期号：{{ summaryData.issue_no }}</p>
+        <p>当前统计期号：{{ summaryData.issue.issue_no }}</p>
       </div>
-      <div class="quick-nav">
-        <IssueSelect
-          v-model="searchInfo.issue_id"
-          placeholder="请选择期号"
-        ></IssueSelect>
+      <div class="welcome-content">
+        <div class="quick-nav">
+          <IssueSelect
+            v-model="searchInfo.issue_id"
+            placeholder="请选择期号"
+          ></IssueSelect>
 
-        <template v-if="userInfo.perm['host']">
-          -
-          <TenantSelect
-            v-model="searchInfo.tenant_id"
-            placeholder="请选择组织"
-            :autoSelectFirst="false"
-            clearable
-          ></TenantSelect>
-        </template>
+          <template v-if="userInfo.perm['host']">
+            -
+            <TenantSelect
+              v-model="searchInfo.tenant_id"
+              placeholder="请选择组织"
+              :autoSelectFirst="false"
+              clearable
+            ></TenantSelect>
+          </template>
+        </div>
+
+        <div
+          class="lottery-results"
+          v-if="
+            summaryData.issue.fc_state === 1 || summaryData.issue.tc_state === 1
+          "
+        >
+          <div>本期开奖结果</div>
+          <div
+            class="lottery-result-item"
+            v-if="summaryData.issue.fc_state === 1"
+          >
+            <span class="lottery-label">福彩:</span>
+            <span class="lottery-number fc-number">{{
+              summaryData.issue.fc_draw_number
+            }}</span>
+          </div>
+          <div
+            class="lottery-result-item"
+            v-if="summaryData.issue.tc_state === 1"
+          >
+            <span class="lottery-label">体彩:</span>
+            <span class="lottery-number tc-number">{{
+              summaryData.issue.tc_draw_number
+            }}</span>
+          </div>
+        </div>
       </div>
     </el-card>
 
@@ -670,7 +699,7 @@ export default {
   data() {
     return {
       summaryData: {
-        issue_no: "",
+        issue: {},
         sessions: [],
         session_stats: [],
         order_status_count: [],

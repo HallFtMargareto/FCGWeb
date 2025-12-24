@@ -15,6 +15,14 @@
     border-radius: 8px;
 }
 
+.welcome-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+    justify-content: space-between;
+}
+
 .welcome-info h3 {
     margin: 0 0 10px 0;
     font-size: 24px;
@@ -26,6 +34,12 @@
     opacity: 0.9;
 }
 
+.quick-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .quick-nav .el-button {
     background-color: rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -35,6 +49,42 @@
         background-color: rgba(255, 255, 255, 0.3);
         border-color: rgba(255, 255, 255, 0.4);
     }
+}
+
+.lottery-results {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 16px;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    backdrop-filter: blur(10px);
+}
+
+.lottery-result-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lottery-label {
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.lottery-number {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.lottery-number.fc-number {
+    color: #ffd700;
+}
+
+.lottery-number.tc-number {
+    color: #ff6b6b;
 }
 
 .stat-cards {
@@ -237,8 +287,13 @@
         flex-direction: column;
         text-align: center;
 
+        .welcome-content {
+            flex-direction: column;
+            gap: 15px;
+        }
+
         .quick-nav {
-            margin-top: 15px;
+            margin-top: 0;
         }
     }
 

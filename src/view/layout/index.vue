@@ -263,12 +263,15 @@ export default {
       }
 
       // 显示公告弹窗
-      this.$confirm(this.siteInfo.site_remark, "系统公告", {
-        confirmButtonText: "确定",
-        showCancelButton: false,
-        dangerouslyUseHTMLString: false,
-        type: "info",
-      })
+      this.$confirm(
+        this.siteInfo.site_remark.replace(/\n/g, "<br>"),
+        "系统公告",
+        {
+          confirmButtonText: "确定",
+          showCancelButton: false,
+          dangerouslyUseHTMLString: true,
+        }
+      )
         .then(() => {
           // 用户关闭弹窗后，更新公告长度
           this.$store.commit(
