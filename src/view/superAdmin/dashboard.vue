@@ -689,6 +689,7 @@ export default {
         betChart: null,
         compareChart: null,
       },
+      isInitializing: true, // 初始化标志位
     };
   },
   computed: {
@@ -1291,10 +1292,14 @@ export default {
     },
     // 监听期号变化，自动加载数据
     "searchInfo.issue_id"() {
+      // 初始化期间跳过，避免重复请求
+      if (this.isInitializing) return;
       this.loadData();
     },
     // 监听组织变化，自动加载数据
     "searchInfo.tenant_id"() {
+      // 初始化期间跳过，避免重复请求
+      if (this.isInitializing) return;
       this.loadData();
     },
   },
@@ -1303,6 +1308,10 @@ export default {
   },
   mounted() {
     this.initCharts();
+    // 初始化完成后，允许 watch 触发请求
+    this.$nextTick(() => {
+      this.isInitializing = false;
+    });
   },
   beforeDestroy() {
     this.destroyCharts();
