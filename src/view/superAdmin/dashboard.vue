@@ -138,19 +138,6 @@
             </el-table-column>
 
             <el-table-column
-              prop="total_commission"
-              label="总佣金"
-              align="center"
-              width="100"
-            >
-              <template slot-scope="scope">
-                <span style="color: #667de8"
-                  >¥{{ scope.row.total_commission }}</span
-                >
-              </template>
-            </el-table-column>
-
-            <el-table-column
               prop="total_win_amount"
               label="总中奖金额"
               align="center"
@@ -165,6 +152,19 @@
                     ),
                   }"
                   >¥{{ scope.row.total_win_amount }}</span
+                >
+              </template>
+            </el-table-column>
+
+            <el-table-column
+              prop="total_commission"
+              label="总佣金"
+              align="center"
+              width="100"
+            >
+              <template slot-scope="scope">
+                <span style="color: #667de8"
+                  >¥{{ scope.row.total_commission }}</span
                 >
               </template>
             </el-table-column>
@@ -266,18 +266,7 @@
                 >¥{{ scope.row.total_trans_amount }}</template
               >
             </el-table-column>
-            <el-table-column
-              prop="total_water_amount"
-              label="佣金"
-              align="center"
-              width="100"
-            >
-              <template slot-scope="scope"
-                ><span style="color: #667de8"
-                  >¥{{ scope.row.total_water_amount }}</span
-                ></template
-              >
-            </el-table-column>
+
             <el-table-column
               prop="total_trans_win_amount"
               label="中奖"
@@ -295,6 +284,19 @@
                   >¥{{ scope.row.total_trans_win_amount }}</span
                 >
               </template>
+            </el-table-column>
+
+            <el-table-column
+              prop="total_water_amount"
+              label="佣金"
+              align="center"
+              width="100"
+            >
+              <template slot-scope="scope"
+                ><span style="color: #667de8"
+                  >¥{{ scope.row.total_water_amount }}</span
+                ></template
+              >
             </el-table-column>
           </el-table-column>
 
