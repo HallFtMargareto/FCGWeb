@@ -453,22 +453,22 @@
     >
       <!-- 汇总信息 -->
       <el-descriptions :column="4" border style="margin-bottom: 15px">
-        <el-descriptions-item label="总交易数">
+        <el-descriptions-item label="转出数量">
           <span class="summary-value">{{
             simulateSummary.totalTransCount || 0
           }}</span>
         </el-descriptions-item>
-        <el-descriptions-item label="总交易金额">
+        <el-descriptions-item label="转出金额">
           <span class="summary-value amount">{{
             simulateSummary.totalTransAmount || 0
           }}</span>
         </el-descriptions-item>
-        <el-descriptions-item label="总中奖金额">
+        <el-descriptions-item label="中奖金额">
           <span class="summary-value amount">{{
             simulateSummary.totalWinAmount || 0
           }}</span>
         </el-descriptions-item>
-        <el-descriptions-item label="总佣金">
+        <el-descriptions-item label="转出佣金">
           <span class="summary-value amount">{{
             simulateSummary.totalWaterAmount || 0
           }}</span>
@@ -485,15 +485,15 @@
             }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="号码" prop="split_number" align="center">
+        <el-table-column label="转出号码" prop="split_number" align="center">
         </el-table-column>
-        <el-table-column label="交易笔数" prop="trans_count" align="center">
+        <el-table-column label="转出数量" prop="trans_count" align="center">
         </el-table-column>
-        <el-table-column label="交易金额" prop="trans_amount" align="center">
+        <el-table-column label="转出金额" prop="trans_amount" align="center">
         </el-table-column>
         <el-table-column label="中奖金额" prop="win_amount" align="center">
         </el-table-column>
-        <el-table-column label="水费" prop="water_amount" align="center">
+        <el-table-column label="转出佣金" prop="water_amount" align="center">
         </el-table-column>
       </el-table>
       <span slot="footer" class="dialog-footer">
