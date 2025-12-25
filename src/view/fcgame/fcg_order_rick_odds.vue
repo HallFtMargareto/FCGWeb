@@ -275,7 +275,7 @@
     <el-dialog
       title="预亏损率数据"
       :visible.sync="showPreLossDialog"
-      width="60%"
+      width="65%"
     >
       <!-- 筛选区域 -->
       <div
@@ -366,7 +366,7 @@
         <el-table-column
           type="index"
           label="序号"
-          width="60"
+          width="50"
           align="center"
           :index="preLossIndexMethod"
         >
@@ -402,6 +402,16 @@
         >
           <template slot-scope="scope">
             {{ parseFloat(scope.row.TransferAmount).toFixed(2) }}
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          prop="MaxLossAmount"
+          label="最大亏损金额"
+          align="center"
+        >
+          <template slot-scope="scope">
+            {{ parseFloat(scope.row.MaxLossAmount).toFixed(2) }}
           </template>
         </el-table-column>
 
