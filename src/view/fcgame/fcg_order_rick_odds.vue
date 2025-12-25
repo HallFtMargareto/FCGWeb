@@ -406,9 +406,12 @@
         </el-table-column>
 
         <el-table-column
+          width="150"
           prop="MaxLossAmount"
           label="最大亏损金额"
           align="center"
+          sortable="custom"
+          :sort-orders="['descending', 'ascending', null]"
         >
           <template slot-scope="scope">
             {{ parseFloat(scope.row.MaxLossAmount).toFixed(2) }}
@@ -601,7 +604,8 @@ export default {
             this.preLossSortProp === "TransferAmount" ||
             this.preLossSortProp === "OrderCount" ||
             this.preLossSortProp === "CalAmount" ||
-            this.preLossSortProp === "GameRatio"
+            this.preLossSortProp === "GameRatio" ||
+            this.preLossSortProp === "MaxLossAmount"
           ) {
             valueA = parseFloat(valueA) || 0;
             valueB = parseFloat(valueB) || 0;
