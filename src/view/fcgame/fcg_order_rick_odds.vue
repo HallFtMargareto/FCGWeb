@@ -349,7 +349,11 @@
       <!-- AI分析内容显示区域 -->
       <div v-if="aiAnalysisContent" class="ai-analysis-container">
         <el-card class="ai-analysis-card" header="AI分析结果">
-          <div class="markdown-content" v-html="renderedMarkdown"></div>
+          <!-- 流式接收中显示原始文本，完成后显示渲染后的markdown -->
+          <div v-if="!aiAnalysisCompleted" class="markdown-content raw-text">
+            {{ aiAnalysisContent }}
+          </div>
+          <div v-else class="markdown-content" v-html="renderedMarkdown"></div>
         </el-card>
       </div>
 
@@ -521,7 +525,7 @@ import {
   getFcgOrderSplitNumberList,
   batchFcgOrderSplitNumberOperation,
 } from "@/api/fcgame/fcg_order_split_number";
-import { preLossDataAnalysis } from "@/api/fcgame/fcg_aianalysis";
+import { preLossDataAnalysisSSE } from "@/api/fcgame/fcg_aianalysis";
 import infoList from "@/mixins/infoList";
 import { mapGetters, mapMutations } from "vuex";
 import MarkdownIt from "markdown-it";
@@ -533,9 +537,25 @@ export default {
     // 渲染后的Markdown内容
     renderedMarkdown() {
       if (!this.aiAnalysisContent) return "";
-      // 使用导入的markdown-it
-      const md = new MarkdownIt();
-      return md.render(this.aiAnalysisContent);
+      try {
+        // 使用导入的markdown-it，配置更好的渲染选项
+        const md = new MarkdownIt({
+          html: true, // 允许HTML标签
+          linkify: true, // 自动转换URL为链接
+          typographer: true, // 启用一些语言中立的替换和引号美化
+          breaks: true, // 转换换行符为<br>
+        });
+        return md.render(this.aiAnalysisContent);
+      } catch (error) {
+        console.error("Markdown渲染错误:", error);
+        // 如果渲染失败，返回原始内容（转义HTML以防止XSS）
+        return this.aiAnalysisContent
+          .replace(/&/g, "&")
+          .replace(/</g, "<")
+          .replace(/>/g, ">")
+          .replace(/"/g, '"')
+          .replace(/'/g, "&#039;");
+      }
     },
     // 创建双向绑定的计算属性
     alpha: {
@@ -717,6 +737,7 @@ export default {
       batchThreshold: 50, // 批次拆分阈值
       aiAnalysisLoading: false, // AI分析加载状态
       aiAnalysisContent: "", // AI分析内容
+      aiAnalysisCompleted: false, // AI分析是否完成
       fastTransferLoading: false, // 快速转出按钮加载状态
       showSimulateDialog: false, // 模拟转出结果弹窗显示状态
       simulateResultData: [], // 模拟转出结果数据
@@ -1160,8 +1181,8 @@ export default {
       };
     },
 
-    // AI分析功能
-    async handleAIAnalysis() {
+    // AI分析功能（使用SSE流式接收）
+    handleAIAnalysis() {
       // 获取当前筛选后的数据
       const currentData =
         this.sortedPreLossData.length > 0
@@ -1174,58 +1195,66 @@ export default {
         return;
       }
 
-      try {
-        this.aiAnalysisLoading = true;
+      // 清空之前的分析内容
+      this.aiAnalysisContent = "";
+      this.aiAnalysisLoading = true;
+      this.aiAnalysisCompleted = false;
 
-        // 构建markdown表格内容（与copyPreLossData方法相同的逻辑）
-        let markdownTable =
-          "根据以下的内容帮我分析出最合适的投资方案,并简要说明选择的原因\n\n";
+      // 构建markdown表格内容（与copyPreLossData方法相同的逻辑）
+      let markdownTable =
+        "根据以下的内容帮我分析出最合适的投资方案,并简要说明选择的原因\n\n";
 
-        // 表头
-        markdownTable +=
-          "| 序号 | 预亏损金额 | 预亏损百分比 | 预亏损值单元 | 转出总金额 | 差值 | 博弈比例 | 上水概率 | 号码数 | 号码单价 |\n";
+      // 表头
+      markdownTable +=
+        "| 序号 | 预亏损金额 | 预亏损百分比 | 预亏损值单元 | 转出总金额 | 差值 | 博弈比例 | 上水概率 | 号码数 | 号码单价 |\n";
 
-        // 分隔线
-        markdownTable +=
-          "|------|------------|--------------|--------------|------------|------|----------|----------|--------|----------|\n";
+      // 分隔线
+      markdownTable +=
+        "|------|------------|--------------|--------------|------------|------|----------|----------|--------|----------|\n";
 
-        // 数据行
-        currentData.forEach((item, index) => {
-          const row = [
-            index + 1,
-            parseFloat(item.PreLossAmount).toFixed(2),
-            (parseFloat(item.PreLossRate) * 100).toFixed(2) + "%",
-            item.PreLossValueUnit || "",
-            parseFloat(item.TransferAmount).toFixed(2),
-            item.Difference || "",
-            (parseFloat(item.GameRatio) * 100).toFixed(2) + "%",
-            (parseFloat(item.WinWaterRate) * 100).toFixed(2) + "%",
-            parseFloat(item.OrderCount).toFixed(0),
-            parseFloat(item.CalAmount).toFixed(2),
-          ];
+      // 数据行
+      currentData.forEach((item, index) => {
+        const row = [
+          index + 1,
+          parseFloat(item.PreLossAmount).toFixed(2),
+          (parseFloat(item.PreLossRate) * 100).toFixed(2) + "%",
+          item.PreLossValueUnit || "",
+          parseFloat(item.TransferAmount).toFixed(2),
+          item.Difference || "",
+          (parseFloat(item.GameRatio) * 100).toFixed(2) + "%",
+          (parseFloat(item.WinWaterRate) * 100).toFixed(2) + "%",
+          parseFloat(item.OrderCount).toFixed(0),
+          parseFloat(item.CalAmount).toFixed(2),
+        ];
 
-          markdownTable += "| " + row.join(" | ") + " |\n";
-        });
+        markdownTable += "| " + row.join(" | ") + " |\n";
+      });
 
-        // 构建请求数据，使用markdown格式内容
-        const requestData = {
-          game_category: this.game_category,
-          issue_id: this.chartIssueId,
-          tenant_id: this.tenant_id,
-          ks_amount: this.ks_amount,
-          data: markdownTable, // 使用markdown格式内容而不是原始数据
-        };
+      // 构建请求数据，使用markdown格式内容
+      const requestData = {
+        game_category: this.game_category,
+        issue_id: this.chartIssueId,
+        tenant_id: this.tenant_id,
+        ks_amount: this.ks_amount,
+        data: markdownTable, // 使用markdown格式内容而不是原始数据
+      };
 
-        // 调用AI分析接口
-        const res = await preLossDataAnalysis(requestData);
+      // 调用SSE流式AI分析接口
+      preLossDataAnalysisSSE(
+        requestData,
+        // onMessage: 接收到消息时的回调
+        (message) => {
+          // 确保message是字符串类型
+          let content = message;
+          if (typeof message !== "string") {
+            content = String(message);
+          }
 
-        if (res.code === 0) {
-          this.$message.success("AI分析完成");
-          // 处理返回的content内容
-          if (res.data && res.data.content) {
-            this.aiAnalysisContent = res.data.content;
-            this.aiAnalysisLoading = false;
-            // 滚动到AI分析内容区域
+          // 实时追加内容
+          this.aiAnalysisContent += content;
+
+          // 滚动到AI分析内容区域（首次接收消息时）
+          if (this.aiAnalysisContent.length === content.length) {
             this.$nextTick(() => {
               const element = document.querySelector(".ai-analysis-container");
               if (element) {
@@ -1233,15 +1262,20 @@ export default {
               }
             });
           }
-        } else {
-          this.$message.error(res.msg || "AI分析失败");
+        },
+        // onDone: 完成时的回调
+        () => {
+          this.aiAnalysisLoading = false;
+          this.aiAnalysisCompleted = true;
+          this.$message.success("AI分析完成");
+        },
+        // onError: 错误时的回调
+        (error) => {
+          this.aiAnalysisLoading = false;
+          this.$message.error("AI分析请求失败: " + error.message);
+          console.error("AI分析错误:", error);
         }
-      } catch (error) {
-        this.$message.error("AI分析请求失败");
-        console.error("AI分析错误:", error);
-      } finally {
-        this.aiAnalysisLoading = false;
-      }
+      );
     },
 
     // 显示分析结果
@@ -1357,6 +1391,7 @@ export default {
     showPreLossDialog(newVal) {
       if (!newVal) {
         this.aiAnalysisContent = "";
+        this.aiAnalysisCompleted = false;
       }
     },
   },
@@ -1495,6 +1530,13 @@ export default {
   max-height: 500px;
   overflow-y: auto;
   padding: 10px;
+}
+
+/* 原始文本样式（流式接收时） */
+.markdown-content.raw-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: "Courier New", monospace;
 }
 
 /* Markdown内容样式 */
