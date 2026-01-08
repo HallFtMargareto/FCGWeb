@@ -61,9 +61,16 @@
 
       <el-table-column label="投注内容" prop="bet_content"> </el-table-column>
 
-      <!-- <el-table-column label="tenant_id" prop="tenant_id"> </el-table-column> -->
-
-      <!-- <el-table-column label="admin_id" prop="admin_id"> </el-table-column> -->
+      <el-table-column
+        v-if="userInfo.perm['host']"
+        label="所属组织"
+        prop="platform_name"
+      >
+      </el-table-column>
+      <el-table-column label="所属会话" prop="contact_nick_name">
+      </el-table-column>
+      <el-table-column label="操作账号" prop="admin_nick_name">
+      </el-table-column>
 
       <el-table-column
         label="撤单时间"
