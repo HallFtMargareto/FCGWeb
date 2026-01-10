@@ -219,7 +219,11 @@
     <!-- 分页 -->
     <div>
       <el-row :gutter="24">
-        <el-col :span="4" v-if="statusTabState === '1'">
+        <el-col :span="6" v-if="statusTabState === '1'">
+          <el-button @click="toggleSelectAll">{{
+            isAllSelected ? "取消全选" : "全选"
+          }}</el-button>
+
           <el-button icon="el-icon-s-unfold" @click="openBatchEditDialog"
             >批量编辑</el-button
           >
@@ -232,7 +236,7 @@
             >批量撤单</el-button
           >
         </el-col>
-        <el-col :span="statusTabState === '1' ? 20 : 24">
+        <el-col :span="statusTabState === '1' ? 18 : 24">
           <!-- 数据合计,按需求启用 -->
           <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
           <el-pagination
@@ -566,6 +570,14 @@ export default {
   computed: {
     ...mapGetters("user", ["userInfo"]),
     ...mapGetters("gameInfo", ["tenants"]),
+    // 判断是否所有订单都被选中
+    isAllSelected() {
+      if (!this.groupedTableData || this.groupedTableData.length === 0) {
+        return false;
+      }
+      // 检查是否所有订单都被选中
+      return this.groupedTableData.every((order) => order.selected);
+    },
     // 处理表格数据，将订单按主订单分组
     groupedTableData() {
       if (!this.tableData || this.tableData.length === 0) {
@@ -1069,6 +1081,29 @@ export default {
         this.groupedTableData.forEach((order) => {
           this.$set(order, "selected", false);
         });
+      }
+    },
+
+    // 全选/取消全选
+    toggleSelectAll() {
+      if (!this.groupedTableData || this.groupedTableData.length === 0) {
+        return;
+      }
+
+      const shouldSelectAll = !this.isAllSelected;
+
+      // 遍历所有订单，设置选中状态
+      this.groupedTableData.forEach((order) => {
+        this.$set(order, "selected", shouldSelectAll);
+      });
+
+      // 更新 multipleSelection 数组
+      if (shouldSelectAll) {
+        // 全选：将所有订单添加到选择数组
+        this.multipleSelection = [...this.groupedTableData];
+      } else {
+        // 取消全选：清空选择数组
+        this.multipleSelection = [];
       }
     },
 
