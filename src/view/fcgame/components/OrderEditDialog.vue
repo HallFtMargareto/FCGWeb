@@ -39,6 +39,13 @@
       </el-row>
       <el-row>
         <el-col :span="24" style="text-align: right">
+          <el-button
+            @click="openManualSplitDialog"
+            size="mini"
+            style="margin-right: 45%"
+            >手动拆分</el-button
+          >
+
           <el-button @click="reidentify(true)" size="mini">后台识别</el-button>
           <el-button type="success" @click="reidentify(false)" size="mini"
             >重新识别</el-button
@@ -80,7 +87,6 @@
               >
                 <el-option label="福彩" :value="1"></el-option>
                 <el-option label="体彩" :value="2"></el-option>
-                <el-option label="排列三" :value="3"></el-option>
               </el-select>
             </template>
           </el-table-column>
@@ -160,6 +166,69 @@
         >确 定</el-button
       >
     </span>
+
+    <!-- 手动拆分弹窗 -->
+    <el-dialog
+      title="手动拆分"
+      :visible.sync="manualSplitDialogVisible"
+      width="500px"
+      append-to-body
+    >
+      <el-form
+        ref="manualSplitForm"
+        :model="manualSplitForm"
+        label-width="100px"
+        size="small"
+      >
+        <el-form-item label="游戏类型" required>
+          <el-select
+            v-model="manualSplitForm.game_type"
+            placeholder="请选择游戏类型"
+            style="width: 100%"
+          >
+            <el-option
+              v-for="item in gameTypes"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="玩法" required>
+          <el-select
+            v-model="manualSplitForm.game_category"
+            placeholder="请选择玩法"
+            style="width: 100%"
+          >
+            <el-option label="福彩" :value="1"></el-option>
+            <el-option label="体彩" :value="2"></el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="每注金额" required>
+          <el-input
+            v-model.number="manualSplitForm.bet_amount"
+            type="number"
+            placeholder="请输入每注金额"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="manualSplitDialogVisible = false" size="small"
+          >取 消</el-button
+        >
+        <el-button
+          type="primary"
+          @click="executeManualSplit"
+          size="small"
+          :loading="manualSplitLoading"
+          >立即拆分</el-button
+        >
+      </span>
+    </el-dialog>
   </el-dialog>
 </template>
 
@@ -196,6 +265,16 @@ export default {
         order_details: [],
       },
       backend: false,
+      // 手动拆分弹窗状态
+      manualSplitDialogVisible: false,
+      // 手动拆分表单数据
+      manualSplitForm: {
+        game_type: "",
+        game_category: 1,
+        bet_amount: 2,
+      },
+      // 手动拆分loading状态
+      manualSplitLoading: false,
     };
   },
   computed: {
@@ -394,6 +473,79 @@ export default {
         bet_content: "",
         order_details: [],
       };
+    },
+
+    // 打开手动拆分弹窗
+    openManualSplitDialog() {
+      this.manualSplitForm = {
+        game_type: "",
+        game_category: 1,
+        bet_amount: 2,
+      };
+      this.manualSplitDialogVisible = true;
+    },
+
+    // 执行手动拆分
+    executeManualSplit() {
+      // 表单验证
+      if (!this.manualSplitForm.game_type) {
+        this.$message.warning("请选择游戏类型");
+        return;
+      }
+      if (!this.manualSplitForm.game_category) {
+        this.$message.warning("请选择玩法");
+        return;
+      }
+      if (
+        !this.manualSplitForm.bet_amount ||
+        this.manualSplitForm.bet_amount <= 0
+      ) {
+        this.$message.warning("请输入有效的投注金额");
+        return;
+      }
+
+      // 显示loading
+      this.manualSplitLoading = true;
+
+      // 使用 setTimeout 让 UI 有机会更新 loading 状态
+      setTimeout(() => {
+        try {
+          // 从 bet_content 中提取所有3位数值
+          const betContent = this.formData.bet_content || "";
+          const threeDigitNumbers = betContent.match(/\b\d{3}\b/g);
+
+          if (!threeDigitNumbers || threeDigitNumbers.length === 0) {
+            this.$message.warning("未在投注内容中找到3位数值");
+            this.manualSplitLoading = false;
+            return;
+          }
+
+          // 去重处理
+          const uniqueNumbers = [...new Set(threeDigitNumbers)];
+
+          // 为每个号码创建订单详情并添加到 order_details
+          uniqueNumbers.forEach((number) => {
+            this.formData.order_details.push({
+              game_category: this.manualSplitForm.game_category,
+              game_type: this.manualSplitForm.game_type,
+              bet_number: number,
+              bet_count: 1,
+              bet_amount: this.manualSplitForm.bet_amount,
+              multiple: 1,
+              order_amount: this.manualSplitForm.bet_amount,
+            });
+          });
+
+          this.$message.success(`成功拆分 ${uniqueNumbers.length} 个号码`);
+          this.manualSplitDialogVisible = false;
+        } catch (error) {
+          console.error("手动拆分异常:", error);
+          this.$message.error("手动拆分失败");
+        } finally {
+          // 关闭loading
+          this.manualSplitLoading = false;
+        }
+      }, 100);
     },
   },
 };
