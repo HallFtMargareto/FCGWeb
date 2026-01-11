@@ -232,7 +232,7 @@ export default {
         }
       } catch (error) {
         this.chartData = null;
-        this.$message.error("获取数据失败");
+        // this.$message.error("获取数据失败");
         console.error("获取图表数据失败:", error);
       } finally {
         this.chartLoading = false;
