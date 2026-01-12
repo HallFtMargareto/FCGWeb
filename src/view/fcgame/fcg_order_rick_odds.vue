@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="search-term">
-      <searchform size="mini" :maxShow="10" @search="getChartData">
+      <searchform size="mini" :maxShow="9" @search="getChartData">
         <el-form-item label="期号">
           <IssueSelect
             v-model="chartIssueId"
@@ -78,6 +78,8 @@
           >
         </el-form-item>
 
+        <!-- <el-divider content-position="center">号码过滤</el-divider> -->
+
         <!-- <el-form-item label="阈值比例">
                     <el-input v-model="alpha" :min="0" :max="1" :step="0.1" placeholder="请输入阈值比例"></el-input>
                 </el-form-item>
@@ -92,6 +94,59 @@
         <el-form-item label="结束时间">
           <datepicker v-model="searchInfo.endTime" type="datetime" />
         </el-form-item> -->
+
+        <el-form-item> </el-form-item>
+
+        <el-form-item label="百位过滤">
+          <div class="combo-input">
+            <el-input
+              v-model.number="hundredsNum"
+              maxlength="1"
+              class="left"
+              placeholder="百位号码"
+            />
+            <div class="split">-</div>
+            <el-input
+              v-model.number="hundredsCount"
+              class="right"
+              placeholder="单量"
+            />
+          </div>
+        </el-form-item>
+
+        <el-form-item label="十位过滤">
+          <div class="combo-input">
+            <el-input
+              v-model.number="tenthNum"
+              maxlength="1"
+              class="left"
+              placeholder="十位号码"
+            />
+            <div class="split">-</div>
+            <el-input
+              v-model.number="tenthCount"
+              class="right"
+              placeholder="单量"
+            />
+          </div>
+        </el-form-item>
+
+        <el-form-item label="个位过滤">
+          <div class="combo-input">
+            <el-input
+              v-model.number="onesNum"
+              maxlength="1"
+              class="left"
+              placeholder="个位号码"
+            />
+            <div class="split">-</div>
+            <el-input
+              v-model.number="onesCount"
+              class="right"
+              placeholder="单量"
+            />
+          </div>
+        </el-form-item>
       </searchform>
       <!-- <el-form size="mini" :inline="true" class="btn-form-inline">
         <el-button v-if="userInfo.perm['system.create']" @click="createRow" icon="el-icon-plus"
@@ -747,6 +802,14 @@ export default {
         totalWinAmount: 0,
         totalWaterAmount: 0,
       }, // 模拟转出汇总数据
+
+      //号码过滤
+      hundredsNum: null,
+      hundredsCount: null,
+      tenthNum: null,
+      tenthCount: null,
+      onesNum: null,
+      onesCount: null,
     };
   },
   methods: {
@@ -805,6 +868,14 @@ export default {
           ks_amount: this.ks_amount,
           tenant_id: this.tenant_id,
           trans_count: this.search_trans_count,
+
+          //号码过滤
+          hundredsNum: this.hundredsNum,
+          tenthNum: this.tenthNum,
+          onesNum: this.onesNum,
+          hundredsCount: this.hundredsCount,
+          tenthCount: this.tenthCount,
+          onesCount: this.onesCount,
         });
         if (res.code === 0 && res.data) {
           this.rickDataInfo = res.data;
@@ -1083,6 +1154,18 @@ export default {
           issue_id: this.chartIssueId,
           command: "transfer",
           transfer_list: transfer_list,
+
+          //基础参数
+          // ks_amount: this.ks_amount, //预亏损金额
+          // trans_count: this.search_trans_count, //转出单量
+
+          //号码过滤
+          // hundredsNum: this.hundredsNum,
+          // tenthNum: this.tenthNum,
+          // onesNum: this.onesNum,
+          // hundredsCount: this.hundredsCount,
+          // tenthCount: this.tenthCount,
+          // onesCount: this.onesCount,
         };
 
         // 调用API接口
@@ -1656,5 +1739,29 @@ export default {
 .markdown-content em {
   font-style: italic;
   color: #606266;
+}
+
+/* 组合文本框 */
+.combo-input {
+  display: flex;
+  align-items: center;
+}
+
+.left .el-input__inner {
+  width: 60px;
+  text-align: center;
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+}
+
+.right .el-input__inner {
+  width: 120px;
+  border-left: none;
+  border-radius: 0 4px 0 4px;
+}
+
+.split {
+  padding: 0 6px;
+  color: #999;
 }
 </style>
