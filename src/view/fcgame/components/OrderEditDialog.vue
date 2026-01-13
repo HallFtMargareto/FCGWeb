@@ -39,12 +39,14 @@
       </el-row>
       <el-row>
         <el-col :span="24" style="text-align: right">
-          <el-button
-            @click="openManualSplitDialog"
-            size="mini"
-            style="margin-right: 45%"
-            >手动拆分</el-button
-          >
+          <span style="margin-right: 39%">
+            <el-button @click="clearOrderDetails" size="mini"
+              >清空订单</el-button
+            >
+            <el-button @click="openManualSplitDialog" size="mini"
+              >手动拆分</el-button
+            >
+          </span>
 
           <el-button @click="reidentify(true)" size="mini">后台识别</el-button>
           <el-button type="success" @click="reidentify(false)" size="mini"
@@ -546,6 +548,25 @@ export default {
           this.manualSplitLoading = false;
         }
       }, 100);
+    },
+
+    // 清空订单详情
+    clearOrderDetails() {
+      this.$confirm("确认清空订单列表吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          this.formData.order_details = [];
+          this.$message({
+            type: "success",
+            message: "已清空订单列表",
+          });
+        })
+        .catch(() => {
+          // 用户取消操作
+        });
     },
   },
 };
