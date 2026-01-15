@@ -21,6 +21,14 @@
           </el-form-item>
         </template>
 
+        <el-form-item label="订单ID">
+          <el-input
+            v-model="searchInfo.order_id"
+            placeholder="请输入订单ID"
+            clearable
+          ></el-input>
+        </el-form-item>
+
         <el-form-item label="投注内容">
           <el-input
             v-model.number="searchInfo.bet_content"
@@ -47,12 +55,12 @@
       :summary-method="getSummaries"
     >
       <el-table-column type="selection" width="50"></el-table-column>
-      <el-table-column
+      <!-- <el-table-column
         label="ID"
         prop="ID"
         width="100"
         sortable
-      ></el-table-column>
+      ></el-table-column> -->
 
       <el-table-column label="订单ID" prop="order_id" width="100">
       </el-table-column>
