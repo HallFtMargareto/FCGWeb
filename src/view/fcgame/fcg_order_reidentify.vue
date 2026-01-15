@@ -56,25 +56,43 @@
 
       <!-- <el-table-column label="order_id" prop="order_id"> </el-table-column> -->
 
-      <el-table-column label="投注内容" prop="source_content">
+      <el-table-column label="内容对比" width="900">
         <template slot-scope="scope">
-          <div style="white-space: pre-wrap; word-break: break-all">
-            {{ scope.row.source_content }}
+          <div class="compare-container">
+            <div class="compare-item source">
+              <div class="compare-header">
+                <span class="header-label">原内容</span>
+              </div>
+              <div class="compare-body">
+                {{ scope.row.source_content }}
+              </div>
+            </div>
+            <div class="compare-divider">
+              <i class="el-icon-d-arrow-right"></i>
+            </div>
+            <div class="compare-item new">
+              <div class="compare-header">
+                <span class="header-label">调整后</span>
+              </div>
+              <div class="compare-body">
+                {{ scope.row.new_content }}
+              </div>
+            </div>
           </div>
         </template>
       </el-table-column>
 
-      <el-table-column label="调整内容" prop="new_content">
-        <template slot-scope="scope">
-          <div style="white-space: pre-wrap; word-break: break-all">
-            {{ scope.row.new_content }}
-          </div>
-        </template>
+      <el-table-column
+        v-if="userInfo.perm['host']"
+        label="所属组织"
+        prop="platform_name"
+        width="100"
+      >
       </el-table-column>
-
-      <!-- <el-table-column label="issue_id" prop="issue_id"> </el-table-column>
-
-      <el-table-column label="tenant_id" prop="tenant_id"> </el-table-column> -->
+      <el-table-column label="所属会话" prop="contact_nick_name">
+      </el-table-column>
+      <el-table-column label="操作账号" prop="admin_nick_name">
+      </el-table-column>
 
       <el-table-column
         label="操作时间"
@@ -374,4 +392,59 @@ export default {
 </script>
 
 <style scoped>
+.compare-container {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  padding: 8px;
+}
+
+.compare-item {
+  flex: 1;
+  border: 1px solid #e4e7ed;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.compare-item.source {
+  border-color: #dcdfe6;
+}
+
+.compare-item.new {
+  border-color: #b3d8ff;
+  background-color: #ecf5ff;
+}
+
+.compare-header {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #f5f7fa;
+  border-bottom: 1px solid #e4e7ed;
+}
+
+.compare-item.new .compare-header {
+  background-color: #d9ecff;
+  color: #409eff;
+}
+
+.compare-body {
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 150px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.compare-divider {
+  display: flex;
+  align-items: center;
+  color: #909399;
+  font-size: 16px;
+}
 </style>
