@@ -158,7 +158,11 @@
       :show-summary="showSummary"
       :summary-method="getSummaries"
     >
-      <el-table-column type="selection" width="50"></el-table-column>
+      <el-table-column
+        type="selection"
+        width="50"
+        align="center"
+      ></el-table-column>
       <!-- <el-table-column
         label="ID"
         prop="ID"
@@ -166,14 +170,14 @@
         width="80"
       ></el-table-column> -->
 
-      <el-table-column label="订单ID" prop="order_id" width="120">
+      <el-table-column label="订单ID" prop="order_id" width="80" align="center">
       </el-table-column>
 
       <el-table-column
         label="原投注数量"
         prop="source_bet_count"
         width="120"
-        align="right"
+        align="center"
       >
       </el-table-column>
 
@@ -181,7 +185,7 @@
         label="原投注金额"
         prop="source_bet_amount"
         width="130"
-        align="right"
+        align="center"
       >
         <template slot-scope="scope">{{
           formatAmount(scope.row.source_bet_amount)
@@ -192,7 +196,7 @@
         label="原中奖金额"
         prop="source_win_amount"
         width="130"
-        align="right"
+        align="center"
       >
         <template slot-scope="scope">{{
           formatAmount(scope.row.source_win_amount)
@@ -202,16 +206,16 @@
       <el-table-column
         label="变更后投注数量"
         prop="alter_bet_count"
-        width="120"
-        align="right"
+        width="200"
+        align="center"
       >
       </el-table-column>
 
       <el-table-column
         label="变更后投注金额"
         prop="alter_bet_amount"
-        width="130"
-        align="right"
+        width="200"
+        align="center"
       >
         <template slot-scope="scope">{{
           formatAmount(scope.row.alter_bet_amount)
@@ -221,23 +225,32 @@
       <el-table-column
         label="变更后中奖金额"
         prop="alter_win_amount"
-        width="130"
-        align="right"
+        width="200"
+        align="center"
       >
         <template slot-scope="scope">{{
           formatAmount(scope.row.alter_win_amount)
         }}</template>
       </el-table-column>
 
-      <el-table-column label="组织" prop="platform_name"> </el-table-column>
-      <el-table-column label="会话" prop="contact_nick_name"> </el-table-column>
-      <el-table-column label="操作用户" prop="platform_name"> </el-table-column>
+      <el-table-column
+        label="所属组织"
+        prop="platform_name"
+        width="100"
+        align="center"
+      >
+      </el-table-column>
+      <el-table-column label="所属会话" prop="contact_nick_name" align="center">
+      </el-table-column>
+      <el-table-column label="操作用户" prop="platform_name" align="center">
+      </el-table-column>
 
       <el-table-column
         label="操作时间"
         width="160"
         prop="created_at"
         sortable="custom"
+        align="center"
       >
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
       </el-table-column>
@@ -640,6 +653,11 @@ export default {
   background-color: #f5f7fa;
   color: #606266;
   font-weight: 600;
+  text-align: center;
+}
+
+.el-table td {
+  text-align: center;
 }
 
 .el-table--striped .el-table__body tr.el-table__row--striped td {
