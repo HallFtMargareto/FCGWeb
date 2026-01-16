@@ -165,13 +165,13 @@
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
       </el-table-column>
 
-      <el-table-column label="产品" prop="state">
+      <!-- <el-table-column label="产品" prop="state">
         <template slot-scope="scope">
           <el-button @click="setProd(scope.row)" type="text" size="small"
             >产品配置</el-button
           >
         </template>
-      </el-table-column>
+      </el-table-column> -->
 
       <el-table-column label="操作" fixed="right" width="200">
         <template slot-scope="scope">
