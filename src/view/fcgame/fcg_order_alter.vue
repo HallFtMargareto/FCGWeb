@@ -242,7 +242,7 @@
       </el-table-column>
       <el-table-column label="所属会话" prop="contact_nick_name" align="center">
       </el-table-column>
-      <el-table-column label="操作用户" prop="platform_name" align="center">
+      <el-table-column label="操作用户" prop="admin_nick_name" align="center">
       </el-table-column>
 
       <el-table-column
