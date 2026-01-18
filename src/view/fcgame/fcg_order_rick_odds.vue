@@ -1230,7 +1230,6 @@ export default {
     // 确认选择通道
     handleChannelConfirm(channelId) {
       this.selectedChannelId = channelId;
-      this.$message.success(`已选择通道ID: ${channelId}`);
       // 这里可以调用其他方法进行后续处理
       // 例如：执行渠道转单操作
       this.executeChannelTransfer();
@@ -1239,7 +1238,6 @@ export default {
     // 取消选择通道
     handleChannelCancel() {
       this.selectedChannelId = null;
-      this.$message.info("已取消选择");
     },
 
     // 执行渠道转单操作
