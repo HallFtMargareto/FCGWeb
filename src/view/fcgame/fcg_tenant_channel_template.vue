@@ -366,7 +366,7 @@ export default {
       this.dialogTitle = "编辑";
       const res = await findFcgTenantChannelTemplate({ ID: row.ID });
       if (res.code == 0) {
-        this.formData = res.data.rerecharge_channel_template;
+        this.formData = res.data.refcg_tenant_channel_template || {};
         if (this.formData.params == null) {
           this.formData.params = [];
         }
@@ -485,7 +485,6 @@ export default {
   },
   async created() {
     await this.getTableData();
-    this.loadProvider();
   },
 };
 </script>

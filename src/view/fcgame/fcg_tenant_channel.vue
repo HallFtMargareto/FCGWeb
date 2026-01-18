@@ -114,6 +114,8 @@
       <!-- <el-table-column label="通道编码" prop="code" show-overflow-tooltip>
       </el-table-column> -->
 
+      <el-table-column label="通道水费" prop="water_amount"> </el-table-column>
+
       <el-table-column label="通道回调地址" width="300">
         <template slot-scope="scope"
           >{{ scope.row.callback_url }}
@@ -137,7 +139,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="负利润通道" prop="negative_profit">
+      <el-table-column label="负利润通道" prop="water_amount">
         <template slot-scope="scope">
           <booltag :tagState="scope.row.negative_profit" true-text="是" false-text="否"></booltag>
         </template>
@@ -239,6 +241,14 @@
             ></el-input>
           </el-form-item>
 
+          <el-form-item label="通道水费" prop="water_amount">
+            <el-input
+              v-model="formData.water_amount"
+              clearable
+              placeholder="请输入"
+            ></el-input>
+          </el-form-item>
+
           <!-- <el-form-item label="所属上游" prop="provider_id">
             <el-select
               v-model="formData.provider_id"
@@ -270,7 +280,7 @@
             ></el-input>
           </el-form-item> -->
 
-          <el-form-item label="发送消息" prop="is_message">
+          <!-- <el-form-item label="发送消息" prop="is_message">
             <el-switch
               active-color="#13ce66"
               inactive-color="#ff4949"
@@ -289,7 +299,7 @@
               placeholder="请输入"
               clearable
             ></el-input>
-          </el-form-item>
+          </el-form-item> -->
 
           <el-form-item label="开启查询" prop="is_query">
             <el-switch
@@ -325,7 +335,7 @@
             </el-input>
           </el-form-item>
 
-          <el-form-item label="负利润" prop="negative_profit">
+          <!-- <el-form-item label="负利润" prop="negative_profit">
             <el-switch
               active-color="#13ce66"
               inactive-color="#ff4949"
@@ -333,7 +343,7 @@
               inactive-text="否"
               v-model="formData.negative_profit"
             ></el-switch>
-          </el-form-item>
+          </el-form-item> -->
 
           <el-form-item label="备注" prop="remark">
             <el-input

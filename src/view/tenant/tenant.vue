@@ -225,6 +225,16 @@
           </el-tag>
         </template>
       </el-table-column>
+      <el-table-column label="渠道转单" prop="channel_trans" align="center">
+        <template slot-scope="scope">
+          <el-tag
+            :type="scope.row.channel_trans ? 'success' : 'info'"
+            size="mini"
+          >
+            {{ scope.row.channel_trans ? "启用" : "禁用" }}
+          </el-tag>
+        </template>
+      </el-table-column>
 
       <el-table-column prop="created_at" label="创建时间" sortable="custom">
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
@@ -338,6 +348,16 @@
             active-text="启用"
             inactive-text="禁用"
             v-model="formData.fast_trans"
+            clearable
+          ></el-switch>
+        </el-form-item>
+        <el-form-item label="渠道转单" prop="channel_trans">
+          <el-switch
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            active-text="启用"
+            inactive-text="禁用"
+            v-model="formData.channel_trans"
             clearable
           ></el-switch>
         </el-form-item>
