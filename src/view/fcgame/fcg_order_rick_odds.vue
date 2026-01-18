@@ -197,11 +197,22 @@
         </el-descriptions>
         <div class="button-column">
           <el-button
+            v-if="channel_trans"
+            type="primary"
+            :disabled="multipleSelection.length === 0"
+            :loading="fastTransferLoading"
+            @click="handleChannelTransfer()"
+            size="mini"
+          >
+            渠道转单
+          </el-button>
+          <el-button
+            v-if="fast_trans"
             type="warning"
             :disabled="multipleSelection.length === 0"
             :loading="fastTransferLoading"
             @click="handleFastTransfer(false)"
-            size="medium"
+            size="mini"
           >
             快速转单
           </el-button>
@@ -209,7 +220,7 @@
             :disabled="multipleSelection.length === 0"
             :loading="fastTransferLoading"
             @click="handleFastTransfer(true)"
-            size="medium"
+            size="mini"
           >
             模拟转出
           </el-button>
@@ -572,6 +583,14 @@
         <el-button @click="showSimulateDialog = false">关 闭</el-button>
       </span>
     </el-dialog>
+
+    <!-- 渠道选择弹窗 -->
+    <channel-select-dialog
+      ref="channelSelectDialog"
+      v-model="showChannelSelectDialog"
+      @confirm="handleChannelConfirm"
+      @cancel="handleChannelCancel"
+    ></channel-select-dialog>
   </div>
 </template>
 
@@ -584,9 +603,13 @@ import { preLossDataAnalysisSSE } from "@/api/fcgame/fcg_aianalysis";
 import infoList from "@/mixins/infoList";
 import { mapGetters, mapMutations } from "vuex";
 import MarkdownIt from "markdown-it";
+import ChannelSelectDialog from "@/view/fcgame/components/ChannelSelectDialog.vue";
 export default {
   name: "fcg_order_split_number",
   mixins: [infoList],
+  components: {
+    ChannelSelectDialog,
+  },
   computed: {
     ...mapGetters("user", ["userInfo"]),
     // 渲染后的Markdown内容
@@ -757,6 +780,8 @@ export default {
   },
   data() {
     return {
+      fast_trans: false,
+      channel_trans: false,
       listApi: getFcgOrderSplitNumberList,
       openDialog: false,
       dialogTitle: "",
@@ -810,6 +835,8 @@ export default {
       tenthCount: null,
       onesNum: null,
       onesCount: null,
+      showChannelSelectDialog: false,
+      selectedChannelId: null,
     };
   },
   methods: {
@@ -879,6 +906,9 @@ export default {
         });
         if (res.code === 0 && res.data) {
           this.rickDataInfo = res.data;
+
+          this.fast_trans = res.data.fast_trans;
+          this.channel_trans = res.data.channel_trans;
         } else {
           this.chartData = null;
           this.$message.error(res.msg || "获取数据失败");
@@ -1181,6 +1211,75 @@ export default {
         console.error("保存转出数据失败:", error);
       } finally {
         this.copyLoading = false;
+      }
+    },
+
+    // 点击渠道转单按钮
+    async handleChannelTransfer() {
+      if (this.multipleSelection.length === 0) {
+        this.$message.warning("请选择数据");
+        return;
+      }
+      this.showChannelSelectDialog = true;
+      // 通过 ref 调用组件的 open 方法
+      this.$nextTick(() => {
+        this.$refs.channelSelectDialog.open();
+      });
+    },
+
+    // 确认选择通道
+    handleChannelConfirm(channelId) {
+      this.selectedChannelId = channelId;
+      this.$message.success(`已选择通道ID: ${channelId}`);
+      // 这里可以调用其他方法进行后续处理
+      // 例如：执行渠道转单操作
+      this.executeChannelTransfer();
+    },
+
+    // 取消选择通道
+    handleChannelCancel() {
+      this.selectedChannelId = null;
+      this.$message.info("已取消选择");
+    },
+
+    // 执行渠道转单操作
+    async executeChannelTransfer() {
+      try {
+        this.fastTransferLoading = true;
+
+        // 构建transfer_list数据
+        const transfer_list = this.multipleSelection.map((item) => ({
+          split_number: item.split_number,
+          trans_count: item.trans_count,
+          trans_amount: item.trans_amount,
+          tenant_id: this.tenant_id,
+        }));
+
+        // 构建请求数据
+        const requestData = {
+          game_category: this.game_category,
+          ids: [this.chartIssueId],
+          issue_id: this.chartIssueId,
+          command: "transfer",
+          transfer_list: transfer_list,
+          channel_id: this.selectedChannelId, // 添加选中的通道ID
+        };
+
+        // 调用API接口
+        const res = await batchFcgOrderSplitNumberOperation(requestData);
+
+        if (res.code === 0) {
+          this.$message.success("渠道转单成功");
+          // 刷新数据
+          this.getChartData();
+        } else {
+          this.$message.error(res.msg || "渠道转单失败");
+        }
+      } catch (error) {
+        this.$message.error("渠道转单失败");
+        console.error("渠道转单失败:", error);
+      } finally {
+        this.fastTransferLoading = false;
       }
     },
 
