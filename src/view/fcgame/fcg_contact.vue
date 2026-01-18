@@ -139,12 +139,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column
-        label="所属账号"
-        prop="owner_nick_name"
-        width="200"
-        v-if="userInfo.perm['host']"
-      >
+      <el-table-column label="所属账号" prop="owner_nick_name" width="200">
       </el-table-column>
 
       <el-table-column label="会话状态" prop="state">

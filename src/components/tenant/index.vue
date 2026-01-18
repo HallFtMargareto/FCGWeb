@@ -6,6 +6,7 @@
     :disabled="disabled"
     :clearable="clearable"
     :filterable="filterable"
+    :multiple="multiple"
     @change="handleChange"
     @clear="handleClear"
     @focus="handleFocus"
@@ -29,8 +30,13 @@ export default {
   props: {
     // v-model绑定的值
     value: {
-      type: [Number, String],
+      type: [Number, String, Array],
       default: null,
+    },
+    // 是否启用多选
+    multiple: {
+      type: Boolean,
+      default: false,
     },
     // 占位符
     placeholder: {
@@ -66,7 +72,7 @@ export default {
   },
   data() {
     return {
-      selectedValue: this.value,
+      selectedValue: this.multiple ? [] : this.value,
       isInitialized: false,
     };
   },
@@ -85,7 +91,20 @@ export default {
     // 监听外部value变化
     value: {
       handler(newVal) {
-        this.selectedValue = newVal;
+        if (this.multiple) {
+          // 多选模式：将逗号分隔的字符串转换为数组
+          if (typeof newVal === "string" && newVal) {
+            this.selectedValue = newVal
+              .split(",")
+              .map((id) => Number(id.trim()))
+              .filter((id) => !isNaN(id));
+          } else {
+            this.selectedValue = [];
+          }
+        } else {
+          // 单选模式：直接使用值
+          this.selectedValue = newVal;
+        }
       },
       immediate: true,
     },
@@ -106,7 +125,14 @@ export default {
     // 监听选中值变化，同步到外部
     selectedValue: {
       handler(newVal) {
-        this.$emit("input", newVal);
+        if (this.multiple) {
+          // 多选模式：将数组转换为逗号分隔的字符串
+          const valueStr = Array.isArray(newVal) ? newVal.join(",") : "";
+          this.$emit("input", valueStr);
+        } else {
+          // 单选模式：直接使用值
+          this.$emit("input", newVal);
+        }
       },
       immediate: true,
     },
@@ -146,9 +172,15 @@ export default {
      */
     selectFirstTenant() {
       if (this.firstTenant) {
-        this.selectedValue = this.firstTenant.ID;
-        this.$emit("input", this.firstTenant.ID);
-        this.$emit("change", this.firstTenant.ID, this.firstTenant);
+        if (this.multiple) {
+          this.selectedValue = [this.firstTenant.ID];
+          this.$emit("input", String(this.firstTenant.ID));
+          this.$emit("change", String(this.firstTenant.ID), [this.firstTenant]);
+        } else {
+          this.selectedValue = this.firstTenant.ID;
+          this.$emit("input", this.firstTenant.ID);
+          this.$emit("change", this.firstTenant.ID, this.firstTenant);
+        }
       }
     },
 
@@ -156,16 +188,28 @@ export default {
      * 处理选择变化
      */
     handleChange(value) {
-      const selectedTenant = this.tenants.find((tenant) => tenant.ID === value);
-      this.$emit("change", value, selectedTenant);
+      if (this.multiple) {
+        // 多选模式：返回逗号分隔的ID字符串和租户数组
+        const valueStr = Array.isArray(value) ? value.join(",") : "";
+        const selectedTenants = value
+          .map((id) => this.tenants.find((tenant) => tenant.ID === id))
+          .filter(Boolean);
+        this.$emit("change", valueStr, selectedTenants);
+      } else {
+        // 单选模式：返回单个租户
+        const selectedTenant = this.tenants.find(
+          (tenant) => tenant.ID === value
+        );
+        this.$emit("change", value, selectedTenant);
+      }
     },
 
     /**
      * 处理清空选择
      */
     handleClear() {
-      this.selectedValue = null;
-      this.$emit("input", null);
+      this.selectedValue = this.multiple ? [] : null;
+      this.$emit("input", this.multiple ? "" : null);
       this.$emit("clear");
     },
 
@@ -181,9 +225,25 @@ export default {
      */
     getSelectedTenant() {
       if (!this.selectedValue) return null;
-      return (
-        this.tenants.find((tenant) => tenant.ID === this.selectedValue) || null
-      );
+
+      if (this.multiple) {
+        // 多选模式：返回租户数组
+        if (
+          !Array.isArray(this.selectedValue) ||
+          this.selectedValue.length === 0
+        ) {
+          return [];
+        }
+        return this.selectedValue
+          .map((id) => this.tenants.find((tenant) => tenant.ID === id))
+          .filter(Boolean);
+      } else {
+        // 单选模式：返回单个租户
+        return (
+          this.tenants.find((tenant) => tenant.ID === this.selectedValue) ||
+          null
+        );
+      }
     },
 
     /**

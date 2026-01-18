@@ -13,9 +13,10 @@
         <template v-if="userInfo.perm['host']">
           <el-form-item label="所属组织">
             <TenantSelect
-              v-model="searchInfo.tenant_id"
+              v-model="searchInfo.tenant_ids"
               placeholder="请选择组织"
               :autoSelectFirst="false"
+              :multiple="true"
               clearable
             ></TenantSelect>
           </el-form-item>

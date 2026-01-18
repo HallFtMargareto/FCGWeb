@@ -2,17 +2,41 @@
   <div>
     <div class="search-term">
       <searchform size="mini" :maxShow="4" @search="onQuery">
-
         <el-form-item label="用户名称">
-          <el-input v-model="searchInfo.nick_name" placeholder="发送用户名" clearable></el-input>
+          <el-input
+            v-model="searchInfo.nick_name"
+            placeholder="发送用户名"
+            clearable
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item label="所属组织" v-if="userInfo.perm['host']">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <TenantSelect
+              v-model="searchInfo.tenant_id"
+              placeholder="请选择组织"
+              :autoSelectFirst="false"
+              :multiple="false"
+              clearable
+              style="flex: 1"
+            ></TenantSelect>
+          </div>
         </el-form-item>
 
         <el-form-item label="所属会话">
-          <el-input v-model="searchInfo.session_name" placeholder="所属会话" clearable></el-input>
+          <el-input
+            v-model="searchInfo.session_name"
+            placeholder="所属会话"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="识别状态">
-          <el-select v-model="searchInfo.recognition_status" placeholder="识别状态" clearable>
+          <el-select
+            v-model="searchInfo.recognition_status"
+            placeholder="识别状态"
+            clearable
+          >
             <el-option label="识别完成" :value="2"></el-option>
             <el-option label="识别失败" :value="3"></el-option>
             <el-option label="识别中" :value="1"></el-option>
@@ -33,15 +57,27 @@
         </el-form-item> -->
 
         <el-form-item label="消息内容">
-          <el-input v-model="searchInfo.message_content" placeholder="消息文本内容" clearable></el-input>
+          <el-input
+            v-model="searchInfo.message_content"
+            placeholder="消息文本内容"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="发送时间">
-          <el-input v-model="searchInfo.create_time" placeholder="创建时间戳" clearable></el-input>
+          <el-input
+            v-model="searchInfo.create_time"
+            placeholder="创建时间戳"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="用户标识">
-          <el-input v-model="searchInfo.user_name" placeholder="用户标识" clearable></el-input>
+          <el-input
+            v-model="searchInfo.user_name"
+            placeholder="用户标识"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <!-- 
@@ -50,18 +86,34 @@
         </el-form-item> -->
 
         <el-form-item label="消息编号">
-          <el-input v-model="searchInfo.message_no" placeholder="业务唯一编号" clearable></el-input>
+          <el-input
+            v-model="searchInfo.message_no"
+            placeholder="业务唯一编号"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="任务列表">
-          <el-input v-model="searchInfo.task_list" placeholder="JSON格式任务列表" clearable></el-input>
+          <el-input
+            v-model="searchInfo.task_list"
+            placeholder="JSON格式任务列表"
+            clearable
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="添加时间">
-          <datepicker v-model="searchInfo.startTime" type="datetime" placeholder="开始时间" />
+          <datepicker
+            v-model="searchInfo.startTime"
+            type="datetime"
+            placeholder="开始时间"
+          />
         </el-form-item>
         <el-form-item label="结束时间">
-          <datepicker v-model="searchInfo.endTime" type="datetime" placeholder="结束时间" />
+          <datepicker
+            v-model="searchInfo.endTime"
+            type="datetime"
+            placeholder="结束时间"
+          />
         </el-form-item>
       </searchform>
 
@@ -75,8 +127,14 @@
       </el-form> -->
     </div>
 
-    <el-table :data="tableData" @selection-change="handleSelectionChange" @sort-change="sortChange" ref="multipleTable"
-      :show-summary="showSummary" :summary-method="getSummaries">
+    <el-table
+      :data="tableData"
+      @selection-change="handleSelectionChange"
+      @sort-change="sortChange"
+      ref="multipleTable"
+      :show-summary="showSummary"
+      :summary-method="getSummaries"
+    >
       <el-table-column type="selection" width="50"></el-table-column>
       <el-table-column label="ID" prop="ID" sortable></el-table-column>
 
@@ -84,7 +142,7 @@
       </el-table-column> -->
       <el-table-column label="所属会话" prop="session_name">
         <template slot-scope="scope">
-          {{ scope.row.nick_name }} <br>
+          {{ scope.row.nick_name }} <br />
           {{ scope.row.session_name }}
         </template>
       </el-table-column>
@@ -107,31 +165,53 @@
       <!-- <el-table-column label="消息ID" prop="server_id" width="200">
       </el-table-column> -->
 
-
       <!-- <el-table-column label="消息类型" prop="local_type">
       </el-table-column> -->
 
       <!-- <el-table-column label="真实发送者" prop="real_sender_id">
       </el-table-column> -->
 
-
       <!-- <el-table-column label="消息状态" prop="status">
       </el-table-column> -->
 
-
       <el-table-column label="识别状态" prop="recognition_status" width="120">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.recognition_status === 0" type="info" size="mini">未识别</el-tag>
-          <el-tag v-else-if="scope.row.recognition_status === 1" type="warning" size="mini">识别中</el-tag>
-          <el-tag v-else-if="scope.row.recognition_status === 2" type="success" size="mini">识别完成</el-tag>
-          <el-tag v-else-if="scope.row.recognition_status === 3" type="danger" size="mini">识别失败</el-tag>
+          <el-tag
+            v-if="scope.row.recognition_status === 0"
+            type="info"
+            size="mini"
+            >未识别</el-tag
+          >
+          <el-tag
+            v-else-if="scope.row.recognition_status === 1"
+            type="warning"
+            size="mini"
+            >识别中</el-tag
+          >
+          <el-tag
+            v-else-if="scope.row.recognition_status === 2"
+            type="success"
+            size="mini"
+            >识别完成</el-tag
+          >
+          <el-tag
+            v-else-if="scope.row.recognition_status === 3"
+            type="danger"
+            size="mini"
+            >识别失败</el-tag
+          >
           <span v-else>未识别</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="LLM" width="500" prop="llm_resp" show-overflow-tooltip>
+      <el-table-column
+        label="LLM"
+        width="500"
+        prop="llm_resp"
+        show-overflow-tooltip
+      >
         <template slot-scope="scope">
-          <code style="white-space: pre-wrap; word-break: break-all;">
+          <code style="white-space: pre-wrap; word-break: break-all">
             {{ scope.row.llm_resp }}
           </code>
         </template>
@@ -147,8 +227,8 @@
 
       <el-table-column label="时间" prop="create_time" width="250">
         <template slot-scope="scope">
-          发送时间：{{ formatTimestamp(scope.row.create_time) }} <br>
-          开始识别时间：{{ formatTimestamp(scope.row.llm_st) }} <br>
+          发送时间：{{ formatTimestamp(scope.row.create_time) }} <br />
+          开始识别时间：{{ formatTimestamp(scope.row.llm_st) }} <br />
           识别完成时间：{{ formatTimestamp(scope.row.llm_et) }}
         </template>
       </el-table-column>
@@ -170,49 +250,111 @@
     <div>
       <!-- 数据合计,按需求启用 -->
       <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
-      <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
-        :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
-        @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
+      <el-pagination
+        :current-page="page"
+        :page-size="pageSize"
+        :page-sizes="[10, 30, 50, 100]"
+        :style="{ float: 'right', padding: '20px' }"
+        :total="total"
+        @current-change="handleCurrentChange"
+        @size-change="handleSizeChange"
+        layout="total, sizes, prev, pager, next, jumper"
+        background
+      ></el-pagination>
     </div>
 
-    <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
-      @confirm="enterDialog" ref="dialog">
+    <dialogform
+      :visible.sync="openDialog"
+      :dialogTitle="dialogTitle"
+      :formDatas="formData"
+      :formRule="formRules"
+      @confirm="enterDialog"
+      ref="dialog"
+    >
       <el-form-item label="租户ID" prop="tenant_id">
-        <el-input v-model.number="formData.tenant_id" placeholder="请输入租户ID" clearable></el-input>
+        <el-input
+          v-model.number="formData.tenant_id"
+          placeholder="请输入租户ID"
+          clearable
+        ></el-input>
       </el-form-item>
       <el-form-item label="发送者" prop="user_name">
-        <el-input v-model="formData.user_name" placeholder="请输入发送者" clearable></el-input>
+        <el-input
+          v-model="formData.user_name"
+          placeholder="请输入发送者"
+          clearable
+        ></el-input>
       </el-form-item>
       <el-form-item label="用户名称" prop="nick_name">
-        <el-input v-model="formData.nick_name" placeholder="请输入用户名称" clearable></el-input>
+        <el-input
+          v-model="formData.nick_name"
+          placeholder="请输入用户名称"
+          clearable
+        ></el-input>
       </el-form-item>
       <el-form-item label="本地消息ID" prop="local_id">
-        <el-input v-model.number="formData.local_id" placeholder="请输入本地消息ID" clearable></el-input>
+        <el-input
+          v-model.number="formData.local_id"
+          placeholder="请输入本地消息ID"
+          clearable
+        ></el-input>
       </el-form-item>
       <el-form-item label="排序序列" prop="sort_seq">
-        <el-input v-model.number="formData.sort_seq" placeholder="请输入排序序列" clearable></el-input>
+        <el-input
+          v-model.number="formData.sort_seq"
+          placeholder="请输入排序序列"
+          clearable
+        ></el-input>
       </el-form-item>
       <el-form-item label="消息ID" prop="server_id">
-        <el-input v-model.number="formData.server_id" placeholder="请输入消息ID" clearable></el-input>
+        <el-input
+          v-model.number="formData.server_id"
+          placeholder="请输入消息ID"
+          clearable
+        ></el-input>
       </el-form-item>
       <el-form-item label="消息类型" prop="local_type">
-        <el-input v-model.number="formData.local_type" placeholder="请输入消息类型" clearable></el-input>
+        <el-input
+          v-model.number="formData.local_type"
+          placeholder="请输入消息类型"
+          clearable
+        ></el-input>
       </el-form-item>
       <el-form-item label="创建时间" prop="create_time">
-        <el-input v-model.number="formData.create_time" placeholder="请输入创建时间戳" clearable></el-input>
+        <el-input
+          v-model.number="formData.create_time"
+          placeholder="请输入创建时间戳"
+          clearable
+        ></el-input>
       </el-form-item>
       <el-form-item label="真实发送者ID" prop="real_sender_id">
-        <el-input v-model.number="formData.real_sender_id" placeholder="请输入真实发送者ID" clearable></el-input>
+        <el-input
+          v-model.number="formData.real_sender_id"
+          placeholder="请输入真实发送者ID"
+          clearable
+        ></el-input>
       </el-form-item>
       <el-form-item label="消息内容" prop="message_content">
-        <el-input v-model="formData.message_content" type="textarea" :rows="3" placeholder="请输入消息内容"
-          clearable></el-input>
+        <el-input
+          v-model="formData.message_content"
+          type="textarea"
+          :rows="3"
+          placeholder="请输入消息内容"
+          clearable
+        ></el-input>
       </el-form-item>
       <el-form-item label="消息状态" prop="status">
-        <el-input v-model.number="formData.status" placeholder="请输入消息状态" clearable></el-input>
+        <el-input
+          v-model.number="formData.status"
+          placeholder="请输入消息状态"
+          clearable
+        ></el-input>
       </el-form-item>
       <el-form-item label="识别状态" prop="recognition_status">
-        <el-select v-model="formData.recognition_status" placeholder="请选择识别状态">
+        <el-select
+          v-model="formData.recognition_status"
+          placeholder="请选择识别状态"
+        >
           <el-option label="未识别" :value="0"></el-option>
           <el-option label="识别中" :value="1"></el-option>
           <el-option label="识别完成" :value="2"></el-option>
@@ -220,11 +362,20 @@
         </el-select>
       </el-form-item>
       <el-form-item label="消息编号" prop="message_no">
-        <el-input v-model="formData.message_no" placeholder="请输入消息编号" clearable></el-input>
+        <el-input
+          v-model="formData.message_no"
+          placeholder="请输入消息编号"
+          clearable
+        ></el-input>
       </el-form-item>
       <el-form-item label="任务列表" prop="task_list">
-        <el-input v-model="formData.task_list" type="textarea" :rows="3" placeholder="请输入JSON格式的任务列表"
-          clearable></el-input>
+        <el-input
+          v-model="formData.task_list"
+          type="textarea"
+          :rows="3"
+          placeholder="请输入JSON格式的任务列表"
+          clearable
+        ></el-input>
       </el-form-item>
     </dialogform>
 
@@ -275,28 +426,64 @@ export default {
         task_list: "",
       },
       formRules: {
-        tenant_id: [{ required: true, message: "请填写租户ID", trigger: "blur" }],
-        user_name: [{ required: true, message: "请填写发送者", trigger: "blur" }],
-        nick_name: [{ required: true, message: "请填写用户名称", trigger: "blur" }],
-        message_content: [{ required: true, message: "请填写消息内容", trigger: "blur" }],
+        tenant_id: [
+          { required: true, message: "请填写租户ID", trigger: "blur" },
+        ],
+        user_name: [
+          { required: true, message: "请填写发送者", trigger: "blur" },
+        ],
+        nick_name: [
+          { required: true, message: "请填写用户名称", trigger: "blur" },
+        ],
+        message_content: [
+          { required: true, message: "请填写消息内容", trigger: "blur" },
+        ],
       },
     };
+  },
+  watch: {
+    // 监听多选模式切换
+    isMultiTenant(newVal) {
+      this.handleMultiTenantChange(newVal);
+    },
   },
   methods: {
     // 格式化时间戳为标准时间格式
     formatTimestamp(timestamp) {
-      if (!timestamp) return '';
+      if (!timestamp) return "";
       // 如果是时间戳（数字），转换为毫秒
-      const time = typeof timestamp === 'number' ? timestamp * 1000 : timestamp;
+      const time = typeof timestamp === "number" ? timestamp * 1000 : timestamp;
       return formatTimeToStr(time, "yyyy-MM-dd hh:mm:ss");
+    },
+    // 处理多选组织切换
+    handleMultiTenantChange(value) {
+      if (value) {
+        // 切换到多选模式，将当前值转换为逗号分隔的字符串
+        if (this.searchInfo.tenant_id) {
+          this.searchInfo.tenant_id = String(this.searchInfo.tenant_id);
+        } else {
+          this.searchInfo.tenant_id = "";
+        }
+      } else {
+        // 切换到单选模式，取逗号分隔的第一个值或清空
+        if (
+          typeof this.searchInfo.tenant_id === "string" &&
+          this.searchInfo.tenant_id
+        ) {
+          const ids = this.searchInfo.tenant_id.split(",");
+          this.searchInfo.tenant_id = Number(ids[0].trim());
+        } else {
+          this.searchInfo.tenant_id = null;
+        }
+      }
     },
     onQuery() {
       this.summary = {};
       this.showSummary = false;
 
-      this.page = 1
-      this.pageSize = 10
-      this.getTableData()
+      this.page = 1;
+      this.pageSize = 10;
+      this.getTableData();
     },
     createRow() {
       this.formData = {};
@@ -318,7 +505,7 @@ export default {
       if (res.code == 0) {
         this.$message({
           type: "success",
-          message: "删除成功"
+          message: "删除成功",
         });
         if (this.tableData.length == 1) {
           this.page--;
@@ -345,21 +532,21 @@ export default {
       if (res.code == 0) {
         this.$message({
           type: "success",
-          message: "操作成功"
-        })
+          message: "操作成功",
+        });
         this.$refs.dialog.handleClose();
         this.openDialog = false;
         this.getTableData();
       }
     },
     handleSelectionChange(val) {
-      this.multipleSelection = val
+      this.multipleSelection = val;
     },
     handleCommand(command) {
-      this.$confirm('是否要执行批量操作?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
+      this.$confirm("是否要执行批量操作?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
       }).then(async () => {
         const ids = [];
         if (this.multipleSelection.length == 0) {
@@ -369,13 +556,14 @@ export default {
           });
           return;
         }
-        this.multipleSelection && this.multipleSelection.map((item) => {
-          ids.push(item.ID);
-        });
+        this.multipleSelection &&
+          this.multipleSelection.map((item) => {
+            ids.push(item.ID);
+          });
 
         const res = await batchFcgMessageOperation({
           ids,
-          'command': command
+          command: command,
         });
         if (res.code == 0) {
           this.$message({
@@ -384,7 +572,7 @@ export default {
           });
           this.getTableData();
         }
-      })
+      });
     },
     sortChange(row) {
       //自定义排序要设置两个属性prop="field-name" sortable="custom"
@@ -424,7 +612,7 @@ export default {
   },
   async created() {
     await this.getTableData();
-  }
+  },
 };
 </script>
 
