@@ -60,11 +60,12 @@ export const getFcgOrderList = (params) => {
 }
 
 // 批量操作FcgOrder
-export const batchFcgOrderOperation = (data) => {
+export const batchFcgOrderOperation = (data, config = {}) => {
     return service({
         url: "/fcg_order/batchOperation",
         method: 'post',
-        data
+        data,
+        ...config
     })
 }
 
