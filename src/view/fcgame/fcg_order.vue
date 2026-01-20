@@ -722,14 +722,13 @@ export default {
             message: "标记成功",
           });
           // 从当前页面删除当前标记的订单元素
-          const index = this.tableData.findIndex(item => (item.order_id || item.ID) === orderId);
+          const index = this.tableData.findIndex(item => (item.ID) === orderId);
           if (index !== -1) {
             this.tableData.splice(index, 1);
           }
 
-          // 当页面的未标记订单少于等于2的时候再重新 this.getTableData();
-          const unmarkedCount = this.tableData.filter(item => item.mark_state != 2 && item.mark_state != 3).length;
-          if (unmarkedCount <= 2) {
+          // 当页面的订单少于等于2的时候再重新 this.getTableData();
+          if (this.tableData.length <= 3) {
             this.getTableData();
           }
         } else {
