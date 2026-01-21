@@ -102,6 +102,15 @@
       <el-table-column label="添加时间" width="160" prop="created_at" sortable="custom">
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
       </el-table-column>
+
+      <el-table-column label="操作" fixed="right" width="200" v-if="userInfo.perm['host']">
+        <template slot-scope="scope">
+          <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
+            title="确定要删除吗？" @confirm="deleteRow(scope.row)" v-if="userInfo.perm['system.delete']">
+            <el-button type="text" size="small" icon="el-icon-delete" slot="reference">删除</el-button>
+          </el-popconfirm>
+        </template>
+      </el-table-column>
     </el-table>
 
     <!-- class="pagination-container" -->

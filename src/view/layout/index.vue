@@ -1,5 +1,6 @@
 <template>
   <div>
+    <OrderReminder />
     <SystemNotice />
     <GlobalLoading :loadingFlag="loadingFlag" text="正在加载中" />
     <StatisticsDisplay :visible="showStatistics" :floating="true" @close="closeStatistics" />
@@ -91,6 +92,7 @@ import { mapGetters, mapActions } from "vuex";
 import CustomPic from "@/components/customPic";
 import GlobalLoading from "@/components/common/GlobalLoading";
 import SystemNotice from "@/components/common/SystemNotice";
+import OrderReminder from "@/components/common/OrderReminder";
 import StatisticsDisplay from "@/components/statistics/StatisticsDisplay";
 import FloatingStatisticsIcon from "@/components/statistics/FloatingStatisticsIcon";
 
@@ -118,6 +120,7 @@ export default {
     CustomPic,
     GlobalLoading,
     SystemNotice,
+    OrderReminder,
     StatisticsDisplay,
     FloatingStatisticsIcon,
   },
@@ -253,7 +256,7 @@ export default {
     },
   },
   async mounted() {
-    
+
     //全局刷新后处理
     this.windowInit();
 

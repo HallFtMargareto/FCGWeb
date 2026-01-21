@@ -17,11 +17,11 @@
         </el-form-item>
 
         <el-form-item label=" ">
-          <el-button v-if="userInfo.perm['system.export']" @click="exportExcel" icon="el-icon-sold-out">导出</el-button>
+          <el-button @click="exportExcel" icon="el-icon-sold-out">导出</el-button>
         </el-form-item>
 
-        <el-form-item label="分割号码">
-          <el-input v-model="searchInfo.split_number" placeholder="请输入分割号码" clearable></el-input>
+        <el-form-item label="转出号码">
+          <el-input v-model="searchInfo.split_number" placeholder="请输入转出号码" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="交易笔数">
