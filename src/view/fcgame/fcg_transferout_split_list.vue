@@ -1,84 +1,48 @@
-
 <template>
   <div class="fcg-transferout-split-list">
     <div class="search-term">
-      <searchform size="mini" :maxShow="3" @search="onQuery">
+      <searchform size="mini" :maxShow="4" @search="onQuery">
         <el-form-item label="期号">
-          <IssueSelect
-            v-model="searchInfo.issue_id"
-            placeholder="请选择期号"
-            clearable
-          ></IssueSelect>
+          <IssueSelect v-model="searchInfo.issue_id" placeholder="请选择期号" clearable></IssueSelect>
         </el-form-item>
 
-        <el-form-item
-          label="所属组织"
-          v-if="this.$store.state.user.userInfo.perm['host']"
-        >
-          <TenantSelect
-            v-model="searchInfo.tenant_id"
-            placeholder="请选择组织"
-            :autoSelectFirst="false"
-            clearable
-          ></TenantSelect>
+        <el-form-item label="所属组织" v-if="this.$store.state.user.userInfo.perm['host']">
+          <TenantSelect v-model="searchInfo.tenant_id" placeholder="请选择组织" :autoSelectFirst="false" clearable>
+          </TenantSelect>
         </el-form-item>
 
-        <el-form-item label="游戏类别">
-          <GCategory
-            v-model.number="searchInfo.game_category"
-            placeholder="请输入游戏类别"
-            clearable
-            :autoSelectFirst="false"
-          ></GCategory>
+        <el-form-item label="游戏类型">
+          <GCategory v-model.number="searchInfo.game_category" placeholder="请选择游戏类型" clearable :autoSelectFirst="false">
+          </GCategory>
+        </el-form-item>
+
+        <el-form-item label=" ">
+          <el-button v-if="userInfo.perm['system.export']" @click="exportExcel" icon="el-icon-sold-out">导出</el-button>
         </el-form-item>
 
         <el-form-item label="分割号码">
-          <el-input
-            v-model="searchInfo.split_number"
-            placeholder="请输入分割号码"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.split_number" placeholder="请输入分割号码" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="交易笔数">
-          <el-input
-            v-model.number="searchInfo.trans_count"
-            placeholder="请输入交易笔数"
-            clearable
-          ></el-input>
+          <el-input v-model.number="searchInfo.trans_count" placeholder="请输入交易笔数" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="交易金额">
-          <el-input
-            v-model="searchInfo.trans_amount"
-            placeholder="请输入交易金额"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.trans_amount" placeholder="请输入交易金额" clearable></el-input>
         </el-form-item>
 
-        <el-form-item label="期号ID">
-          <el-input
-            v-model.number="searchInfo.issue_id"
-            placeholder="请输入期号ID"
-            clearable
-          ></el-input>
-        </el-form-item>
 
-        <el-form-item label="租户ID">
-          <el-input
-            v-model.number="searchInfo.tenant_id"
-            placeholder="请输入租户ID"
-            clearable
-          ></el-input>
-        </el-form-item>
 
-        <el-form-item label="添加时间">
+        <!-- <el-form-item label="添加时间">
           <datepicker v-model="searchInfo.startTime" type="datetime" />
         </el-form-item>
         <el-form-item label="结束时间">
           <datepicker v-model="searchInfo.endTime" type="datetime" />
-        </el-form-item>
+        </el-form-item> -->
       </searchform>
+
+
     </div>
 
     <!-- 汇总数据展示 -->
@@ -123,10 +87,7 @@
         </div>
 
         <!-- 分组汇总 -->
-        <div
-          class="group-summary"
-          v-if="summaryData.groupSummary && summaryData.groupSummary.length > 0"
-        >
+        <div class="group-summary" v-if="summaryData.groupSummary && summaryData.groupSummary.length > 0">
           <h4 class="summary-subtitle">分组汇总</h4>
           <el-table :data="summaryData.groupSummary" size="small" border>
             <el-table-column label="游戏类别" prop="game_category">
@@ -160,14 +121,8 @@
       </el-card>
     </div>
 
-    <el-table
-      :data="tableData"
-      @selection-change="handleSelectionChange"
-      @sort-change="sortChange"
-      ref="multipleTable"
-      :show-summary="showSummary"
-      :summary-method="getSummaries"
-    >
+    <el-table :data="tableData" @selection-change="handleSelectionChange" @sort-change="sortChange" ref="multipleTable"
+      :show-summary="showSummary" :summary-method="getSummaries">
       <el-table-column type="selection" width="50"></el-table-column>
       <el-table-column label="ID" prop="ID" sortable></el-table-column>
 
@@ -215,12 +170,7 @@
         </template>
       </el-table-column> -->
 
-      <el-table-column
-        label="添加时间"
-        width="160"
-        prop="created_at"
-        sortable="custom"
-      >
+      <el-table-column label="添加时间" width="160" prop="created_at" sortable="custom">
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
       </el-table-column>
 
@@ -273,78 +223,33 @@
       ></el-pagination> -->
     </div>
 
-    <dialogform
-      :visible.sync="openDialog"
-      :dialogTitle="dialogTitle"
-      :formDatas="formData"
-      :formRule="formRules"
-      @confirm="enterDialog"
-      ref="dialog"
-    >
+    <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
+      @confirm="enterDialog" ref="dialog">
       <el-form-item label="游戏类别" prop="game_category">
-        <el-input
-          v-model.number="formData.game_category"
-          placeholder="请输入游戏类别"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.game_category" placeholder="请输入游戏类别" clearable></el-input>
       </el-form-item>
       <el-form-item label="分割号码" prop="split_number">
-        <el-input
-          v-model="formData.split_number"
-          placeholder="请输入分割号码"
-          clearable
-        ></el-input>
+        <el-input v-model="formData.split_number" placeholder="请输入分割号码" clearable></el-input>
       </el-form-item>
       <el-form-item label="交易笔数" prop="trans_count">
-        <el-input
-          v-model.number="formData.trans_count"
-          placeholder="请输入交易笔数"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.trans_count" placeholder="请输入交易笔数" clearable></el-input>
       </el-form-item>
       <el-form-item label="交易金额" prop="trans_amount">
-        <el-input
-          v-model="formData.trans_amount"
-          clearable
-          placeholder="请输入交易金额"
-        ></el-input>
+        <el-input v-model="formData.trans_amount" clearable placeholder="请输入交易金额"></el-input>
       </el-form-item>
       <el-form-item label="期号ID" prop="issue_id">
-        <el-input
-          v-model.number="formData.issue_id"
-          placeholder="请输入期号ID"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.issue_id" placeholder="请输入期号ID" clearable></el-input>
       </el-form-item>
       <el-form-item label="租户ID" prop="tenant_id">
-        <el-input
-          v-model.number="formData.tenant_id"
-          placeholder="请输入租户ID"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.tenant_id" placeholder="请输入租户ID" clearable></el-input>
       </el-form-item>
     </dialogform>
 
     <!-- 水费设置对话框 -->
-    <el-dialog
-      title="水费设置"
-      :visible.sync="waterRateDialogVisible"
-      width="30%"
-      :close-on-click-modal="false"
-    >
-      <el-form
-        :model="waterRateForm"
-        :rules="waterRateRules"
-        ref="waterRateForm"
-        label-width="80px"
-      >
+    <el-dialog title="水费设置" :visible.sync="waterRateDialogVisible" width="30%" :close-on-click-modal="false">
+      <el-form :model="waterRateForm" :rules="waterRateRules" ref="waterRateForm" label-width="80px">
         <el-form-item label="费率" prop="rate">
-          <el-input
-            v-model.number="waterRateForm.rate"
-            placeholder="请输入费率"
-            type="number"
-            step="1"
-          ></el-input>
+          <el-input v-model.number="waterRateForm.rate" placeholder="请输入费率" type="number" step="1"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -353,10 +258,7 @@
       </span>
     </el-dialog>
 
-    <uploadexcel
-      ref="uploadexcel"
-      action="FcgTransferoutSplitList"
-    ></uploadexcel>
+    <uploadexcel ref="uploadexcel" action="FcgTransferoutSplitList"></uploadexcel>
   </div>
 </template>
 
