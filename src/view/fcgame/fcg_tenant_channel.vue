@@ -3,27 +3,15 @@
     <div class="search-term">
       <searchform size="mini" :maxShow="3" @search="onQuery">
         <el-form-item label="通道名称">
-          <el-input
-            v-model="searchInfo.name"
-            placeholder="通道名称"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.name" placeholder="通道名称" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="通道编码">
-          <el-input
-            v-model="searchInfo.code"
-            placeholder="通道编码"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.code" placeholder="通道编码" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="优先级">
-          <el-input
-            v-model.number="searchInfo.priority"
-            placeholder="请输入"
-            clearable
-          ></el-input>
+          <el-input v-model.number="searchInfo.priority" placeholder="请输入" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="状态" prop="is_activity">
@@ -48,11 +36,7 @@
         </el-form-item>
 
         <el-form-item label="通道回调地址">
-          <el-input
-            v-model="searchInfo.callback_url"
-            placeholder="通道回调地址"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.callback_url" placeholder="通道回调地址" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="添加时间">
@@ -64,23 +48,10 @@
       </searchform>
 
       <el-form size="mini" :inline="true" class="btn-form-inline">
-        <el-button
-          v-if="userInfo.perm['system.create']"
-          @click="createRow"
-          icon="el-icon-plus"
-          type="primary"
-          >新增</el-button
-        >
-        <el-button
-          v-if="
-            userInfo.perm['system.batch_delete'] && multipleSelection.length > 0
-          "
-          @click="handleCommand('remove')"
-          icon="el-icon-delete"
-          type="danger"
-          plain
-          >批量删除</el-button
-        >
+        <el-button @click="createRow" icon="el-icon-plus" type="primary">新增</el-button>
+        <el-button v-if="
+          userInfo.perm['system.batch_delete'] && multipleSelection.length > 0
+        " @click="handleCommand('remove')" icon="el-icon-delete" type="danger" plain>批量删除</el-button>
         <!-- <el-button
           v-if="userInfo.perm['system.import']"
           @click="importExcel"
@@ -96,14 +67,8 @@
       </el-form>
     </div>
 
-    <el-table
-      :data="tableData"
-      @selection-change="handleSelectionChange"
-      @sort-change="sortChange"
-      ref="multipleTable"
-      :show-summary="showSummary"
-      :summary-method="getSummaries"
-    >
+    <el-table :data="tableData" @selection-change="handleSelectionChange" @sort-change="sortChange" ref="multipleTable"
+      :show-summary="showSummary" :summary-method="getSummaries">
       <el-table-column type="selection" width="50"></el-table-column>
       <el-table-column label="ID" prop="ID" sortable></el-table-column>
 
@@ -117,14 +82,9 @@
       <el-table-column label="通道水费" prop="water_amount"> </el-table-column>
 
       <el-table-column label="通道回调地址" width="300">
-        <template slot-scope="scope"
-          >{{ scope.row.callback_url }}
-          <i
-            v-if="scope.row.callback_url"
-            class="el-icon-document-copy"
-            @click="onCopy(scope.row.callback_url)"
-          ></i
-        ></template>
+        <template slot-scope="scope">{{ scope.row.callback_url }}
+          <i v-if="scope.row.callback_url" class="el-icon-document-copy"
+            @click="onCopy(scope.row.callback_url)"></i></template>
       </el-table-column>
 
       <!-- <el-table-column label="开启查询" prop="is_query">
@@ -147,23 +107,14 @@
 
       <el-table-column label="状态" prop="is_activity">
         <template slot-scope="scope">
-          <booltag
-            :tagState="scope.row.is_activity"
-            true-text="启用"
-            false-text="禁用"
-          ></booltag>
+          <booltag :tagState="scope.row.is_activity" true-text="启用" false-text="禁用"></booltag>
         </template>
       </el-table-column>
 
       <el-table-column label="描述(备注)" prop="remark" show-overflow-tooltip>
       </el-table-column>
 
-      <el-table-column
-        label="添加时间"
-        width="160"
-        prop="created_at"
-        sortable="custom"
-      >
+      <el-table-column label="添加时间" width="160" prop="created_at" sortable="custom">
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
       </el-table-column>
 
@@ -177,31 +128,12 @@
 
       <el-table-column label="操作" fixed="right" width="200">
         <template slot-scope="scope">
-          <el-button
-            v-if="userInfo.perm['system.update']"
-            @click="editRow(scope.row)"
-            type="text"
-            size="small"
-            icon="el-icon-edit"
-            >编辑</el-button
-          >
+          <el-button v-if="userInfo.perm['system.update']" @click="editRow(scope.row)" type="text" size="small"
+            icon="el-icon-edit">编辑</el-button>
 
-          <el-popconfirm
-            confirm-button-text="确定"
-            cancel-button-text="取消"
-            icon="el-icon-info"
-            icon-color="red"
-            title="确定要删除吗？"
-            @confirm="deleteRow(scope.row)"
-            v-if="userInfo.perm['system.delete']"
-          >
-            <el-button
-              type="text"
-              size="small"
-              icon="el-icon-delete"
-              slot="reference"
-              >删除</el-button
-            >
+          <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" icon="el-icon-info" icon-color="red"
+            title="确定要删除吗？" @confirm="deleteRow(scope.row)" v-if="userInfo.perm['system.delete']">
+            <el-button type="text" size="small" icon="el-icon-delete" slot="reference">删除</el-button>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -210,43 +142,21 @@
     <div>
       <!-- 数据合计,按需求启用 -->
       <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
-      <el-pagination
-        :current-page="page"
-        :page-size="pageSize"
-        :page-sizes="[10, 30, 50, 100]"
-        :style="{ float: 'right', padding: '20px' }"
-        :total="total"
-        @current-change="handleCurrentChange"
-        @size-change="handleSizeChange"
-        layout="total, sizes, prev, pager, next, jumper"
-        background
-      ></el-pagination>
+      <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
+        :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
+        @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
     </div>
 
-    <dialogform
-      :visible.sync="openDialog"
-      :dialogTitle="dialogTitle"
-      :formDatas="formData"
-      :formRule="formRules"
-      @confirm="enterDialog"
-      ref="dialog"
-    >
+    <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
+      @confirm="enterDialog" ref="dialog">
       <el-tabs v-model="activeName">
         <el-tab-pane label="基础信息" name="first">
           <el-form-item label="通道名称" prop="name">
-            <el-input
-              v-model="formData.name"
-              placeholder="请输入"
-              clearable
-            ></el-input>
+            <el-input v-model="formData.name" placeholder="请输入" clearable></el-input>
           </el-form-item>
 
           <el-form-item label="通道水费" prop="water_amount">
-            <el-input
-              v-model="formData.water_amount"
-              clearable
-              placeholder="请输入"
-            ></el-input>
+            <el-input v-model="formData.water_amount" clearable placeholder="请输入"></el-input>
           </el-form-item>
 
           <!-- <el-form-item label="所属上游" prop="provider_id">
@@ -302,35 +212,14 @@
           </el-form-item> -->
 
           <el-form-item label="开启查询" prop="is_query">
-            <el-switch
-              active-color="#13ce66"
-              inactive-color="#ff4949"
-              active-text="是"
-              inactive-text="否"
-              v-model="formData.is_query"
-            ></el-switch>
+            <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="是" inactive-text="否"
+              v-model="formData.is_query"></el-switch>
           </el-form-item>
-          <el-form-item
-            label="查询次数"
-            prop="query_count"
-            v-if="formData.is_query"
-          >
-            <el-input
-              v-model.number="formData.query_count"
-              placeholder="请输入"
-              clearable
-            ></el-input>
+          <el-form-item label="查询次数" prop="query_count" v-if="formData.is_query">
+            <el-input v-model.number="formData.query_count" placeholder="请输入" clearable></el-input>
           </el-form-item>
-          <el-form-item
-            label="查询间隔"
-            prop="query_interval"
-            v-if="formData.is_query"
-          >
-            <el-input
-              v-model.number="formData.query_interval"
-              placeholder="请输入"
-              clearable
-            >
+          <el-form-item label="查询间隔" prop="query_interval" v-if="formData.is_query">
+            <el-input v-model.number="formData.query_interval" placeholder="请输入" clearable>
               <template slot="append">分钟</template>
             </el-input>
           </el-form-item>
@@ -346,39 +235,20 @@
           </el-form-item> -->
 
           <el-form-item label="备注" prop="remark">
-            <el-input
-              v-model="formData.remark"
-              placeholder="请输入"
-              clearable
-            ></el-input>
+            <el-input v-model="formData.remark" placeholder="请输入" clearable></el-input>
           </el-form-item>
 
           <el-form-item label="状态" prop="is_activity">
-            <el-switch
-              active-color="#13ce66"
-              inactive-color="#ff4949"
-              active-text="启用"
-              inactive-text="禁用"
-              v-model="formData.is_activity"
-            ></el-switch>
+            <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="启用" inactive-text="禁用"
+              v-model="formData.is_activity"></el-switch>
           </el-form-item>
         </el-tab-pane>
 
         <el-tab-pane label="通道参数" name="second">
           <el-form-item label="通道模板" prop="template_id">
-            <el-select
-              v-model="formData.template_id"
-              @change="changeChannelTemplate"
-              placeholder="请选择"
-              clearable
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in templateList"
-                :key="item.ID"
-                :label="item.name"
-                :value="item.ID"
-              ></el-option>
+            <el-select v-model="formData.template_id" @change="changeChannelTemplate" placeholder="请选择" clearable
+              style="width: 100%">
+              <el-option v-for="item in templateList" :key="item.ID" :label="item.name" :value="item.ID"></el-option>
             </el-select>
           </el-form-item>
 
