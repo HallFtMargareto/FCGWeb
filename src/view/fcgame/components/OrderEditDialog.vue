@@ -1,81 +1,38 @@
 <template>
-  <el-dialog
-    :title="dialogTitle"
-    :visible.sync="visible"
-    width="60%"
-    @close="handleDialogClose"
-    class="order-dialog"
-    top="5"
-  >
-    <el-form
-      ref="editForm"
-      :model="formData"
-      label-position="top"
-      label-width="100px"
-      size="mini"
-    >
+  <el-dialog :title="dialogTitle" :visible.sync="visible" width="60%" @close="handleDialogClose" class="order-dialog"
+    top="5">
+    <el-form ref="editForm" :model="formData" label-position="top" label-width="100px" size="mini">
       <el-row>
         <el-col :span="8">
           <el-form-item label="原内容">
-            <el-input
-              type="textarea"
-              :rows="5"
-              v-model="formData.source_content"
-              readonly
-              disabled
-            ></el-input>
+            <el-input type="textarea" :rows="5" v-model="formData.source_content" readonly disabled></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="16">
           <el-form-item label="修改内容">
-            <el-input
-              type="textarea"
-              :rows="5"
-              v-model="formData.bet_content"
-              style="margin-left: 5px"
-            ></el-input>
+            <el-input type="textarea" :rows="5" v-model="formData.bet_content" style="margin-left: 5px"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
         <el-col :span="24" style="text-align: right">
           <span style="margin-right: 39%">
-            <el-button @click="clearOrderDetails" size="mini"
-              >清空订单</el-button
-            >
-            <el-button @click="openManualSplitDialog" size="mini"
-              >手动拆分</el-button
-            >
+            <el-button @click="clearOrderDetails" size="mini">清空订单</el-button>
+            <el-button @click="openManualSplitDialog" size="mini">前台拆分</el-button>
           </span>
 
           <el-button @click="reidentify(true)" size="mini">后台识别</el-button>
-          <el-button type="success" @click="reidentify(false)" size="mini"
-            >重新识别</el-button
-          >
+          <el-button type="success" @click="reidentify(false)" size="mini">重新识别</el-button>
         </el-col>
       </el-row>
 
       <div class="dialog-table-container">
-        <el-table
-          :data="formData.order_details"
-          border
-          style="width: 100%"
-          size="mini"
-          max-height="400"
-          highlight-current-row
-        >
+        <el-table :data="formData.order_details" border style="width: 100%" size="mini" max-height="400"
+          highlight-current-row>
           <el-table-column label="游戏类型">
             <template slot-scope="scope">
-              <el-select
-                v-model="scope.row.game_type"
-                placeholder="请选择游戏类型"
-              >
-                <el-option
-                  v-for="item in gameTypes"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
+              <el-select v-model="scope.row.game_type" placeholder="请选择游戏类型">
+                <el-option v-for="item in gameTypes" :key="item.value" :label="item.label" :value="item.value">
                 </el-option>
               </el-select>
             </template>
@@ -83,10 +40,7 @@
 
           <el-table-column label="玩法">
             <template slot-scope="scope">
-              <el-select
-                v-model="scope.row.game_category"
-                placeholder="请选择玩法"
-              >
+              <el-select v-model="scope.row.game_category" placeholder="请选择玩法">
                 <el-option label="福彩" :value="1"></el-option>
                 <el-option label="体彩" :value="2"></el-option>
               </el-select>
@@ -95,48 +49,31 @@
 
           <el-table-column label="投注号码">
             <template slot-scope="scope">
-              <el-input
-                v-model="scope.row.bet_number"
-                placeholder="投注号码"
-              ></el-input>
+              <el-input v-model="scope.row.bet_number" placeholder="投注号码"></el-input>
             </template>
           </el-table-column>
 
           <el-table-column label="注数">
             <template slot-scope="scope">
-              <el-input
-                v-model.number="scope.row.bet_count"
-                placeholder="注数"
-              ></el-input>
+              <el-input v-model.number="scope.row.bet_count" placeholder="注数"></el-input>
             </template>
           </el-table-column>
 
           <el-table-column label="投注金额">
             <template slot-scope="scope">
-              <el-input
-                v-model="scope.row.bet_amount"
-                placeholder="投注金额"
-              ></el-input>
+              <el-input v-model="scope.row.bet_amount" placeholder="投注金额"></el-input>
             </template>
           </el-table-column>
 
           <el-table-column label="倍数">
             <template slot-scope="scope">
-              <el-input
-                v-model.number="scope.row.multiple"
-                placeholder="倍数"
-              ></el-input>
+              <el-input v-model.number="scope.row.multiple" placeholder="倍数"></el-input>
             </template>
           </el-table-column>
 
           <el-table-column label="操作">
             <template slot-scope="scope">
-              <el-button
-                type="danger"
-                @click="removeOrderDetail(scope.$index)"
-                size="mini"
-                >删除</el-button
-              >
+              <el-button type="danger" @click="removeOrderDetail(scope.$index)" size="mini">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -145,90 +82,46 @@
         <el-col :span="12">
           <div style="padding: 8px 0">
             <span>总数量: {{ totalCount }}</span>
-            <span style="margin-left: 20px"
-              >金额合计: {{ totalBetAmount }}</span
-            >
+            <span style="margin-left: 20px">金额合计: {{ totalBetAmount }}</span>
           </div>
         </el-col>
         <el-col :span="12">
-          <el-button
-            style="float: right"
-            type="primary"
-            @click="addOrderDetail"
-            size="mini"
-            >添加子订单</el-button
-          >
+          <el-button style="float: right" type="primary" @click="addOrderDetail" size="mini">添加子订单</el-button>
         </el-col>
       </el-row>
     </el-form>
 
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false" size="small">取 消</el-button>
-      <el-button type="primary" @click="saveOrderEdit" size="small"
-        >确 定</el-button
-      >
+      <el-button type="primary" @click="saveOrderEdit" size="small">确 定</el-button>
     </span>
 
-    <!-- 手动拆分弹窗 -->
-    <el-dialog
-      title="手动拆分"
-      :visible.sync="manualSplitDialogVisible"
-      width="500px"
-      append-to-body
-    >
-      <el-form
-        ref="manualSplitForm"
-        :model="manualSplitForm"
-        label-width="100px"
-        size="small"
-      >
+    <!-- 前台拆分弹窗 -->
+    <el-dialog title="前台拆分" :visible.sync="manualSplitDialogVisible" width="500px" append-to-body>
+      <el-form ref="manualSplitForm" :model="manualSplitForm" label-width="100px" size="small">
         <el-form-item label="游戏类型" required>
-          <el-select
-            v-model="manualSplitForm.game_type"
-            placeholder="请选择游戏类型"
-            style="width: 100%"
-          >
-            <el-option
-              v-for="item in gameTypes"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            >
+          <el-select v-model="manualSplitForm.game_type" placeholder="请选择游戏类型" style="width: 100%">
+            <el-option v-for="item in gameTypes" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
 
         <el-form-item label="玩法" required>
-          <el-select
-            v-model="manualSplitForm.game_category"
-            placeholder="请选择玩法"
-            style="width: 100%"
-          >
+          <el-select v-model="manualSplitForm.game_category" placeholder="请选择玩法" style="width: 100%">
             <el-option label="福彩" :value="1"></el-option>
             <el-option label="体彩" :value="2"></el-option>
           </el-select>
         </el-form-item>
 
         <el-form-item label="每注金额" required>
-          <el-input
-            v-model.number="manualSplitForm.bet_amount"
-            type="number"
-            placeholder="请输入每注金额"
-          ></el-input>
+          <el-input v-model.number="manualSplitForm.bet_amount" type="number" placeholder="请输入每注金额"></el-input>
         </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
-        <el-button @click="manualSplitDialogVisible = false" size="small"
-          >取 消</el-button
-        >
-        <el-button
-          type="primary"
-          @click="executeManualSplit"
-          size="small"
-          :loading="manualSplitLoading"
-          >立即拆分</el-button
-        >
+        <el-button @click="manualSplitDialogVisible = false" size="small">取 消</el-button>
+        <el-button type="primary" @click="executeManualSplit" size="small"
+          :loading="manualSplitLoading">立即拆分</el-button>
       </span>
     </el-dialog>
   </el-dialog>
@@ -330,17 +223,17 @@ export default {
                 : order.bet_content,
             order_details: order.order_details
               ? order.order_details.map((detail) => {
-                  return {
-                    ID: detail.ID,
-                    game_category: detail.game_category,
-                    game_type: detail.game_type,
-                    bet_number: detail.bet_number || "",
-                    bet_count: Number(detail.bet_count) || 0,
-                    bet_amount: detail.bet_amount || 0,
-                    multiple: detail.multiple || 1,
-                    order_amount: detail.bet_amount * detail.multiple || 0, // 计算订单金额
-                  };
-                })
+                return {
+                  ID: detail.ID,
+                  game_category: detail.game_category,
+                  game_type: detail.game_type,
+                  bet_number: detail.bet_number || "",
+                  bet_count: Number(detail.bet_count) || 0,
+                  bet_amount: detail.bet_amount || 0,
+                  multiple: detail.multiple || 1,
+                  order_amount: detail.bet_amount * detail.multiple || 0, // 计算订单金额
+                };
+              })
               : [],
           };
           this.visible = true;
@@ -353,6 +246,34 @@ export default {
 
     // 重新识别
     async reidentify(backend) {
+      if (
+        this.formData.bet_content &&
+        this.formData.bet_content.length > 1000
+      ) {
+        try {
+          await this.$confirm(
+            "当前投注内容长度过多，建议使用前台拆分功能。",
+            "提示",
+            {
+              confirmButtonText: "前台拆分",
+              cancelButtonText: "继续识别",
+              type: "warning",
+              distinguishCancelAndClose: true,
+            }
+          );
+          // 确认(立即拆分)
+          this.openManualSplitDialog();
+          return;
+        } catch (action) {
+          // 取消(继续识别) 或 关闭
+          if (action === "cancel") {
+            // 继续执行下面的代码
+          } else {
+            return;
+          }
+        }
+      }
+
       this.backend = backend;
       if (backend) {
         const res = await findFcgOrder({
