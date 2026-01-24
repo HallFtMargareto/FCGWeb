@@ -150,16 +150,19 @@
     <!-- 分页 -->
     <div>
       <el-row :gutter="24">
-        <el-col :span="6" v-if="statusTabState === '1'">
+        <el-col :span="6" v-if="statusTabState === '1' || mark_state === '1'">
           <el-button @click="toggleSelectAll">{{
             isAllSelected ? "取消全选" : "全选"
           }}</el-button>
 
-          <el-button icon="el-icon-s-unfold" @click="openBatchEditDialog">批量编辑</el-button>
-          <el-button v-if="userInfo.perm['host']" icon="el-icon-delete" @click="handleBatchDelete"
-            :disabled="multipleSelection.length === 0" class="batch-operation-btn">批量撤单</el-button>
+          <el-button v-if="statusTabState === '1'" icon="el-icon-s-unfold" @click="openBatchEditDialog">批量编辑</el-button>
+          <el-button v-if="statusTabState === '1' && userInfo.perm['host']" icon="el-icon-delete"
+            @click="handleBatchDelete" :disabled="multipleSelection.length === 0"
+            class="batch-operation-btn">批量撤单</el-button>
+          <el-button v-if="mark_state === '1'" @click="handleBatchMark"
+            :disabled="multipleSelection.length === 0">批量标记</el-button>
         </el-col>
-        <el-col :span="statusTabState === '1' ? 18 : 24">
+        <el-col :span="(statusTabState === '1' || mark_state === '1') ? 18 : 24">
           <!-- 数据合计,按需求启用 -->
           <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
           <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 20, 30, 50]"
@@ -178,7 +181,7 @@
       <el-card v-for="(orderGroup, index) in groupedTableData" :key="index" class="order-card"
         :class="{ selected: orderGroup.selected }" shadow="hover">
         <!-- 订单选择框 -->
-        <div class="card-checkbox" v-if="statusTabState === '1'">
+        <div class="card-checkbox" v-if="statusTabState === '1' || mark_state === '1'">
           <el-checkbox v-model="orderGroup.selected" @change="handleOrderSelectionChange(orderGroup)"></el-checkbox>
         </div>
         <!-- 订单功能区 -->
@@ -968,6 +971,49 @@ export default {
             message: "已取消批量撤单",
           });
         });
+    },
+
+    // 批量标记处理方法
+    async handleBatchMark() {
+      if (this.multipleSelection.length === 0) {
+        this.$message({
+          type: "warning",
+          message: "请选择需要标记的订单",
+        });
+        return;
+      }
+
+      try {
+        const ids = this.multipleSelection.map(
+          (item) => item.order_id || item.ID
+        );
+        const res = await batchFcgOrderOperation({
+          command: "mark_order",
+          ids: ids,
+        });
+
+        if (res.code === 0) {
+          this.$message({
+            type: "success",
+            message: `成功标记 ${this.multipleSelection.length} 个订单`,
+          });
+          // 清空选择
+          this.clearSelections();
+          // 刷新数据
+          this.getTableData();
+        } else {
+          this.$message({
+            type: "error",
+            message: res.msg || "批量标记失败",
+          });
+        }
+      } catch (error) {
+        console.error("批量标记异常:", error);
+        this.$message({
+          type: "error",
+          message: "批量标记异常，请稍后重试",
+        });
+      }
     },
     handleCommand(command) {
       this.$confirm("是否要执行批量操作?", "提示", {
