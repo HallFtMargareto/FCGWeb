@@ -77,3 +77,12 @@ export const getFcgOrderSummary = (params) => {
         params
     })
 }
+
+// 查看首页用户组-获取统计数据
+export const getBoardAuthorData = (params) => {
+    return service({
+        url: "/fcg_order/author_dashbpard",
+        method: 'get',
+        params
+    })
+}
