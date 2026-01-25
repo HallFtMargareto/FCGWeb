@@ -63,25 +63,36 @@
 
         <el-form-item label="百位过滤">
           <div class="combo-input">
-            <el-input v-model.number="hundredsNum" maxlength="10" class="left" placeholder="百位号码" />
+            <el-input :disabled="isPosDisabled" v-model.number="hundredsNum" maxlength="10" class="left"
+              placeholder="百位号码" />
             <div class="split">-</div>
-            <el-input v-model.number="hundredsCount" class="right" placeholder="单量" />
+            <el-input :disabled="isPosDisabled" v-model.number="hundredsCount" class="right" placeholder="单量" />
           </div>
         </el-form-item>
 
         <el-form-item label="十位过滤">
           <div class="combo-input">
-            <el-input v-model.number="tenthNum" maxlength="10" class="left" placeholder="十位号码" />
+            <el-input :disabled="isPosDisabled" v-model.number="tenthNum" maxlength="10" class="left"
+              placeholder="十位号码" />
             <div class="split">-</div>
-            <el-input v-model.number="tenthCount" class="right" placeholder="单量" />
+            <el-input :disabled="isPosDisabled" v-model.number="tenthCount" class="right" placeholder="单量" />
           </div>
         </el-form-item>
 
         <el-form-item label="个位过滤">
           <div class="combo-input">
-            <el-input v-model.number="onesNum" maxlength="10" class="left" placeholder="个位号码" />
+            <el-input :disabled="isPosDisabled" v-model.number="onesNum" maxlength="10" class="left"
+              placeholder="个位号码" />
             <div class="split">-</div>
-            <el-input v-model.number="onesCount" class="right" placeholder="单量" />
+            <el-input :disabled="isPosDisabled" v-model.number="onesCount" class="right" placeholder="单量" />
+          </div>
+        </el-form-item>
+
+        <el-form-item label="独胆过滤">
+          <div class="combo-input">
+            <el-input :disabled="isDDDisabled" v-model.number="ddNum" maxlength="10" class="left" placeholder="独胆过滤" />
+            <div class="split">-</div>
+            <el-input :disabled="isDDDisabled" v-model.number="ddCount" class="right" placeholder="单量" />
           </div>
         </el-form-item>
       </searchform>
@@ -104,23 +115,23 @@
         <el-descriptions title="风控信息" :column="3" border>
           <el-descriptions-item label="总投注">{{
             rickDataInfo.total_info.totalBet
-            }}</el-descriptions-item>
+          }}</el-descriptions-item>
           <el-descriptions-item label="总佣金">{{
             rickDataInfo.total_info.totalCommission
-            }}</el-descriptions-item>
+          }}</el-descriptions-item>
           <el-descriptions-item label="净盘值">
             {{ rickDataInfo.total_info.netBank }}
           </el-descriptions-item>
 
           <el-descriptions-item label="号码数">{{
             rickDataInfo.total_info.totalCount
-            }}</el-descriptions-item>
+          }}</el-descriptions-item>
           <el-descriptions-item label="转出单量">{{
             rickDataInfo.total_info.totalOutOrder
-            }}</el-descriptions-item>
+          }}</el-descriptions-item>
           <el-descriptions-item label="转出总金额">{{
             rickDataInfo.total_info.totalOutOrderAmount
-            }}</el-descriptions-item>
+          }}</el-descriptions-item>
           <!-- <el-descriptions-item label="阈值">{{ rickDataInfo.total_info.threshold }}</el-descriptions-item> -->
           <!-- <el-descriptions-item label="目标线">{{ rickDataInfo.total_info.targetLimit }}</el-descriptions-item> -->
           <!-- <el-descriptions-item label="总转移赔付">{{ rickDataInfo.total_info.totalTransferPayout
@@ -178,7 +189,7 @@
           <template slot-scope="scope">
             <span :class="'risk-level-' + scope.row.risk_level">{{
               scope.row.risk_level
-              }}</span>
+            }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="bet_content" label="转出内容" align="center" width="250">
@@ -313,22 +324,22 @@
         <el-descriptions-item label="转出数量">
           <span class="summary-value">{{
             simulateSummary.totalTransCount || 0
-            }}</span>
+          }}</span>
         </el-descriptions-item>
         <el-descriptions-item label="转出金额">
           <span class="summary-value amount">{{
             simulateSummary.totalTransAmount || 0
-            }}</span>
+          }}</span>
         </el-descriptions-item>
         <el-descriptions-item label="中奖金额">
           <span class="summary-value amount">{{
             simulateSummary.totalWinAmount || 0
-            }}</span>
+          }}</span>
         </el-descriptions-item>
         <el-descriptions-item label="转出佣金">
           <span class="summary-value amount">{{
             simulateSummary.totalWaterAmount || 0
-            }}</span>
+          }}</span>
         </el-descriptions-item>
       </el-descriptions>
 
@@ -339,7 +350,7 @@
           <template slot-scope="scope">
             <el-tag size="mini" type="primary">{{
               scope.row.game_category === 1 ? "福彩" : "体彩"
-              }}</el-tag>
+            }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="转出号码" prop="split_number" align="center">
@@ -547,6 +558,18 @@ export default {
         return passRiskRatio && passSplitNumber;
       });
     },
+    // 独胆过滤是否禁用
+    isDDDisabled() {
+      return (
+        (this.hundredsNum !== null && this.hundredsNum !== "") ||
+        (this.tenthNum !== null && this.tenthNum !== "") ||
+        (this.onesNum !== null && this.onesNum !== "")
+      );
+    },
+    // 百位、十位、个位是否禁用
+    isPosDisabled() {
+      return this.ddNum !== null && this.ddNum !== "";
+    },
   },
   data() {
     return {
@@ -605,6 +628,8 @@ export default {
       tenthCount: null,
       onesNum: null,
       onesCount: null,
+      ddNum: null,
+      ddCount: null,
       showChannelSelectDialog: false,
       selectedChannelId: null,
     };
@@ -673,6 +698,8 @@ export default {
           hundredsCount: this.hundredsCount,
           tenthCount: this.tenthCount,
           onesCount: this.onesCount,
+          ddNum: this.ddNum,
+          ddCount: this.ddCount,
         });
         if (res.code === 0 && res.data) {
           this.rickDataInfo = res.data;
