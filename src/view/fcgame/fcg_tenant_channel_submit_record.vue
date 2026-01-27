@@ -2,13 +2,17 @@
   <div>
     <div class="search-term">
       <searchform size="mini" :maxShow="3" @search="onQuery">
-        <el-form-item label="租户ID">
-          <el-input v-model.number="searchInfo.tenant_id" placeholder="请输入" clearable></el-input>
-        </el-form-item>
 
         <el-form-item label="期号">
-          <el-input v-model.number="searchInfo.issue_id" placeholder="请输入" clearable></el-input>
+          <IssueSelect v-model="searchInfo.issue_id" placeholder="请选择期号" clearable></IssueSelect>
         </el-form-item>
+
+        <template v-if="userInfo.perm['host']">
+          <el-form-item label="所属组织">
+            <TenantSelect v-model="searchInfo.tenant_id" placeholder="请选择组织" :autoSelectFirst="false" clearable>
+            </TenantSelect>
+          </el-form-item>
+        </template>
 
         <el-form-item label="游戏分类ID">
           <el-input v-model.number="searchInfo.game_category" placeholder="请输入" clearable></el-input>
@@ -345,6 +349,8 @@ export default {
     },
   },
   async created() {
+    await this.$nextTick();
+    await new Promise((resolve) => setTimeout(resolve, 0));
     await this.getTableData();
   }
 };
