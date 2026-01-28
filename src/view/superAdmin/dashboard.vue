@@ -216,9 +216,14 @@
         <div class="chart-container">
           <el-table :data="gameCategoryData" size="mini" style="width: 100%">
             <el-table-column prop="categoryText" label="彩种" align="center" width="70"></el-table-column>
-            <el-table-column prop="gc_count" label="订单数量" align="center" width="100"></el-table-column>
+            <!-- <el-table-column prop="gc_count" label="订单数量" align="center" width="100"></el-table-column> -->
             <el-table-column prop="gc_bet_amount" label="投注金额" align="center">
               <template slot-scope="scope">¥{{ scope.row.gc_bet_amount }}</template>
+            </el-table-column>
+            <el-table-column prop="gc_water_amount" label="佣金" align="center">
+              <template slot-scope="scope">
+                <span style="color: #667de8">¥{{ scope.row.gc_water_amount }}</span>
+              </template>
             </el-table-column>
             <el-table-column prop="gc_win_amount" label="中奖金额" align="center">
               <template slot-scope="scope">
@@ -228,6 +233,13 @@
                     scope.row.gc_bet_amount
                   ),
                 }">¥{{ scope.row.gc_win_amount }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="利润" align="center">
+              <template slot-scope="scope">
+                <span :style="{
+                  color: getProfitColor(calculateGameCategoryProfit(scope.row)),
+                }">¥{{ calculateGameCategoryProfit(scope.row) }}</span>
               </template>
             </el-table-column>
           </el-table>
@@ -241,9 +253,14 @@
         <div class="chart-container">
           <el-table :data="transferOutDetailsData" size="mini" style="width: 100%">
             <el-table-column prop="game_category_name" label="彩种" align="center" width="70"></el-table-column>
-            <el-table-column prop="total_count" label="转出数量" align="center" width="100"></el-table-column>
+            <!-- <el-table-column prop="total_count" label="转出数量" align="center" width="100"></el-table-column> -->
             <el-table-column prop="total_amount" label="转出金额" align="center">
               <template slot-scope="scope">¥{{ scope.row.total_amount }}</template>
+            </el-table-column>
+            <el-table-column prop="total_water_amount" label="转出佣金" align="center">
+              <template slot-scope="scope">
+                <span style="color: #667de8">¥{{ scope.row.total_water_amount }}</span>
+              </template>
             </el-table-column>
             <el-table-column prop="total_win_amount" label="中奖金额" align="center">
               <template slot-scope="scope">
@@ -767,6 +784,41 @@ export default {
       const totalWin = parseFloat(session.total_win_amount || 0);
 
       const profit = totalBet - totalCommission - totalWin;
+      return profit.toFixed(2);
+    },
+    // 计算彩种利润 = 投注金额 - 佣金 - 中奖金额 - 彩种的转出金额 + 转出佣金 + 转出中奖金额
+    calculateGameCategoryProfit(row) {
+      if (this.summaryData.issue.status != 3) {
+        return "0.00";
+      }
+      const betAmount = parseFloat(row.gc_bet_amount || 0);
+      const commission = parseFloat(row.gc_water_amount || 0);
+      const winAmount = parseFloat(row.gc_win_amount || 0);
+
+      // 查找该彩种的转出信息
+      const transferDetails = this.summaryData.transferout_details || [];
+      const transferItem = transferDetails.find(
+        (item) => item.game_category == row.game_category
+      );
+
+      const transferOutAmount = transferItem
+        ? parseFloat(transferItem.total_amount || 0)
+        : 0;
+      const transferOutCommission = transferItem
+        ? parseFloat(transferItem.total_water_amount || 0)
+        : 0;
+      const transferOutWinAmount = transferItem
+        ? parseFloat(transferItem.total_win_amount || 0)
+        : 0;
+
+      const profit =
+        betAmount -
+        commission -
+        winAmount -
+        transferOutAmount +
+        transferOutCommission +
+        transferOutWinAmount;
+
       return profit.toFixed(2);
     },
     // 初始化图表

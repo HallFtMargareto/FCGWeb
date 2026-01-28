@@ -1,63 +1,35 @@
 <template>
   <div>
     <div class="search-term">
-      <el-form
-        :inline="true"
-        :model="searchInfo"
-        class="demo-form-inline"
-        size="mini"
-      >
+      <el-form :inline="true" :model="searchInfo" class="demo-form-inline" size="mini">
         <el-form-item label="账号">
-          <el-input
-            placeholder="账号"
-            v-model="searchInfo.userName"
-            clearable
-          ></el-input>
+          <el-input placeholder="账号" v-model="searchInfo.userName" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="用户角色">
-          <el-cascader
-            v-model.number="searchInfo.authorityId"
-            :options="authOptions"
-            :show-all-levels="false"
-            :props="{
-              checkStrictly: true,
-              label: 'authorityName',
-              value: 'authorityId',
-              disabled: 'disabled',
-              emitPath: false,
-              expandTrigger: 'hover',
-            }"
-            @change="closeCasc"
-            ref="cascaderHandle"
-            filterable
-            clearable
-          ></el-cascader>
+          <el-cascader v-model.number="searchInfo.authorityId" :options="authOptions" :show-all-levels="false" :props="{
+            checkStrictly: true,
+            label: 'authorityName',
+            value: 'authorityId',
+            disabled: 'disabled',
+            emitPath: false,
+            expandTrigger: 'hover',
+          }" @change="closeCasc" ref="cascaderHandle" filterable clearable></el-cascader>
         </el-form-item>
 
         <el-form-item>
           <el-button @click="onSubmit" type="primary">查询</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button @click="addUser" type="primary" style="margin-left: 200px"
-            >新增用户</el-button
-          >
+          <el-button @click="addUser" type="primary" style="margin-left: 200px">新增用户</el-button>
         </el-form-item>
       </el-form>
     </div>
 
     <el-table :data="tableData" border stripe>
       <el-table-column label="UID" min-width="50" prop="ID"></el-table-column>
-      <el-table-column
-        label="账号"
-        min-width="150"
-        prop="userName"
-      ></el-table-column>
-      <el-table-column
-        label="账号名称"
-        min-width="150"
-        prop="nickName"
-      ></el-table-column>
+      <el-table-column label="账号" min-width="150" prop="userName"></el-table-column>
+      <el-table-column label="账号名称" min-width="150" prop="nickName"></el-table-column>
 
       <el-table-column label="所属角色" min-width="150">
         <template slot-scope="scope">
@@ -91,11 +63,7 @@
           </div>
         </template>
       </el-table-column> -->
-      <el-table-column
-        label="UUID"
-        min-width="250"
-        prop="uuid"
-      ></el-table-column>
+      <el-table-column label="UUID" min-width="250" prop="uuid"></el-table-column>
 
       <el-table-column label="创建时间" width="160">
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
@@ -106,111 +74,48 @@
           <el-popover placement="top" width="160" v-model="scope.row.visible">
             <p>确定要删除此用户吗</p>
             <div style="text-align: right; margin: 0">
-              <el-button
-                size="mini"
-                type="text"
-                @click="scope.row.visible = false"
-                >取消</el-button
-              >
-              <el-button
-                type="primary"
-                size="mini"
-                @click="deleteUser(scope.row)"
-                >确定</el-button
-              >
+              <el-button size="mini" type="text" @click="scope.row.visible = false">取消</el-button>
+              <el-button type="primary" size="mini" @click="deleteUser(scope.row)">确定</el-button>
             </div>
-            <el-button
-              type="text"
-              icon="el-icon-delete"
-              size="small"
-              slot="reference"
-              >删除</el-button
-            >
+            <el-button type="text" icon="el-icon-delete" size="small" slot="reference">删除</el-button>
 
-            <el-button
-              type="text"
-              size="small"
-              slot="reference"
-              @click="changePwd(scope.row)"
-              >重置密码</el-button
-            >
+            <el-button type="text" size="small" slot="reference" @click="changePwd(scope.row)">重置密码</el-button>
           </el-popover>
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination
-      :current-page="page"
-      :page-size="pageSize"
-      :page-sizes="[10, 30, 50, 100]"
-      :style="{ float: 'right', padding: '20px' }"
-      :total="total"
-      @current-change="handleCurrentChange"
-      @size-change="handleSizeChange"
-      layout="total, sizes, prev, pager, next, jumper"
-      background
-    ></el-pagination>
+    <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
+      :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
+      @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
 
-    <el-dialog
-      :visible.sync="addUserDialog"
-      custom-class="user-dialog"
-      title="新增后台用户"
-      width="25%"
-    >
+    <el-dialog :visible.sync="addUserDialog" custom-class="user-dialog" title="新增后台用户" width="25%">
       <el-form :rules="rules" ref="userForm" :model="userInfo" size="mini">
         <el-form-item label="用户名" label-width="80px" prop="username">
-          <el-input
-            v-model="userInfo.username"
-            placeholder="请填写登录用户名"
-          ></el-input>
+          <el-input v-model="userInfo.username" placeholder="请填写登录用户名"></el-input>
         </el-form-item>
         <el-form-item label="登录密码" label-width="80px" prop="password">
-          <el-input
-            v-model="userInfo.password"
-            placeholder="请填写登录密码"
-          ></el-input>
+          <el-input v-model="userInfo.password" placeholder="请填写登录密码"></el-input>
         </el-form-item>
         <el-form-item label="姓名" label-width="80px" prop="nickName">
-          <el-input
-            v-model="userInfo.nickName"
-            placeholder="请填写姓名"
-          ></el-input>
+          <el-input v-model="userInfo.nickName" placeholder="请填写姓名"></el-input>
         </el-form-item>
         <el-form-item label="所属角色" label-width="80px" prop="authorityId">
-          <el-cascader
-            v-model="userInfo.authorityId"
-            :options="authOptions"
-            :show-all-levels="false"
-            style="width: 100%"
-            :props="{
+          <el-cascader v-model="userInfo.authorityId" :options="authOptions" :show-all-levels="false"
+            style="width: 100%" :props="{
               checkStrictly: true,
               label: 'authorityName',
               value: 'authorityId',
               disabled: 'disabled',
               emitPath: false,
               expandTrigger: 'hover',
-            }"
-            filterable
-          ></el-cascader>
+            }" filterable></el-cascader>
         </el-form-item>
 
-        <el-form-item
-          label="所属组织"
-          label-width="80px"
-          v-if="this.$store.state.user.userInfo.perm['host']"
-          prop="tenantId"
-        >
-          <el-select
-            v-model="userInfo.tenantId"
-            placeholder="请选择"
-            style="width: 100%"
-            clearable
-          >
-            <el-option
-              v-for="item in reslist.tenants"
-              :key="item.ID"
-              :label="item.platform_name"
-              :value="item.ID"
-            ></el-option>
+        <el-form-item label="所属组织" label-width="80px" v-if="this.$store.state.user.userInfo.perm['host']"
+          prop="tenantId">
+          <el-select v-model="userInfo.tenantId" placeholder="请选择" style="width: 100%" clearable>
+            <el-option v-for="item in reslist.tenants" :key="item.ID" :label="item.platform_name"
+              :value="item.ID"></el-option>
           </el-select>
         </el-form-item>
 
@@ -232,26 +137,13 @@
     </el-dialog>
     <ChooseImg ref="chooseImg" :target="userInfo" :targetKey="`headerImg`" />
 
-    <el-dialog
-      :visible.sync="showPassword"
-      @close="clearPassword"
-      title="修改密码"
-      width="25%"
-    >
-      <el-form
-        :model="pwdModify"
-        :rules="rulePwd"
-        label-width="80px"
-        ref="modifyPwdForm"
-      >
+    <el-dialog :visible.sync="showPassword" @close="clearPassword" title="修改密码" width="25%">
+      <el-form :model="pwdModify" :rules="rulePwd" label-width="80px" ref="modifyPwdForm">
         <el-form-item :minlength="6" label="新密码" prop="newPassword">
           <el-input show-password v-model="pwdModify.newPassword"></el-input>
         </el-form-item>
         <el-form-item :minlength="6" label="确认密码" prop="confirmPassword">
-          <el-input
-            show-password
-            v-model="pwdModify.confirmPassword"
-          ></el-input>
+          <el-input show-password v-model="pwdModify.confirmPassword"></el-input>
         </el-form-item>
       </el-form>
       <div class="dialog-footer" slot="footer" style="text-align: center">
@@ -475,6 +367,7 @@ export default {
 <style lang="scss">
 .button-box {
   padding: 10px 20px;
+
   .el-button {
     float: right;
   }
@@ -490,9 +383,11 @@ export default {
     line-height: 200px;
     cursor: pointer;
   }
+
   .avatar-uploader .el-upload:hover {
     border-color: #409eff;
   }
+
   .avatar-uploader-icon {
     border: 1px dashed #d9d9d9 !important;
     border-radius: 6px;
@@ -503,6 +398,7 @@ export default {
     line-height: 178px;
     text-align: center;
   }
+
   .avatar {
     width: 178px;
     height: 178px;
