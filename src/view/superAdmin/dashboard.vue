@@ -173,7 +173,7 @@
 
             <el-table-column prop="total_water_amount" label="佣金" align="center" width="100">
               <template slot-scope="scope"><span style="color: #667de8">¥{{ scope.row.total_water_amount
-              }}</span></template>
+                  }}</span></template>
             </el-table-column>
           </el-table-column>
 
@@ -788,9 +788,6 @@ export default {
     },
     // 计算彩种利润 = 投注金额 - 佣金 - 中奖金额 - 彩种的转出金额 + 转出佣金 + 转出中奖金额
     calculateGameCategoryProfit(row) {
-      if (this.summaryData.issue.status != 3) {
-        return "0.00";
-      }
       const betAmount = parseFloat(row.gc_bet_amount || 0);
       const commission = parseFloat(row.gc_water_amount || 0);
       const winAmount = parseFloat(row.gc_win_amount || 0);
@@ -800,6 +797,18 @@ export default {
       const transferItem = transferDetails.find(
         (item) => item.game_category == row.game_category
       );
+
+      if (transferItem.game_category == 1) {
+        if (this.summaryData.issue.fc_state == 0) {
+          return "0.00";
+        }
+      }
+
+      if (transferItem.game_category == 2) {
+        if (this.summaryData.issue.tc_state == 0) {
+          return "0.00";
+        }
+      }
 
       const transferOutAmount = transferItem
         ? parseFloat(transferItem.total_amount || 0)
