@@ -794,6 +794,7 @@ export default {
 
       // 查找该彩种的转出信息
       const transferDetails = this.summaryData.transferout_details || [];
+      if (transferDetails.length == 0) return "0.00";
       const transferItem = transferDetails.find(
         (item) => item.game_category == row.game_category
       );
