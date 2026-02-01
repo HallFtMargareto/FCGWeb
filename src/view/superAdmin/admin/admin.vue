@@ -69,7 +69,29 @@
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
       </el-table-column>
 
-      <el-table-column label="操作" min-width="150">
+      <el-table-column label="状态" min-width="120" align="center">
+        <template slot-scope="scope">
+          <div style="display: flex; align-items: center; justify-content: center;">
+            <el-tag size="small"
+              :type="scope.row.status === 1 ? 'success' : scope.row.status === 2 ? 'info' : 'danger'">
+              {{ scope.row.status === 1 ? '正常' : scope.row.status === 2 ? '禁用' : '锁定' }}
+            </el-tag>
+
+            <el-dropdown @command="(command) => changeUserStatus(scope.row, command)" style="margin-left: 5px;">
+              <el-button type="text" size="small">
+                状态<i class="el-icon-arrow-down el-icon--right"></i>
+              </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="1" :disabled="scope.row.status === 1">启用</el-dropdown-item>
+                <el-dropdown-item command="2" :disabled="scope.row.status === 2">禁用</el-dropdown-item>
+                <el-dropdown-item command="3" :disabled="scope.row.status === 3">锁定</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </div>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="操作" min-width="200">
         <template slot-scope="scope">
           <el-popover placement="top" width="160" v-model="scope.row.visible">
             <p>确定要删除此用户吗</p>
@@ -80,6 +102,7 @@
             <el-button type="text" icon="el-icon-delete" size="small" slot="reference">删除</el-button>
 
             <el-button type="text" size="small" slot="reference" @click="changePwd(scope.row)">重置密码</el-button>
+
           </el-popover>
         </template>
       </el-table-column>
@@ -279,6 +302,34 @@ export default {
         row.visible = false;
       }
     },
+    async changeUserStatus(row, status) {
+      const statusMap = { 1: "启用", 2: "禁用", 3: "锁定" };
+      this.$confirm(`确定要${statusMap[status]}该用户吗?`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(async () => {
+          const req = {
+            ...row,
+            status: parseInt(status),
+          };
+          const res = await this.$api.setUserInfo(req);
+          if (res.code == 0) {
+            this.$message({
+              type: "success",
+              message: "操作成功",
+            });
+            this.getTableData();
+          }
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消操作",
+          });
+        });
+    },
     async enterAddUserDialog() {
       this.$refs.userForm.validate(async (valid) => {
         if (valid) {
@@ -364,7 +415,12 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.el-dropdown {
+  overflow: hidden;
+  height: 30px;
+}
+
 .button-box {
   padding: 10px 20px;
 
