@@ -173,7 +173,7 @@
 
             <el-table-column prop="total_water_amount" label="佣金" align="center" width="100">
               <template slot-scope="scope"><span style="color: #667de8">¥{{ scope.row.total_water_amount
-                  }}</span></template>
+              }}</span></template>
             </el-table-column>
           </el-table-column>
 
@@ -792,24 +792,23 @@ export default {
       const commission = parseFloat(row.gc_water_amount || 0);
       const winAmount = parseFloat(row.gc_win_amount || 0);
 
-      // 查找该彩种的转出信息
-      const transferDetails = this.summaryData.transferout_details || [];
-      if (transferDetails.length == 0) return "0.00";
-      const transferItem = transferDetails.find(
-        (item) => item.game_category == row.game_category
-      );
-
-      if (transferItem.game_category == 1) {
+      if (row.game_category == 1) {
         if (this.summaryData.issue.fc_state == 0) {
           return "0.00";
         }
       }
 
-      if (transferItem.game_category == 2) {
+      if (row.game_category == 2) {
         if (this.summaryData.issue.tc_state == 0) {
           return "0.00";
         }
       }
+
+      // 查找该彩种的转出信息
+      const transferDetails = this.summaryData.transferout_details || [];
+      const transferItem = transferDetails.find(
+        (item) => item.game_category == row.game_category
+      );
 
       const transferOutAmount = transferItem
         ? parseFloat(transferItem.total_amount || 0)
