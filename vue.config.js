@@ -10,7 +10,7 @@ module.exports = {
     lintOnSave: process.env.NODE_ENV === 'development',
     productionSourceMap: false,
     devServer: {
-        port: 8080,
+        port: 9040,
         disableHostCheck: true,
         allowedHosts: [
             '*.com', // 允许访问的域名地址，即花生壳内网穿透的地址
@@ -25,7 +25,7 @@ module.exports = {
             // 把key的路径代理到target位置
             // detail: https://cli.vuejs.org/config/#devserver-proxy
             [process.env.VUE_APP_BASE_API]: { //需要代理的路径   例如 '/api'
-                target: `http://192.168.1.67:9051/`, //代理到 目标路径
+                target: `http://127.0.0.1:9051/`, //代理到 目标路径
                 // target: `http://115.190.130.54:9051/`, //代理到 目标路径
                 // target: `http://127.0.0.1:888/`, //代理到 目标路径
                 // target: `http://go.ftcmsy365.com/`, //代理到 目标路径
@@ -35,7 +35,7 @@ module.exports = {
                 }
             },
             '/uploads': {
-                target: 'http://192.168.1.67:9051/',  // 你的后端地址
+                target: 'http://127.0.0.1:9051/',  // 你的后端地址
                 changeOrigin: true,
             },
         },
