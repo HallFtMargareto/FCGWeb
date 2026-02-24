@@ -133,6 +133,7 @@
             <el-tab-pane label="未标记" name="1"></el-tab-pane>
             <el-tab-pane label="已标记" name="2"></el-tab-pane>
             <el-tab-pane label="自动标记" name="3"></el-tab-pane>
+            <el-tab-pane label="AI标记" name="5"></el-tab-pane>
             <el-tab-pane label="最近标记" name="10"></el-tab-pane>
           </el-tabs>
         </el-col>
@@ -704,6 +705,10 @@ export default {
         return "已标记";
       } else if (markState == 3) {
         return "自动标记";
+      } else if (markState == 4) {
+        return "AI标记中...";
+      } else if (markState == 5) {
+        return "AI标记";
       } else {
         return "未标记";
       }
@@ -711,7 +716,7 @@ export default {
     // 处理标记点击事件
     async handleMarkClick(orderGroup) {
       // 只有未标记状态才能点击
-      if (orderGroup.mark_state == 2) {
+      if (orderGroup.mark_state == 2 || orderGroup.mark_state == 4) {
         return;
       }
 
