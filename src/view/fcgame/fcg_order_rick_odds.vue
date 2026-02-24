@@ -981,22 +981,21 @@ export default {
           issue_id: this.chartIssueId,
           command: "transfer",
           transfer_list: transfer_list,
+        };
 
-          //基础参数
-          // ks_amount: this.ks_amount, //预亏损金额
-          // trans_count: this.search_trans_count, //转出单量
-
-          //号码过滤
-          // hundredsNum: this.hundredsNum,
-          // tenthNum: this.tenthNum,
-          // onesNum: this.onesNum,
-          // hundredsCount: this.hundredsCount,
-          // tenthCount: this.tenthCount,
-          // onesCount: this.onesCount,
+        const params = {
+          ks_amount: this.ks_amount, //预亏损金额
+          trans_count: this.search_trans_count, //转出单量
+          hundredsNum: this.hundredsNum,
+          tenthNum: this.tenthNum,
+          onesNum: this.onesNum,
+          hundredsCount: this.hundredsCount,
+          tenthCount: this.tenthCount,
+          onesCount: this.onesCount,
         };
 
         // 调用API接口
-        const res = await batchFcgOrderSplitNumberOperation(requestData);
+        const res = await batchFcgOrderSplitNumberOperation(requestData, params);
 
         if (res.code === 0) {
           this.$message.success("保存转出数据成功");
@@ -1060,8 +1059,19 @@ export default {
           channel_id: this.selectedChannelId, // 添加选中的通道ID
         };
 
+        const params = {
+          ks_amount: this.ks_amount, //预亏损金额
+          trans_count: this.search_trans_count, //转出单量
+          hundredsNum: this.hundredsNum,
+          tenthNum: this.tenthNum,
+          onesNum: this.onesNum,
+          hundredsCount: this.hundredsCount,
+          tenthCount: this.tenthCount,
+          onesCount: this.onesCount,
+        };
+
         // 调用API接口
-        const res = await batchFcgOrderSplitNumberOperation(requestData);
+        const res = await batchFcgOrderSplitNumberOperation(requestData, params);
 
         if (res.code === 0) {
           this.$message.success("渠道转单成功");
@@ -1114,8 +1124,19 @@ export default {
           emulated: emulated,
         };
 
+        const params = {
+          ks_amount: this.ks_amount, //预亏损金额
+          trans_count: this.search_trans_count, //转出单量
+          hundredsNum: this.hundredsNum,
+          tenthNum: this.tenthNum,
+          onesNum: this.onesNum,
+          hundredsCount: this.hundredsCount,
+          tenthCount: this.tenthCount,
+          onesCount: this.onesCount,
+        };
+
         // 调用API接口
-        const res = await batchFcgOrderSplitNumberOperation(requestData);
+        const res = await batchFcgOrderSplitNumberOperation(requestData, params);
 
         if (res.code === 0) {
           if (emulated) {

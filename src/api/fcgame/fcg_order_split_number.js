@@ -58,11 +58,12 @@ export const createFcgOrderSplitNumber = (data) => {
  }
 
  // 批量操作FcgOrderSplitNumber
-  export const batchFcgOrderSplitNumberOperation = (data) => {
+  export const batchFcgOrderSplitNumberOperation = (data, params) => {
       return service({
           url: "/fcg_order_split_number/batchOperation",
           method: 'post',
-          data
+          data,
+          params
       })
   }
 
