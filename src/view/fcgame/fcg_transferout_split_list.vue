@@ -6,7 +6,7 @@
           <IssueSelect v-model="searchInfo.issue_id" placeholder="请选择期号" clearable></IssueSelect>
         </el-form-item>
 
-        <el-form-item label="所属组织" v-if="this.$store.state.user.userInfo.perm['host']">
+        <el-form-item label="所属组织" v-if="userInfo.perm['host']">
           <TenantSelect v-model="searchInfo.tenant_id" placeholder="请选择组织" :autoSelectFirst="false" clearable>
           </TenantSelect>
         </el-form-item>
@@ -18,6 +18,7 @@
 
         <el-form-item label=" ">
           <el-button @click="exportExcel" icon="el-icon-sold-out">导出</el-button>
+          <el-button @click="ClearByIssue" icon="el-icon-delete" v-if="userInfo.perm['host']">清除</el-button>
         </el-form-item>
 
         <el-form-item label="转出号码">
@@ -485,6 +486,27 @@ export default {
     async exportExcel() {
       this.searchInfo.action = "fcg_transferout_split_list";
       await this.$api.getExcel(this.searchInfo);
+    },
+    async ClearByIssue() {
+      this.$confirm("确定要清除本期数据吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then(async () => {
+        const ids = [0];
+        const res = await batchFcgTransferoutSplitListOperation({
+          ids,
+          command: "clear_issue_tenant",
+          ...this.searchInfo,
+        });
+        if (res.code == 0) {
+          this.$message({
+            type: "success",
+            message: "清除成功",
+          });
+          this.getTableData();
+        }
+      });
     },
     // 打开水费设置对话框
     openWaterRateDialog() {
