@@ -19,30 +19,18 @@
         </el-form-item> -->
 
         <el-form-item label="期号">
-          <IssueSelect
-            v-model="searchInfo.issue_id"
-            placeholder="请选择期号"
-            clearable
-          ></IssueSelect>
+          <IssueSelect v-model="searchInfo.issue_id" placeholder="请选择期号" clearable></IssueSelect>
         </el-form-item>
 
         <template v-if="userInfo.perm['host']">
           <el-form-item label="所属组织">
-            <TenantSelect
-              v-model="searchInfo.tenant_id"
-              placeholder="请选择组织"
-              :autoSelectFirst="false"
-              clearable
-            ></TenantSelect>
+            <TenantSelect v-model="searchInfo.tenant_id" placeholder="请选择组织" :autoSelectFirst="false" clearable>
+            </TenantSelect>
           </el-form-item>
         </template>
 
         <el-form-item label="订单ID">
-          <el-input
-            v-model="searchInfo.order_id"
-            placeholder="请输入订单ID"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.order_id" placeholder="请输入订单ID" clearable></el-input>
         </el-form-item>
 
         <!-- <el-form-item label="原始投注金额">
@@ -150,19 +138,9 @@
       </el-form> -->
     </div>
 
-    <el-table
-      :data="tableData"
-      @selection-change="handleSelectionChange"
-      @sort-change="sortChange"
-      ref="multipleTable"
-      :show-summary="showSummary"
-      :summary-method="getSummaries"
-    >
-      <el-table-column
-        type="selection"
-        width="50"
-        align="center"
-      ></el-table-column>
+    <el-table :data="tableData" @selection-change="handleSelectionChange" @sort-change="sortChange" ref="multipleTable"
+      :show-summary="showSummary" :summary-method="getSummaries">
+      <el-table-column type="selection" width="50" align="center"></el-table-column>
       <!-- <el-table-column
         label="ID"
         prop="ID"
@@ -170,88 +148,54 @@
         width="80"
       ></el-table-column> -->
 
-      <el-table-column label="订单ID" prop="order_id" width="80" align="center">
+      <el-table-column label="订单ID" prop="order_id" width="100" align="center" fixed="left">
       </el-table-column>
 
-      <el-table-column
-        label="原投注数量"
-        prop="source_bet_count"
-        width="120"
-        align="center"
-      >
+      <el-table-column label="投注内容" prop="source_content" min-width="150" align="left">
+      </el-table-column>
+      <el-table-column label="标记状态" prop="source_mark_state" width="80" align="center">
+        <template slot-scope="scope">
+          {{ markStateMap[scope.row.source_mark_state] || scope.row.source_mark_state }}
+        </template>
       </el-table-column>
 
-      <el-table-column
-        label="原投注金额"
-        prop="source_bet_amount"
-        width="130"
-        align="center"
-      >
-        <template slot-scope="scope">{{
-          formatAmount(scope.row.source_bet_amount)
-        }}</template>
+      <el-table-column label="投注数量" width="120" align="center">
+        <template slot-scope="scope">
+          <div><span style="color: #909399; font-size: 12px;">原:</span> {{ scope.row.source_bet_count }}</div>
+          <div>
+            <span style="color: #F56C6C; font-size: 12px;">变:</span> {{ scope.row.alter_bet_count }}
+          </div>
+        </template>
       </el-table-column>
 
-      <el-table-column
-        label="原中奖金额"
-        prop="source_win_amount"
-        width="130"
-        align="center"
-      >
-        <template slot-scope="scope">{{
-          formatAmount(scope.row.source_win_amount)
-        }}</template>
+      <el-table-column label="投注金额" width="140" align="center">
+        <template slot-scope="scope">
+          <div><span style="color: #909399; font-size: 12px;">原:</span> {{ formatAmount(scope.row.source_bet_amount) }}
+          </div>
+          <div>
+            <span style="color: #F56C6C; font-size: 12px;">变:</span> {{ formatAmount(scope.row.alter_bet_amount) }}
+          </div>
+        </template>
       </el-table-column>
 
-      <el-table-column
-        label="变更后投注数量"
-        prop="alter_bet_count"
-        width="200"
-        align="center"
-      >
+      <el-table-column label="中奖金额" width="140" align="center">
+        <template slot-scope="scope">
+          <div><span style="color: #909399; font-size: 12px;">原:</span> {{ formatAmount(scope.row.source_win_amount) }}
+          </div>
+          <div>
+            <span style="color: #F56C6C; font-size: 12px;">变:</span> {{ formatAmount(scope.row.alter_win_amount) }}
+          </div>
+        </template>
       </el-table-column>
 
-      <el-table-column
-        label="变更后投注金额"
-        prop="alter_bet_amount"
-        width="200"
-        align="center"
-      >
-        <template slot-scope="scope">{{
-          formatAmount(scope.row.alter_bet_amount)
-        }}</template>
+      <el-table-column label="所属组织" prop="platform_name" width="100" align="center" show-overflow-tooltip>
+      </el-table-column>
+      <el-table-column label="所属会话" prop="contact_nick_name" width="120" align="center" show-overflow-tooltip>
+      </el-table-column>
+      <el-table-column label="操作用户" prop="admin_nick_name" width="100" align="center" show-overflow-tooltip>
       </el-table-column>
 
-      <el-table-column
-        label="变更后中奖金额"
-        prop="alter_win_amount"
-        width="200"
-        align="center"
-      >
-        <template slot-scope="scope">{{
-          formatAmount(scope.row.alter_win_amount)
-        }}</template>
-      </el-table-column>
-
-      <el-table-column
-        label="所属组织"
-        prop="platform_name"
-        width="100"
-        align="center"
-      >
-      </el-table-column>
-      <el-table-column label="所属会话" prop="contact_nick_name" align="center">
-      </el-table-column>
-      <el-table-column label="操作用户" prop="admin_nick_name" align="center">
-      </el-table-column>
-
-      <el-table-column
-        label="操作时间"
-        width="160"
-        prop="created_at"
-        sortable="custom"
-        align="center"
-      >
+      <el-table-column label="操作时间" width="160" prop="created_at" sortable="custom" align="center">
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
       </el-table-column>
 
@@ -291,110 +235,48 @@
     <div>
       <!-- 数据合计,按需求启用 -->
       <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
-      <el-pagination
-        :current-page="page"
-        :page-size="pageSize"
-        :page-sizes="[10, 30, 50, 100]"
-        :style="{ float: 'right', padding: '20px' }"
-        :total="total"
-        @current-change="handleCurrentChange"
-        @size-change="handleSizeChange"
-        layout="total, sizes, prev, pager, next, jumper"
-        background
-      ></el-pagination>
+      <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
+        :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
+        @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
     </div>
 
-    <dialogform
-      :visible.sync="openDialog"
-      :dialogTitle="dialogTitle"
-      :formDatas="formData"
-      :formRule="formRules"
-      @confirm="enterDialog"
-      ref="dialog"
-    >
+    <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
+      @confirm="enterDialog" ref="dialog">
       <el-form-item label="来源" prop="source">
-        <el-input
-          v-model="formData.source"
-          placeholder="请输入来源"
-          clearable
-        ></el-input>
+        <el-input v-model="formData.source" placeholder="请输入来源" clearable></el-input>
       </el-form-item>
       <el-form-item label="变更内容" prop="alter">
-        <el-input
-          v-model="formData.alter"
-          placeholder="请输入变更内容"
-          clearable
-        ></el-input>
+        <el-input v-model="formData.alter" placeholder="请输入变更内容" clearable></el-input>
       </el-form-item>
       <el-form-item label="订单ID" prop="order_id">
-        <el-input
-          v-model="formData.order_id"
-          clearable
-          placeholder="请输入订单ID"
-        ></el-input>
+        <el-input v-model="formData.order_id" clearable placeholder="请输入订单ID"></el-input>
       </el-form-item>
       <el-form-item label="租户ID" prop="tenant_id">
-        <el-input
-          v-model.number="formData.tenant_id"
-          placeholder="请输入租户ID"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.tenant_id" placeholder="请输入租户ID" clearable></el-input>
       </el-form-item>
       <el-form-item label="原始投注金额" prop="source_bet_amount">
-        <el-input
-          v-model="formData.source_bet_amount"
-          clearable
-          placeholder="请输入原始投注金额"
-        ></el-input>
+        <el-input v-model="formData.source_bet_amount" clearable placeholder="请输入原始投注金额"></el-input>
       </el-form-item>
       <el-form-item label="原始中奖金额" prop="source_win_amount">
-        <el-input
-          v-model="formData.source_win_amount"
-          clearable
-          placeholder="请输入原始中奖金额"
-        ></el-input>
+        <el-input v-model="formData.source_win_amount" clearable placeholder="请输入原始中奖金额"></el-input>
       </el-form-item>
       <el-form-item label="原始投注数量" prop="source_bet_count">
-        <el-input
-          v-model="formData.source_bet_count"
-          clearable
-          placeholder="请输入原始投注数量"
-        ></el-input>
+        <el-input v-model="formData.source_bet_count" clearable placeholder="请输入原始投注数量"></el-input>
       </el-form-item>
       <el-form-item label="变更后投注金额" prop="alter_bet_amount">
-        <el-input
-          v-model="formData.alter_bet_amount"
-          clearable
-          placeholder="请输入变更后投注金额"
-        ></el-input>
+        <el-input v-model="formData.alter_bet_amount" clearable placeholder="请输入变更后投注金额"></el-input>
       </el-form-item>
       <el-form-item label="变更后中奖金额" prop="alter_win_amount">
-        <el-input
-          v-model="formData.alter_win_amount"
-          clearable
-          placeholder="请输入变更后中奖金额"
-        ></el-input>
+        <el-input v-model="formData.alter_win_amount" clearable placeholder="请输入变更后中奖金额"></el-input>
       </el-form-item>
       <el-form-item label="变更后投注数量" prop="alter_bet_count">
-        <el-input
-          v-model="formData.alter_bet_count"
-          clearable
-          placeholder="请输入变更后投注数量"
-        ></el-input>
+        <el-input v-model="formData.alter_bet_count" clearable placeholder="请输入变更后投注数量"></el-input>
       </el-form-item>
       <el-form-item label="管理员ID" prop="admin_id">
-        <el-input
-          v-model.number="formData.admin_id"
-          placeholder="请输入管理员ID"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.admin_id" placeholder="请输入管理员ID" clearable></el-input>
       </el-form-item>
       <el-form-item label="会话ID" prop="session_id">
-        <el-input
-          v-model.number="formData.session_id"
-          placeholder="请输入会话ID"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.session_id" placeholder="请输入会话ID" clearable></el-input>
       </el-form-item>
     </dialogform>
 
@@ -422,6 +304,13 @@ export default {
   },
   data() {
     return {
+      markStateMap: {
+        1: "未标记",
+        2: "已标记",
+        3: "自动标记",
+        5: "AI标记",
+        10: "最近标记"
+      },
       listApi: getFcgOrderAlterList,
       openDialog: false,
       dialogTitle: "",
@@ -664,7 +553,7 @@ export default {
   background-color: #fafafa;
 }
 
-.el-table__body tr:hover > td {
+.el-table__body tr:hover>td {
   background-color: #f5f7fa !important;
 }
 
