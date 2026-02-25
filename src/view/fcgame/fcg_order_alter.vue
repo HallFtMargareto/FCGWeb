@@ -152,6 +152,9 @@
       </el-table-column>
 
       <el-table-column label="投注内容" prop="source_content" min-width="150" align="left">
+        <template slot-scope="scope">
+          <div style="white-space: pre-wrap;">{{ scope.row.source_content }}</div>
+        </template>
       </el-table-column>
       <el-table-column label="标记状态" prop="source_mark_state" width="80" align="center">
         <template slot-scope="scope">
