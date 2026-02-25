@@ -12,51 +12,27 @@
         </el-form-item> -->
 
         <el-form-item label="组织名称">
-          <el-input
-            v-model="searchInfo.platform_name"
-            placeholder="组织名称"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.platform_name" placeholder="组织名称" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="联系人">
-          <el-input
-            v-model="searchInfo.contact"
-            placeholder="联系人"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.contact" placeholder="联系人" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="账号">
-          <el-input
-            v-model="searchInfo.account"
-            placeholder="账号"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.account" placeholder="账号" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="手机">
-          <el-input
-            v-model="searchInfo.phone"
-            placeholder="手机"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.phone" placeholder="手机" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="APP标识">
-          <el-input
-            v-model="searchInfo.application"
-            placeholder="APP标识"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.application" placeholder="APP标识" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="微信标识">
-          <el-input
-            v-model="searchInfo.wxid"
-            placeholder="微信标识"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.wxid" placeholder="微信标识" clearable></el-input>
         </el-form-item>
 
         <!-- <el-form-item label="企业ID">
@@ -64,19 +40,11 @@
         </el-form-item> -->
 
         <el-form-item label="域名">
-          <el-input
-            v-model="searchInfo.domain"
-            placeholder="域名"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.domain" placeholder="域名" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="邮箱">
-          <el-input
-            v-model="searchInfo.email"
-            placeholder="邮箱"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.email" placeholder="邮箱" clearable></el-input>
         </el-form-item>
 
         <!-- <el-form-item label="租户套餐">
@@ -84,21 +52,11 @@
         </el-form-item> -->
 
         <el-form-item label="到期时间">
-          <datepicker
-            v-model="searchInfo.expires"
-            type="datetime"
-            placeholder="选择日期"
-            style="width: 100%"
-            clearable
-          />
+          <datepicker v-model="searchInfo.expires" type="datetime" placeholder="选择日期" style="width: 100%" clearable />
         </el-form-item>
 
         <el-form-item label="用户数量">
-          <el-input
-            v-model="searchInfo.user_quantity"
-            placeholder="用户数量(-1:=不限制)"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.user_quantity" placeholder="用户数量(-1:=不限制)" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="状态" prop="enabled">
@@ -116,27 +74,15 @@
         </el-form-item> -->
 
         <el-form-item label="备注">
-          <el-input
-            v-model="searchInfo.remark"
-            placeholder="备注"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.remark" placeholder="备注" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="创建人">
-          <el-input
-            v-model="searchInfo.create_by"
-            placeholder="创建人"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.create_by" placeholder="创建人" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="更新人">
-          <el-input
-            v-model="searchInfo.update_by"
-            placeholder="更新人"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.update_by" placeholder="更新人" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="添加时间">
@@ -148,54 +94,20 @@
       </searchform>
 
       <el-form size="mini" :inline="true" class="btn-form-inline">
-        <el-button
-          v-if="userInfo.perm['system.create']"
-          @click="createRow"
-          icon="el-icon-plus"
-          type="primary"
-          >新增</el-button
-        >
-        <el-button
-          v-if="
-            userInfo.perm['system.batch_delete'] && multipleSelection.length > 0
-          "
-          @click="handleCommand('remove')"
-          icon="el-icon-delete"
-          type="danger"
-          plain
-          >批量删除</el-button
-        >
-        <el-button
-          v-if="userInfo.perm['system.import']"
-          @click="importExcel"
-          icon="el-icon-sell"
-          >导入</el-button
-        >
-        <el-button
-          v-if="userInfo.perm['system.export']"
-          @click="exportExcel"
-          icon="el-icon-sold-out"
-          >导出</el-button
-        >
+        <el-button v-if="userInfo.perm['system.create']" @click="createRow" icon="el-icon-plus"
+          type="primary">新增</el-button>
+        <el-button v-if="
+          userInfo.perm['system.batch_delete'] && multipleSelection.length > 0
+        " @click="handleCommand('remove')" icon="el-icon-delete" type="danger" plain>批量删除</el-button>
+        <el-button v-if="userInfo.perm['system.import']" @click="importExcel" icon="el-icon-sell">导入</el-button>
+        <el-button v-if="userInfo.perm['system.export']" @click="exportExcel" icon="el-icon-sold-out">导出</el-button>
       </el-form>
     </div>
 
-    <el-table
-      :data="tableData"
-      @selection-change="handleSelectionChange"
-      @sort-change="sortChange"
-      ref="multipleTable"
-      :show-summary="showSummary"
-      :summary-method="getSummaries"
-      style="width: 100%"
-    >
+    <el-table :data="tableData" @selection-change="handleSelectionChange" @sort-change="sortChange" ref="multipleTable"
+      :show-summary="showSummary" :summary-method="getSummaries" style="width: 100%">
       <el-table-column type="selection" width="55"></el-table-column>
-      <el-table-column
-        label="ID"
-        prop="ID"
-        sortable
-        width="80"
-      ></el-table-column>
+      <el-table-column label="ID" prop="ID" sortable width="80"></el-table-column>
 
       <el-table-column label="组织名称" prop="platform_name"> </el-table-column>
 
@@ -227,10 +139,7 @@
       </el-table-column>
       <el-table-column label="渠道转单" prop="channel_trans" align="center">
         <template slot-scope="scope">
-          <el-tag
-            :type="scope.row.channel_trans ? 'success' : 'info'"
-            size="mini"
-          >
+          <el-tag :type="scope.row.channel_trans ? 'success' : 'info'" size="mini">
             {{ scope.row.channel_trans ? "启用" : "禁用" }}
           </el-tag>
         </template>
@@ -242,22 +151,10 @@
 
       <el-table-column label="操作" fixed="right" width="200">
         <template slot-scope="scope">
-          <el-button
-            v-if="userInfo.perm['system.update']"
-            @click="editRow(scope.row)"
-            type="text"
-            size="small"
-            icon="el-icon-edit"
-            >编辑</el-button
-          >
-          <el-button
-            v-if="userInfo.perm['system.delete']"
-            @click="deleteRow(scope.row)"
-            type="text"
-            size="small"
-            icon="el-icon-delete"
-            >删除</el-button
-          >
+          <el-button v-if="userInfo.perm['system.update']" @click="editRow(scope.row)" type="text" size="small"
+            icon="el-icon-edit">编辑</el-button>
+          <el-button v-if="userInfo.perm['system.delete']" @click="deleteRow(scope.row)" type="text" size="small"
+            icon="el-icon-delete">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -266,113 +163,70 @@
     <div>
       <!-- 数据合计,按需求启用 -->
       <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
-      <el-pagination
-        :current-page="page"
-        :page-size="pageSize"
-        :page-sizes="[10, 30, 50, 100]"
-        :style="{ float: 'right', padding: '20px' }"
-        :total="total"
-        @current-change="handleCurrentChange"
-        @size-change="handleSizeChange"
-        layout="total, sizes, prev, pager, next, jumper"
-        background
-      ></el-pagination>
+      <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
+        :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
+        @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
     </div>
 
-    <el-dialog
-      @close="closeDialog"
-      :visible.sync="dialogFormVisible"
-      :title="dialogTitle"
-      width="25%"
-    >
-      <el-form
-        :model="formData"
-        :rules="formDataRules"
-        ref="ruleForm"
-        size="mini"
-        label-position="right"
-        label-width="80px"
-      >
-        <el-form-item label="组织名称" prop="platform_name">
-          <el-input
-            v-model="formData.platform_name"
-            clearable
-            placeholder="请输入"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="APP标识" prop="application">
-          <el-input
-            v-model="formData.application"
-            clearable
-            placeholder="请输入"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="联系人" prop="contact">
-          <el-input
-            v-model="formData.contact"
-            clearable
-            placeholder="请输入"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="手机" prop="phone">
-          <el-input
-            v-model="formData.phone"
-            clearable
-            placeholder="请输入"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="到期时间" prop="expires">
-          <datepicker v-model="formData.expires" type="datetime" />
-        </el-form-item>
-        <el-form-item label="用户数量" prop="user_quantity">
-          <el-input
-            v-model.number="formData.user_quantity"
-            clearable
-            placeholder="请输入"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="状态" prop="enabled">
-          <el-switch
-            active-color="#13ce66"
-            inactive-color="#ff4949"
-            active-text="启用"
-            inactive-text="禁用"
-            v-model="formData.enabled"
-            clearable
-          ></el-switch>
-        </el-form-item>
-        <el-form-item label="快速转单" prop="fast_trans">
-          <el-switch
-            active-color="#13ce66"
-            inactive-color="#ff4949"
-            active-text="启用"
-            inactive-text="禁用"
-            v-model="formData.fast_trans"
-            clearable
-          ></el-switch>
-        </el-form-item>
-        <el-form-item label="渠道转单" prop="channel_trans">
-          <el-switch
-            active-color="#13ce66"
-            inactive-color="#ff4949"
-            active-text="启用"
-            inactive-text="禁用"
-            v-model="formData.channel_trans"
-            clearable
-          ></el-switch>
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input
-            v-model="formData.remark"
-            clearable
-            placeholder="请输入"
-          ></el-input>
-        </el-form-item>
+    <el-dialog @close="closeDialog" :visible.sync="dialogFormVisible" :title="dialogTitle" width="25%">
+      <el-form :model="formData" :rules="formDataRules" ref="ruleForm" size="mini" label-position="right"
+        label-width="80px">
+        <el-tabs v-model="activeTab">
+          <el-tab-pane label="基础信息" name="base">
+            <el-form-item label="组织名称" prop="platform_name">
+              <el-input v-model="formData.platform_name" clearable placeholder="请输入"></el-input>
+            </el-form-item>
+            <el-form-item label="APP标识" prop="application">
+              <el-input v-model="formData.application" clearable placeholder="请输入"></el-input>
+            </el-form-item>
+            <el-form-item label="联系人" prop="contact">
+              <el-input v-model="formData.contact" clearable placeholder="请输入"></el-input>
+            </el-form-item>
+            <el-form-item label="手机" prop="phone">
+              <el-input v-model="formData.phone" clearable placeholder="请输入"></el-input>
+            </el-form-item>
+            <el-form-item label="到期时间" prop="expires">
+              <datepicker v-model="formData.expires" type="datetime" />
+            </el-form-item>
+            <el-form-item label="用户数量" prop="user_quantity">
+              <el-input v-model.number="formData.user_quantity" clearable placeholder="请输入"></el-input>
+            </el-form-item>
+            <el-form-item label="状态" prop="enabled">
+              <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="启用" inactive-text="禁用"
+                v-model="formData.enabled" clearable></el-switch>
+            </el-form-item>
+            <el-form-item label="快速转单" prop="fast_trans">
+              <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="启用" inactive-text="禁用"
+                v-model="formData.fast_trans" clearable></el-switch>
+            </el-form-item>
+            <el-form-item label="渠道转单" prop="channel_trans">
+              <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="启用" inactive-text="禁用"
+                v-model="formData.channel_trans" clearable></el-switch>
+            </el-form-item>
+            <el-form-item label="备注" prop="remark">
+              <el-input v-model="formData.remark" clearable placeholder="请输入"></el-input>
+            </el-form-item>
+          </el-tab-pane>
+          <el-tab-pane label="API设置" name="api">
+            <el-form-item label="提交接口" prop="api.submit">
+              <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="启用" inactive-text="禁用"
+                v-model="formData.api.submit"></el-switch>
+            </el-form-item>
+            <el-form-item label="查询接口" prop="api.query">
+              <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="启用" inactive-text="禁用"
+                v-model="formData.api.query"></el-switch>
+            </el-form-item>
+            <el-form-item label="IP白名单" prop="api.ip_list">
+              <el-input type="textarea" :rows="3" v-model="formData.api.ip_list" placeholder="多个IP使用逗号或换行分隔"></el-input>
+            </el-form-item>
+            <el-form-item label="API密钥" prop="api.api_key">
+              <el-input v-model="formData.api.api_key" clearable placeholder="请输入API密钥"></el-input>
+            </el-form-item>
+          </el-tab-pane>
+        </el-tabs>
       </el-form>
       <div class="dialog-footer" slot="footer">
-        <el-button @click="dialogFormVisible = !dialogFormVisible"
-          >取 消</el-button
-        >
+        <el-button @click="dialogFormVisible = !dialogFormVisible">取 消</el-button>
         <el-button @click="enterDialog" type="primary">确 定</el-button>
       </div>
     </el-dialog>
@@ -403,6 +257,7 @@ export default {
       dialogTitle: "",
       type: "",
       multipleSelection: [],
+      activeTab: "base",
       formData: {
         organization: "",
         application: "",
@@ -419,9 +274,16 @@ export default {
         user_quantity: 10,
         enabled: true,
         fast_trans: false,
+        channel_trans: false,
         remark: "",
         create_by: "",
         update_by: "",
+        api: {
+          submit: false,
+          query: false,
+          ip_list: "",
+          api_key: "",
+        },
       },
       formDataRules: {
         platform_name: [
@@ -460,6 +322,12 @@ export default {
       const res = await this.$api.findSysTenant({ ID: row.ID });
       if (res.code == 0) {
         this.formData = res.data.retenant;
+        this.$set(this.formData, "api", res.data.api || {
+          submit: false,
+          query: false,
+          ip_list: "",
+          api_key: "",
+        });
         this.dialogFormVisible = true;
       }
     },
@@ -503,10 +371,18 @@ export default {
         user_quantity: 10,
         enabled: true,
         fast_trans: false,
+        channel_trans: false,
         remark: "",
         create_by: "",
         update_by: "",
+        api: {
+          submit: false,
+          query: false,
+          ip_list: "",
+          api_key: "",
+        },
       };
+      this.activeTab = "base";
       this.dialogFormVisible = false;
     },
     async enterDialog() {

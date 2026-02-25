@@ -68,7 +68,7 @@
       </searchform>
 
       <el-form size="mini" :inline="true" class="btn-form-inline">
-        <el-button v-if="userInfo.perm['system.create']" @click="createRow" icon="el-icon-plus"
+        <el-button v-if="userInfo.perm['system.contact_create']" @click="createRow" icon="el-icon-plus"
           type="primary">新增</el-button>
         <!-- <el-button v-if="userInfo.perm['system.batch_delete'] && multipleSelection.length > 0"
           @click="handleCommand('remove')" icon="el-icon-delete" type="danger" plain>批量删除</el-button>
