@@ -111,6 +111,62 @@
       rickDataInfo.rick_order &&
       rickDataInfo.rick_order.length > 0
     ">
+      <div v-if="transferSchemeList && transferSchemeList.length > 0" style="margin-bottom: 15px">
+        <div v-for="item in transferSchemeList" :key="item.ID"
+          style="margin-bottom: 10px; padding: 8px 15px; background-color: #f0f9eb; border: 1px solid #e1f3d8; border-radius: 4px; display: flex; flex-wrap: wrap; align-items: center; gap: 15px; font-size: 13px;">
+          <div style="font-weight: bold; color: #67c23a; display: flex; align-items: center;">
+            <i class="el-icon-s-order" style="margin-right: 4px;"></i>本期转出方案
+          </div>
+          <div>
+            <span style="color: #909399;">时间:</span>
+            <span style="color: #606266; margin-left: 4px;">{{ item.created_at }}</span>
+          </div>
+          <div>
+            <span style="color: #909399;">转出:</span>
+            <span style="color: #303133; font-weight: bold; margin-left: 4px;">{{ item.total_count }}</span>单 /
+            <span style="color: #f56c6c; font-weight: bold;">{{ item.total_amount }}</span>元
+          </div>
+          <div>
+            <span style="color: #909399;">号码数:</span>
+            <span style="color: #606266; margin-left: 4px;">{{ item.item_count }}</span>
+          </div>
+          <div>
+            <span style="color: #909399;">快速转单:</span>
+            <span
+              :style="{ color: item.fast_trans ? '#67c23a' : '#909399', fontWeight: item.fast_trans ? 'bold' : 'normal', marginLeft: '4px' }">{{
+                item.fast_trans ? '是' : '否' }}</span>
+          </div>
+
+          <div v-if="item.ks_amount > 0">
+            <span style="color: #909399;">亏损过滤:</span>
+            <span style="color: #606266; margin-left: 4px;">{{ item.ks_amount }}</span>
+          </div>
+          <div v-if="item.query_trans_count > 0">
+            <span style="color: #909399;">单量过滤:</span>
+            <span style="color: #606266; margin-left: 4px;">{{ item.query_trans_count }}</span>
+          </div>
+
+          <div v-if="item.filter_hundreds_num">
+            <span style="color: #909399;">百位:</span>
+            <span style="color: #606266; margin-left: 4px;">{{ item.filter_hundreds_num }} / {{
+              item.filter_hundreds_count }}</span>
+          </div>
+          <div v-if="item.filter_tenth_num">
+            <span style="color: #909399;">十位:</span>
+            <span style="color: #606266; margin-left: 4px;">{{ item.filter_tenth_num }} / {{ item.filter_tenth_count
+            }}</span>
+          </div>
+          <div v-if="item.filter_ones_num">
+            <span style="color: #909399;">个位:</span>
+            <span style="color: #606266; margin-left: 4px;">{{ item.filter_ones_num }} / {{ item.filter_ones_count
+            }}</span>
+          </div>
+          <div v-if="item.filter_dd_num">
+            <span style="color: #909399;">独胆:</span>
+            <span style="color: #606266; margin-left: 4px;">{{ item.filter_dd_num }} / {{ item.filter_dd_count }}</span>
+          </div>
+        </div>
+      </div>
       <div class="total-info-with-button">
         <el-descriptions title="风控信息" :column="3" border>
           <el-descriptions-item label="总投注">{{
@@ -632,6 +688,7 @@ export default {
       ddCount: null,
       showChannelSelectDialog: false,
       selectedChannelId: null,
+      transferSchemeList: [],
     };
   },
   methods: {
@@ -706,6 +763,8 @@ export default {
 
           this.fast_trans = res.data.fast_trans;
           this.channel_trans = res.data.channel_trans;
+          //todo 本期转单方案数据
+          this.transferSchemeList = res.data.transfer_scheme || [];
         } else {
           this.chartData = null;
           this.$message.error(res.msg || "获取数据失败");

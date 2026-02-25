@@ -67,7 +67,8 @@ import {
     Image,
     Rate,
     Slider,
-    Backtop
+    Backtop,
+    Alert
 } from 'element-ui';
 
 Vue.use(Button);
@@ -132,6 +133,7 @@ Vue.use(Image);
 Vue.use(Rate);
 Vue.use(Slider);
 Vue.use(Backtop);
+Vue.use(Alert);
 
 import { Timeline, TimelineItem } from 'element-ui';
 Vue.use(Timeline).use(TimelineItem);
