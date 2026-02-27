@@ -156,7 +156,7 @@
           <div style="white-space: pre-wrap;">{{ scope.row.source_content }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="标记状态" prop="source_mark_state" sortable="custom" width="80" align="center">
+      <el-table-column label="标记状态" prop="source_mark_state" sortable="custom" width="100" align="center">
         <template slot-scope="scope">
           {{ markStateMap[scope.row.source_mark_state] || scope.row.source_mark_state }}
         </template>

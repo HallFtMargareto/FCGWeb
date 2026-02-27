@@ -1057,7 +1057,7 @@ export default {
         const res = await batchFcgOrderSplitNumberOperation(requestData, params);
 
         if (res.code === 0) {
-          this.$message.success("保存转出数据成功");
+          this.$message.success(res.msg);
         } else {
           this.$message.error(res.msg || "保存转出数据失败");
         }
