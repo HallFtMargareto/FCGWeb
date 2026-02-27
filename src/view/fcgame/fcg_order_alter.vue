@@ -156,7 +156,7 @@
           <div style="white-space: pre-wrap;">{{ scope.row.source_content }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="标记状态" prop="source_mark_state" width="80" align="center">
+      <el-table-column label="标记状态" prop="source_mark_state" sortable="custom" width="80" align="center">
         <template slot-scope="scope">
           {{ markStateMap[scope.row.source_mark_state] || scope.row.source_mark_state }}
         </template>
@@ -479,11 +479,19 @@ export default {
         }
       });
     },
-    sortChange(row) {
-      //自定义排序要设置两个属性prop="field-name" sortable="custom"
-      this.orderField = row.prop;
+    async sortChange(row) {
+      this.orderField = row.prop || "";
       this.orderType = this.directionMap[row.order] || "";
-      this.getTableData();
+      await this.getTableData();
+
+      if (row.prop === "source_mark_state" && row.order) {
+        const factor = row.order === "ascending" ? 1 : -1;
+        this.tableData = [...this.tableData].sort((a, b) => {
+          const valueA = Number(a.source_mark_state) || 0;
+          const valueB = Number(b.source_mark_state) || 0;
+          return (valueA - valueB) * factor;
+        });
+      }
     },
     async getSummaryList() {
       const res = await getFcgOrderAlterSummary(this.searchInfo);
