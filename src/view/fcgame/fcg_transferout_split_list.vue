@@ -18,7 +18,8 @@
 
         <el-form-item label=" ">
           <el-button @click="exportExcel" icon="el-icon-sold-out">导出</el-button>
-          <el-button @click="ClearByIssue" icon="el-icon-delete" v-if="userInfo.perm['host']">清除</el-button>
+          <el-button @click="ClearByIssue" type="danger" icon="el-icon-delete"
+            v-if="userInfo.perm['host']">清除</el-button>
         </el-form-item>
 
         <el-form-item label="转出号码">

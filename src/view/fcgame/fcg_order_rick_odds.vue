@@ -165,9 +165,12 @@
             <span style="color: #909399;">独胆:</span>
             <span style="color: #606266; margin-left: 4px;">{{ item.filter_dd_num }} / {{ item.filter_dd_count }}</span>
           </div>
+          <!-- <div style="margin-left: auto;">
+            <el-button type="text" @click="handleAppendTransfer(item)">追加转出</el-button>
+          </div> -->
         </div>
       </div>
-      <div class="total-info-with-button">
+      <div class="total-info-with-button" v-if="rickDataInfo.total_info">
         <el-descriptions title="风控信息" :column="3" border>
           <el-descriptions-item label="总投注">{{
             rickDataInfo.total_info.totalBet
@@ -723,6 +726,55 @@ export default {
         this.showPreLossDialog = true;
       } else {
         this.$message.error(res.msg || "获取数据失败");
+      }
+    },
+
+    // 追加转出
+    async handleAppendTransfer(item) {
+      if (this.chartIssueId == 0) {
+        this.$message.warning("请输入期号");
+        return;
+      }
+      if (this.tenant_id == 0) {
+        this.$message.warning("请选择所属组织");
+        return;
+      }
+      this.chartLoading = true;
+      try {
+        const res = await getFcgOrderSplitNumberList({
+          action: "rick_odds",
+          game_category: this.game_category,
+          issue_id: this.chartIssueId,
+          tenant_id: this.tenant_id,
+          addition: 1,
+
+          // 使用 item 中的参数
+          ks_amount: item.ks_amount,
+          trans_count: item.query_trans_count,
+
+          // 号码过滤参数
+          hundredsNum: item.filter_hundreds_num,
+          tenthNum: item.filter_tenth_num,
+          onesNum: item.filter_ones_num,
+          hundredsCount: item.filter_hundreds_count,
+          tenthCount: item.filter_tenth_count,
+          onesCount: item.filter_ones_count,
+          ddNum: item.filter_dd_num,
+          ddCount: item.filter_dd_count,
+        });
+
+        if (res.code === 0 && res.data) {
+          this.rickDataInfo = res.data;
+          this.fast_trans = res.data.fast_trans;
+          this.channel_trans = res.data.channel_trans;
+          //todo 本期转单方案数据
+          this.transferSchemeList = res.data.transfer_scheme || [];
+        } else {
+          this.chartData = null;
+          this.$message.error(res.msg || "获取数据失败");
+        }
+      } finally {
+        this.chartLoading = false;
       }
     },
 
