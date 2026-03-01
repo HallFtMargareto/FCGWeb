@@ -108,6 +108,13 @@
           <el-button v-if="userInfo.perm['fcg_order.export']" @click="exportExcel"
             icon="el-icon-sold-out">导出</el-button>
         </el-form-item>
+
+        <el-form-item label="获取详情">
+          <el-select v-model="orderDetailState" placeholder="获取订单详情">
+            <el-option label="开启" value="1"></el-option>
+            <el-option label="关闭" value="0"></el-option>
+          </el-select>
+        </el-form-item>
       </searchform>
     </div>
 
@@ -432,6 +439,8 @@ export default {
   },
   data() {
     return {
+      orderDetailState: "1",
+
       // 弹窗显示状态
       openDialog: false,
       orderDetailDialogVisible: false,
@@ -815,7 +824,7 @@ export default {
       // 使用订单的原始ID，而不是可能被明细覆盖的ID
       const orderId = row.order_id || row.ID;
       // 使用组件的open方法
-      this.$refs.orderEditDialog.open(orderId);
+      this.$refs.orderEditDialog.open(orderId, this.orderDetailState);
     },
     async deleteRow(row) {
       // 使用订单的原始ID，而不是可能被明细覆盖的ID

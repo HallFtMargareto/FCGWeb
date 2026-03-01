@@ -206,9 +206,12 @@ export default {
   },
   methods: {
     // 打开弹窗并加载数据
-    async open(orderId) {
+    async open(orderId, orderDetailState) {
       try {
-        const res = await findFcgOrder({ ID: orderId });
+        const res = await findFcgOrder({
+          ID: orderId,
+          orderDetailState: orderDetailState,
+        });
         if (res.code == 0) {
           // 构造编辑表单数据
           const order = res.data.refcg_order;
