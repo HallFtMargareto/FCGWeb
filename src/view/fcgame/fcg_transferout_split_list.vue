@@ -62,7 +62,7 @@
         </div>
 
         <!-- 总计数据 -->
-        <div class="total-summary">
+        <div class="total-summary" v-if="summaryData.totalSummary">
           <h4 class="summary-subtitle">总计</h4>
           <el-descriptions :column="4" border>
             <el-descriptions-item label="总交易笔数">
@@ -163,6 +163,15 @@
       <el-table-column label="水费" prop="water_amount">
         <template slot-scope="scope">
           {{ scope.row.water_amount }}
+        </template>
+      </el-table-column>
+
+      <el-table-column label="转出类型" prop="fast_trans">
+        <template slot-scope="scope">
+          <span v-if="scope.row.fast_trans == 1">快速转出</span>
+          <span v-else-if="scope.row.fast_trans == 0 && scope.row.channel_id == 0">复制转出</span>
+          <span v-else-if="scope.row.fast_trans == 0 && scope.row.channel_id > 0">渠道转单</span>
+          <!-- <span v-else>普通转出</span> -->
         </template>
       </el-table-column>
       <!-- 

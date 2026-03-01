@@ -115,7 +115,7 @@
         <div v-for="item in transferSchemeList" :key="item.ID"
           style="margin-bottom: 10px; padding: 8px 15px; background-color: #f0f9eb; border: 1px solid #e1f3d8; border-radius: 4px; display: flex; flex-wrap: wrap; align-items: center; gap: 15px; font-size: 13px;">
           <div style="font-weight: bold; color: #67c23a; display: flex; align-items: center;">
-            <i class="el-icon-s-order" style="margin-right: 4px;"></i>本期转出方案
+            <i class="el-icon-s-order" style="margin-right: 4px;"></i>已转出方案
           </div>
           <div>
             <span style="color: #909399;">时间:</span>
@@ -138,11 +138,11 @@
           </div>
 
           <div v-if="item.ks_amount > 0">
-            <span style="color: #909399;">亏损过滤:</span>
+            <span style="color: #909399;">预亏损金额:</span>
             <span style="color: #606266; margin-left: 4px;">{{ item.ks_amount }}</span>
           </div>
           <div v-if="item.query_trans_count > 0">
-            <span style="color: #909399;">单量过滤:</span>
+            <span style="color: #909399;">转出单量过滤:</span>
             <span style="color: #606266; margin-left: 4px;">{{ item.query_trans_count }}</span>
           </div>
 
@@ -244,13 +244,20 @@
         <el-table-column prop="trans_count" label="转出单量" align="center"></el-table-column>
         <el-table-column prop="trans_amount" label="转出金额" align="center" sortable="custom"
           :sort-orders="['descending', 'ascending', null]"></el-table-column>
-        <el-table-column prop="risk_level" label="风险等级" align="center">
+
+        <el-table-column label="已转出数据" align="center">
+          <template slot-scope="scope">
+            <span class="risk-level-ORANGE">{{ scope.row.trans_ed_count }} / {{ scope.row.trans_ed_amount }}¥</span>
+          </template>
+        </el-table-column>
+
+        <!-- <el-table-column prop="risk_level" label="风险等级" align="center">
           <template slot-scope="scope">
             <span :class="'risk-level-' + scope.row.risk_level">{{
               scope.row.risk_level
             }}</span>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column prop="bet_content" label="转出内容" align="center" width="250">
           <template slot="header">
             <span>转出内容</span>
