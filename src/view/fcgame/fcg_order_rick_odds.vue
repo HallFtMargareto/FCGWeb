@@ -214,7 +214,7 @@
         </div>
       </div>
       <el-table :data="filteredRickOrder" style="width: 100%" border height="600px" highlight-current-row
-        @selection-change="handleSelectionChange" @sort-change="handleSortChange">
+        @selection-change="handleSelectionChange" @select-all="handleSelectAll" @sort-change="handleSortChange">
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column type="index" label="序号" width="60" align="center" :index="indexMethod">
         </el-table-column>
@@ -837,6 +837,24 @@ export default {
       this.multipleSelection = val;
     },
 
+    handleSelectAll(selection) {
+      this.multipleSelection = selection;
+      if (selection && selection.length > 0) {
+        this.applyBetContent(selection);
+      }
+    },
+
+    applyBetContent(items) {
+      let prefix = this.game_category === 1 ? "福" : "体";
+      items.forEach((item) => {
+        this.$set(
+          item,
+          "bet_content",
+          `${prefix} ${item.split_number} ${item.trans_count}单`
+        );
+      });
+    },
+
     // 处理表格排序变化
     handleSortChange({ prop, order }) {
       this.sortProp = prop;
@@ -944,18 +962,7 @@ export default {
         return;
       }
 
-      // 按照规则定开头文字
-      let prefix = this.game_category === 1 ? "福" : "体";
-
-      // 遍历选中的数据，生成 bet_content
-      this.multipleSelection.forEach((item) => {
-        // item.bet_content = `${prefix} ${item.split_number} ${item.trans_count}单`;
-        this.$set(
-          item,
-          "bet_content",
-          `${prefix} ${item.split_number} ${item.trans_count}单`
-        );
-      });
+      this.applyBetContent(this.multipleSelection);
     },
 
     // 生成批次内容
