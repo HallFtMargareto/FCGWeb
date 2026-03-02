@@ -451,6 +451,7 @@ import infoList from "@/mixins/infoList";
 import { mapGetters, mapMutations } from "vuex";
 import MarkdownIt from "markdown-it";
 import ChannelSelectDialog from "@/view/fcgame/components/ChannelSelectDialog.vue";
+import { MessageBox } from "element-ui";
 export default {
   name: "fcg_order_split_number",
   mixins: [infoList],
@@ -1076,10 +1077,19 @@ export default {
           document.body.removeChild(textarea);
         }
 
-        this.$message.success("复制成功");
+        // this.$message.success("复制成功");
 
-        // 复制成功后发送数据到后台
-        await this.sendTransferData(validData);
+        // 复制成功后弹窗确认是否保存方案
+        try {
+          await MessageBox.confirm("复制成功，是否保存复制方案？", "提示", {
+            confirmButtonText: "保存",
+            cancelButtonText: "不保存",
+            type: "warning",
+          });
+          await this.sendTransferData(validData);
+        } catch (e) {
+          // 选择“不保存”或关闭弹窗不做任何处理
+        }
       } catch (err) {
         this.$message.error("复制失败");
         console.error("复制失败:", err);
