@@ -214,7 +214,8 @@
         </div>
       </div>
       <el-table :data="filteredRickOrder" style="width: 100%" border height="600px" highlight-current-row
-        @selection-change="handleSelectionChange" @select-all="handleSelectAll" @sort-change="handleSortChange">
+        @selection-change="handleSelectionChange" @select="handleRowSelect" @select-all="handleSelectAll"
+        @sort-change="handleSortChange">
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column type="index" label="序号" width="60" align="center" :index="indexMethod">
         </el-table-column>
@@ -836,6 +837,9 @@ export default {
 
     handleSelectionChange(val) {
       this.multipleSelection = val;
+      if (val && val.length > 0) {
+        this.applyBetContent(val);
+      }
     },
 
     handleSelectAll(selection) {
@@ -843,6 +847,13 @@ export default {
       if (selection && selection.length > 0) {
         this.applyBetContent(selection);
       }
+    },
+
+    handleRowSelect(selection, row) {
+      if (row) {
+        this.applyBetContent([row]);
+      }
+      this.multipleSelection = selection || [];
     },
 
     applyBetContent(items) {
