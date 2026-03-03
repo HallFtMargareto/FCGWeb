@@ -85,6 +85,28 @@
                 summaryData.totalSummary.totalWaterAmount || 0
               }}</span>
             </el-descriptions-item>
+
+            <el-descriptions-item label="快速转出单量">
+              <span class="summary-value amount">{{
+                summaryData.totalSummary.fastTransCount || 0
+              }}</span>
+            </el-descriptions-item>
+            <el-descriptions-item label="快速转出金额">
+              <span class="summary-value amount">{{
+                summaryData.totalSummary.fastTransAmount || 0
+              }}</span>
+            </el-descriptions-item>
+
+            <el-descriptions-item label="复制转出单量">
+              <span class="summary-value amount">{{
+                summaryData.totalSummary.normalTransCount || 0
+              }}</span>
+            </el-descriptions-item>
+            <el-descriptions-item label="复制转出金额">
+              <span class="summary-value amount">{{
+                summaryData.totalSummary.normalTransAmount || 0
+              }}</span>
+            </el-descriptions-item>
           </el-descriptions>
         </div>
 

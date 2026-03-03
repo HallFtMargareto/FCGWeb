@@ -983,10 +983,18 @@ export default {
 
       // 为每个号码计算批次信息
       const numberBatches = {};
+      let totalTransCount = 0;
+      let totalTransAmount = 0;
 
       validData.forEach((item) => {
         const number = item.split_number;
         const totalCount = parseInt(item.trans_count) || 0;
+        const amount = parseFloat(item.trans_amount) || 0;
+        if (totalCount <= 0) {
+          return;
+        }
+        totalTransCount += totalCount;
+        totalTransAmount += amount;
 
         if (totalCount <= this.batchThreshold) {
           // 不需要拆分，直接添加到第一批次
@@ -1049,6 +1057,9 @@ export default {
         }
       }
 
+      if (totalTransCount > 0) {
+        lines.push(`总单量： ${totalTransCount}单，总金额：${parseFloat(totalTransAmount).toFixed(2)}元。`);
+      }
       return lines.join("\n");
     },
 
@@ -1061,7 +1072,7 @@ export default {
 
       // 过滤掉 bet_content 为空的数据
       const validData = this.multipleSelection.filter(
-        (item) => item.bet_content
+        (item) => item.bet_content && ((parseInt(item.trans_count) || 0) > 0)
       );
 
       // 如果没有有效数据，提示用户
