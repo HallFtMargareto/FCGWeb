@@ -16,6 +16,9 @@
       </el-row>
       <el-row>
         <el-col :span="24" style="text-align: right">
+          <span style="margin-right: 2%">
+            <el-button @click="mergePositionNumber" size="mini">定位组合</el-button>
+          </span>
           <span style="margin-right: 39%">
             <el-button @click="clearOrderDetails" size="mini">清空订单</el-button>
             <el-button @click="openManualSplitDialog" size="mini">前台拆分</el-button>
@@ -124,6 +127,27 @@
           :loading="manualSplitLoading">立即拆分</el-button>
       </span>
     </el-dialog>
+
+    <!-- 定位组合弹窗 -->
+    <el-dialog title="定位组合" :visible.sync="positionMergeDialogVisible" width="500px" append-to-body>
+      <el-form ref="positionMergeForm" :model="positionMergeForm" label-width="100px" size="small">
+        <el-form-item label="玩法" required>
+          <el-select v-model="positionMergeForm.game_category" placeholder="请选择玩法" style="width: 100%">
+            <el-option label="福彩" :value="1"></el-option>
+            <el-option label="体彩" :value="2"></el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="每注金额" required>
+          <el-input v-model.number="positionMergeForm.bet_amount" type="number" placeholder="请输入每注金额"></el-input>
+        </el-form-item>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="positionMergeDialogVisible = false" size="small">取 消</el-button>
+        <el-button type="primary" @click="executePositionMerge" size="small">确 定</el-button>
+      </span>
+    </el-dialog>
   </el-dialog>
 </template>
 
@@ -170,6 +194,19 @@ export default {
       },
       // 手动拆分loading状态
       manualSplitLoading: false,
+      // 定位组合弹窗状态
+      positionMergeDialogVisible: false,
+      // 定位组合表单数据
+      positionMergeForm: {
+        game_category: 1,
+        bet_amount: 2,
+      },
+      // 定位组合数字缓存
+      positionMergeDigits: {
+        hundreds: [],
+        tens: [],
+        units: [],
+      },
     };
   },
   computed: {
@@ -449,16 +486,22 @@ export default {
           // 去重处理
           const uniqueNumbers = [...new Set(threeDigitNumbers)];
 
+          // 预先计算注数和金额
+          const betAmount = this.manualSplitForm.bet_amount;
+          const betCount = betAmount % 2 === 0 ? betAmount / 2 : 1;
+          const gameCategory = this.manualSplitForm.game_category;
+          const gameType = this.manualSplitForm.game_type;
+
           // 为每个号码创建订单详情并添加到 order_details
           uniqueNumbers.forEach((number) => {
             this.formData.order_details.push({
-              game_category: this.manualSplitForm.game_category,
-              game_type: this.manualSplitForm.game_type,
+              game_category: gameCategory,
+              game_type: gameType,
               bet_number: number,
-              bet_count: 1,
-              bet_amount: this.manualSplitForm.bet_amount,
+              bet_count: betCount,
+              bet_amount: betAmount,
               multiple: 1,
-              order_amount: this.manualSplitForm.bet_amount,
+              order_amount: betAmount,
             });
           });
 
@@ -472,6 +515,72 @@ export default {
           this.manualSplitLoading = false;
         }
       }, 100);
+    },
+
+    // 定位组合
+    mergePositionNumber() {
+      const content = this.formData.bet_content || "";
+      const hundredsMatch = content.match(/百位\s*(\d+)/);
+      const tensMatch = content.match(/十位\s*(\d+)/);
+      const unitsMatch = content.match(/个位\s*(\d+)/);
+
+      if (!hundredsMatch || !tensMatch || !unitsMatch) {
+        this.$message.error("拆分失败，缺少[百位/十位/个位]信息");
+        return;
+      }
+
+      this.positionMergeDigits.hundreds = hundredsMatch[1].split("");
+      this.positionMergeDigits.tens = tensMatch[1].split("");
+      this.positionMergeDigits.units = unitsMatch[1].split("");
+
+      this.positionMergeForm.game_category = 1; // 默认福彩
+      this.positionMergeForm.bet_amount = 2; // 默认2元
+      this.positionMergeDialogVisible = true;
+    },
+
+    // 执行定位组合
+    executePositionMerge() {
+      // 检查金额
+      if (
+        !this.positionMergeForm.bet_amount ||
+        this.positionMergeForm.bet_amount <= 0
+      ) {
+        this.$message.warning("请输入有效的投注金额");
+        return;
+      }
+
+      const { hundreds, tens, units } = this.positionMergeDigits;
+      const amount = Number(this.positionMergeForm.bet_amount);
+      const category = this.positionMergeForm.game_category;
+      const betCount = amount % 2 === 0 ? amount / 2 : 1;
+
+      let count = 0;
+      hundreds.forEach((h) => {
+        tens.forEach((t) => {
+          units.forEach((u) => {
+            const betNumber = `${h}${t}${u}`;
+
+            // 添加到 order_details
+            if (!this.formData.order_details) {
+              this.formData.order_details = [];
+            }
+
+            this.formData.order_details.push({
+              game_category: category,
+              game_type: 1, // 默认为直选
+              bet_number: betNumber,
+              bet_count: betCount,
+              bet_amount: amount,
+              multiple: 1, // 默认为1倍
+              order_amount: amount,
+            });
+            count++;
+          });
+        });
+      });
+
+      this.$message.success(`成功生成 ${count} 个号码`);
+      this.positionMergeDialogVisible = false;
     },
 
     // 清空订单详情
