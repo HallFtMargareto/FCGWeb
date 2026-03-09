@@ -1,12 +1,5 @@
 <template>
-  <el-dialog
-    title="订单信息"
-    :visible.sync="visible"
-    width="60%"
-    center
-    class="order-detail-dialog"
-    top="5"
-  >
+  <el-dialog title="订单信息" :visible.sync="visible" width="60%" center class="order-detail-dialog" top="5">
     <div class="detail-section">
       <h3>投注文本</h3>
       <code>{{ orderData.content }}</code>
@@ -18,52 +11,22 @@
     </div>
 
     <!-- 显示split数据 -->
-    <div
-      v-if="orderData.split && orderData.split.length > 0"
-      class="detail-section"
-    >
+    <div v-if="orderData.split && orderData.split.length > 0" class="detail-section">
       <h3>拆分信息</h3>
-      <el-table
-        :data="orderData.split"
-        size="small"
-        border
-        style="width: 100%"
-      >
-        <el-table-column
-          prop="bet_number"
-          label="投注号码"
-          align="center"
-        ></el-table-column>
-        <el-table-column
-          prop="game_category"
-          label="彩种"
-          align="center"
-          width="100"
-        >
+      <el-table :data="orderData.split" size="small" border style="width: 100%">
+        <el-table-column prop="bet_number" label="投注号码" align="center"></el-table-column>
+        <el-table-column prop="game_category" label="彩种" align="center" width="100">
           <template slot-scope="scope">
             {{ $utils.getGameCategoryName(scope.row.game_category) }}
           </template>
         </el-table-column>
-        <el-table-column
-          prop="game_type"
-          label="玩法"
-          align="center"
-          width="100"
-        >
+        <el-table-column prop="game_type" label="玩法" align="center" width="100">
           <template slot-scope="scope">
             {{ getGameTypeName(scope.row.game_type) }}
           </template>
         </el-table-column>
-        <el-table-column
-          prop="bet_num"
-          label="投注数量"
-          align="center"
-        ></el-table-column>
-        <el-table-column
-          prop="bet_amount"
-          label="投注金额"
-          align="center"
-        ></el-table-column>
+        <el-table-column prop="bet_num" label="投注数量" align="center"></el-table-column>
+        <el-table-column prop="bet_amount" label="投注金额" align="center"></el-table-column>
         <el-table-column prop="split_number" label="拆分信息" align="center">
           <template slot-scope="scope">
             <div class="split-numbers">
@@ -71,16 +34,8 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column
-          prop="average_amount"
-          label="平均金额"
-          align="center"
-        ></el-table-column>
-        <el-table-column
-          prop="split_count"
-          label="拆分数量"
-          align="center"
-        ></el-table-column>
+        <el-table-column prop="average_amount" label="平均金额" align="center"></el-table-column>
+        <el-table-column prop="split_count" label="拆分数量" align="center"></el-table-column>
       </el-table>
     </div>
 
@@ -132,7 +87,7 @@ export default {
     // 打开弹窗并加载数据
     async open(orderId) {
       try {
-        const res = await findFcgOrder({ ID: orderId, action: "split_info" });
+        const res = await findFcgOrder({ ID: orderId, action: "split_info", "orderDetailState": "1" });
         if (res.code == 0) {
           // 保存订单详情数据
           this.orderData = res.data;
@@ -145,7 +100,7 @@ export default {
         this.$message.error("获取订单详情异常");
       }
     },
-    
+
     // 获取玩法名称
     getGameTypeName(typeId) {
       // 创建缓存对象
