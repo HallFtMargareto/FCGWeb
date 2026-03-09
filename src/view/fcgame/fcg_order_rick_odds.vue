@@ -246,7 +246,7 @@
         <el-table-column prop="trans_amount" label="转出金额" align="center" sortable="custom"
           :sort-orders="['descending', 'ascending', null]"></el-table-column>
 
-        <el-table-column label="已转出数据" align="center">
+        <el-table-column label="快速转单数据" align="center">
           <template slot-scope="scope">
             <span class="risk-level-ORANGE">{{ scope.row.trans_ed_count }} / {{ scope.row.trans_ed_amount }}¥</span>
           </template>
