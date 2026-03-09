@@ -283,7 +283,7 @@
         <span>会话统计</span>
       </div>
       <div class="table-container">
-        <el-table border :data="sessionStatsData" size="small" style="width: 100%">
+        <el-table border :data="localSessionStats" size="small" style="width: 100%">
           <!-- <el-table-column
             prop="session_id"
             label="会话ID"
@@ -330,6 +330,13 @@
               <span :style="{
                 color: getProfitColor(calculateSessionProfit(scope.row)),
               }">¥{{ calculateSessionProfit(scope.row) }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="操作" align="center" width="80" fixed="right">
+            <template slot-scope="scope">
+              <el-button type="text" icon="el-icon-top" size="mini" @click="moveToTop(scope.row, scope.$index)"
+                title="置顶"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -498,6 +505,7 @@ export default {
         transferout_total: null,
         transferout_details: [],
       },
+      localSessionStats: [],
       loading: false,
       searchInfo: {},
       lotteryIssues: [],
@@ -1121,6 +1129,13 @@ export default {
       // 确保返回值在 0-100 范围内
       return Math.min(100, Math.max(0, percentage));
     },
+    // 置顶
+    moveToTop(row, index) {
+      if (index === 0) return;
+      const item = this.localSessionStats.splice(index, 1)[0];
+      this.localSessionStats.unshift(item);
+      // this.$message.success("已置顶");
+    },
     // 加载数据
     async loadData() {
       try {
@@ -1149,6 +1164,13 @@ export default {
     },
   },
   watch: {
+    "summaryData.session_stats": {
+      handler(newVal) {
+        this.localSessionStats = newVal ? [...newVal] : [];
+      },
+      immediate: true,
+      deep: true,
+    },
     gameStatsView(newVal) {
       if (newVal === "table") {
         this.destroyCharts();
