@@ -170,7 +170,7 @@
 
     <el-dialog @close="closeDialog" :visible.sync="dialogFormVisible" :title="dialogTitle" width="25%">
       <el-form :model="formData" :rules="formDataRules" ref="ruleForm" size="mini" label-position="right"
-        label-width="80px">
+        label-width="85px">
         <el-tabs v-model="activeTab">
           <el-tab-pane label="基础信息" name="base">
             <el-form-item label="组织名称" prop="platform_name">
@@ -205,6 +205,23 @@
             </el-form-item>
             <el-form-item label="备注" prop="remark">
               <el-input v-model="formData.remark" clearable placeholder="请输入"></el-input>
+            </el-form-item>
+          </el-tab-pane>
+          <el-tab-pane label="费率配置" name="fee">
+            <el-form-item label="盈利系统费" prop="fee.profit_system_fee">
+              <el-input v-model="formData.fee.profit_system_fee" clearable placeholder="请输入">
+                <template slot="append">%</template>
+              </el-input>
+            </el-form-item>
+            <el-form-item label="亏损系统费" prop="fee.loss_system_fee">
+              <el-input v-model="formData.fee.loss_system_fee" clearable placeholder="请输入">
+                <template slot="append">%</template>
+              </el-input>
+            </el-form-item>
+            <el-form-item label="占股比例" prop="fee.stake_ratio">
+              <el-input v-model="formData.fee.stake_ratio" clearable placeholder="请输入">
+                <template slot="append">%</template>
+              </el-input>
             </el-form-item>
           </el-tab-pane>
           <el-tab-pane label="API设置" name="api">
@@ -278,6 +295,11 @@ export default {
         remark: "",
         create_by: "",
         update_by: "",
+        fee: {
+          profit_system_fee: "0",
+          loss_system_fee: "0",
+          stake_ratio: "0",
+        },
         api: {
           submit: false,
           query: false,
@@ -328,6 +350,11 @@ export default {
           ip_list: "",
           api_key: "",
         });
+        this.$set(this.formData, "fee", res.data.fee || {
+          profit_system_fee: "0",
+          loss_system_fee: "0",
+          stake_ratio: "0",
+        });
         this.dialogFormVisible = true;
       }
     },
@@ -375,6 +402,11 @@ export default {
         remark: "",
         create_by: "",
         update_by: "",
+        fee: {
+          profit_system_fee: "0",
+          loss_system_fee: "0",
+          stake_ratio: "0",
+        },
         api: {
           submit: false,
           query: false,

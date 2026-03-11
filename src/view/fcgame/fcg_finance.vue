@@ -14,34 +14,58 @@
         </template>
 
         <!--  0-未结算, 1-部分结算, 2-已结清, 3-有争议 -->
-        <el-form-item label="结算状态:" prop="settlement_status">
+        <!-- <el-form-item label="结算状态:" prop="settlement_status">
           <el-select v-model="searchInfo.settlement_status" placeholder="请选择">
             <el-option key="true" label="是" value="true"></el-option>
             <el-option key="false" label="否" value="false"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
 
         <!-- 0-正常, 1-冻结(停止核算) -->
-        <el-form-item label="是否冻结:" prop="is_frozen">
+        <!-- <el-form-item label="是否冻结:" prop="is_frozen">
           <el-select v-model="searchInfo.is_frozen" placeholder="请选择">
             <el-option key="true" label="是" value="true"></el-option>
             <el-option key="false" label="否" value="false"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
 
         <!-- <el-form-item label="核对人ID">
           <el-input v-model.number="searchInfo.reconciliation_user_id" placeholder="请输入" clearable></el-input>
         </el-form-item> -->
 
-        <el-form-item label="添加时间">
+        <!-- <el-form-item label="添加时间">
           <datepicker v-model="searchInfo.startTime" type="datetime" />
         </el-form-item>
         <el-form-item label="结束时间">
           <datepicker v-model="searchInfo.endTime" type="datetime" />
-        </el-form-item>
+        </el-form-item> -->
       </searchform>
     </div>
 
+    <!-- 财务概览卡片 -->
+    <el-card shadow="never" style="margin-bottom: 20px;">
+      <div slot="header" class="clearfix">
+        <span>财务概览</span>
+      </div>
+      <el-row :gutter="20">
+        <el-col :span="6">
+          <div class="stat-item">
+            <div class="stat-label">总利润</div>
+            <div class="stat-value" :style="{ color: getProfitColor(realProfit) }">¥{{ realProfit }}</div>
+          </div>
+        </el-col>
+        <el-col :span="6">
+          <div class="stat-item">
+            <div class="stat-label">占股比例 ({{ stakeRatio }}%)</div>
+            <div class="stat-value">¥{{ shareholdingCost }}</div>
+          </div>
+        </el-col>
+      </el-row>
+    </el-card>
+
+    <div slot="header" class="clearfix" style="text-align: left;margin-bottom: 10px;">
+      <span>会话统计</span>
+    </div>
     <el-table :data="tableData" @selection-change="handleSelectionChange" @sort-change="sortChange" ref="multipleTable"
       show-summary :summary-method="getSessionSummaries" border stripe>
       <el-table-column prop="session_id" label="会话ID" align="center" width="80"></el-table-column>
@@ -89,11 +113,11 @@
       </el-table-column>
 
       <el-table-column prop="system_fee" label="系统费" align="center"></el-table-column>
-      <el-table-column prop="shareholding_fees" label="占股" align="center"></el-table-column>
+      <!-- <el-table-column prop="shareholding_fees" label="占股" align="center"></el-table-column> -->
     </el-table>
 
     <!-- 转出统计 -->
-    <div slot="header" class="clearfix">
+    <div slot="header" class="clearfix" style="text-align: left;margin-bottom: 10px;">
       <span>转出统计</span>
     </div>
     <el-table :data="financeSummary.transferout_details" size="mini" style="width: 100%;" border show-summary
@@ -102,16 +126,16 @@
       <el-table-column prop="total_count" label="转出数量" align="center"></el-table-column>
       <el-table-column prop="total_amount" label="转出金额" align="center"></el-table-column>
       <el-table-column prop="total_water_amount" label="转出佣金" align="center"></el-table-column>
-      <el-table-column prop="total_win_amount" label="中奖金额" align="center"></el-table-column>
+      <el-table-column prop="total_win_amount" label="转出中奖金额" align="center"></el-table-column>
     </el-table>
 
     <!-- class="pagination-container" -->
     <div>
       <!-- 数据合计,按需求启用 -->
       <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
-      <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
+      <!-- <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
         :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
-        @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
+        @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination> -->
     </div>
 
   </div>
@@ -134,6 +158,83 @@ export default {
   mixins: [infoList],
   computed: {
     ...mapGetters("user", ["userInfo"]),
+    // 总投注金额
+    totalBetAmount() {
+      return (this.financeSummary.session_stats || [])
+        .reduce((sum, item) => {
+          return sum + parseFloat(item.total_bet_amount || 0);
+        }, 0)
+        .toFixed(2);
+    },
+    // 总佣金
+    totalCommission() {
+      return (this.financeSummary.session_stats || [])
+        .reduce((sum, item) => {
+          return sum + parseFloat(item.total_commission || 0);
+        }, 0)
+        .toFixed(2);
+    },
+    // 总中奖金额
+    totalWinAmount() {
+      return (this.financeSummary.session_stats || [])
+        .reduce((sum, item) => {
+          return sum + parseFloat(item.total_win_amount || 0);
+        }, 0)
+        .toFixed(2);
+    },
+    // 总转出金额
+    totalTransferOutAmount() {
+      return this.financeSummary.transferout_total
+        ? parseFloat(
+          this.financeSummary.transferout_total.total_amount || 0
+        ).toFixed(2)
+        : "0.00";
+    },
+    // 总转出中奖金额
+    totalTransferOutWinAmount() {
+      return this.financeSummary.transferout_total
+        ? parseFloat(
+          this.financeSummary.transferout_total.total_win_amount || 0
+        ).toFixed(2)
+        : "0.00";
+    },
+    // 总转出佣金
+    totalTransferOutWaterAmount() {
+      return this.financeSummary.transferout_total
+        ? parseFloat(
+          this.financeSummary.transferout_total.total_water_amount || 0
+        ).toFixed(2)
+        : "0.00";
+    },
+    // 真实利润 = 总投注金额 - 总佣金 - 总中奖金额 - 总转出 + 转出佣金 + 转出中奖
+    realProfit() {
+      const totalBet = parseFloat(this.totalBetAmount);
+      const totalCommission = parseFloat(this.totalCommission);
+      const totalWin = parseFloat(this.totalWinAmount);
+      const totalTransferOut = parseFloat(this.totalTransferOutAmount);
+      const totalTransferOutWinAmount = parseFloat(this.totalTransferOutWinAmount);
+      const totalTransferOutWaterAmount = parseFloat(
+        this.totalTransferOutWaterAmount
+      );
+      const profit =
+        totalBet -
+        totalCommission -
+        totalWin -
+        totalTransferOut +
+        totalTransferOutWaterAmount +
+        totalTransferOutWinAmount;
+      return profit.toFixed(2);
+    },
+    // 占股比例
+    stakeRatio() {
+      return parseFloat(this.financeSummary.fee?.stake_ratio || 0);
+    },
+    // 占股费用 = 真实利润 * 占股比例 / 100
+    shareholdingCost() {
+      const profit = parseFloat(this.realProfit);
+      const ratio = this.stakeRatio;
+      return ((profit * ratio) / 100).toFixed(2);
+    },
   },
   data() {
     return {
@@ -147,6 +248,11 @@ export default {
         transferout_total: {},
         session_stats: [],
         game_category_stats: [],
+        fee: {
+          stake_ratio: 0,
+          profit_system_fee: 0,
+          loss_system_fee: 0
+        }
       },
       formData: {
         issue_id: undefined,
@@ -472,7 +578,7 @@ export default {
   async created() {
     await this.$nextTick();
     await new Promise((resolve) => setTimeout(resolve, 0));
-    await this.getTableData();
+    // await this.getTableData();
   },
 };
 </script>
