@@ -171,7 +171,7 @@
         </div>
       </div>
       <div class="total-info-with-button" v-if="rickDataInfo.total_info">
-        <el-descriptions title="风控信息" :column="3" border>
+        <el-descriptions title="风控信息" :column="4" border>
           <el-descriptions-item label="总投注">{{
             rickDataInfo.total_info.totalBet
           }}</el-descriptions-item>
@@ -182,15 +182,21 @@
             {{ rickDataInfo.total_info.netBank }}
           </el-descriptions-item>
 
+          <el-descriptions-item label="博弈比例">
+            95%
+          </el-descriptions-item>
+
+
           <el-descriptions-item label="号码数">{{
             rickDataInfo.total_info.totalCount
           }}</el-descriptions-item>
           <el-descriptions-item label="转出单量">{{
             rickDataInfo.total_info.totalOutOrder
           }}</el-descriptions-item>
-          <el-descriptions-item label="转出总金额">{{
-            rickDataInfo.total_info.totalOutOrderAmount
-          }}</el-descriptions-item>
+          <el-descriptions-item label="转出总金额">
+            {{ rickDataInfo.total_info.totalOutOrderAmount }}
+          </el-descriptions-item>
+
           <!-- <el-descriptions-item label="阈值">{{ rickDataInfo.total_info.threshold }}</el-descriptions-item> -->
           <!-- <el-descriptions-item label="目标线">{{ rickDataInfo.total_info.targetLimit }}</el-descriptions-item> -->
           <!-- <el-descriptions-item label="总转移赔付">{{ rickDataInfo.total_info.totalTransferPayout
@@ -641,6 +647,7 @@ export default {
   },
   data() {
     return {
+      water_rate: undefined,
       fast_trans: false,
       channel_trans: false,
       listApi: getFcgOrderSplitNumberList,
@@ -826,6 +833,7 @@ export default {
           this.channel_trans = res.data.channel_trans;
           //todo 本期转单方案数据
           this.transferSchemeList = res.data.transfer_scheme || [];
+          this.water_rate = res.data.water_rate;
         } else {
           this.chartData = null;
           this.$message.error(res.msg || "获取数据失败");
