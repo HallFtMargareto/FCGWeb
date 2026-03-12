@@ -15,7 +15,13 @@
         </el-col>
       </el-row>
       <el-row>
-        <el-col :span="24" style="text-align: right">
+        <el-col :span="5">
+          <div style="padding: 8px 0">
+            <span>总数量: {{ totalCount }}</span>
+            <span style="margin-left: 20px">金额合计: {{ totalBetAmount }}</span>
+          </div>
+        </el-col>
+        <el-col :span="19" style="text-align: right">
           <span style="margin-right: 2%">
             <el-button @click="mergePositionNumber" size="mini">定位组合</el-button>
           </span>
@@ -83,12 +89,12 @@
       </div>
       <el-row>
         <el-col :span="12">
-          <div style="padding: 8px 0">
+          <!-- <div style="padding: 8px 0">
             <span>总数量: {{ totalCount }}</span>
             <span style="margin-left: 20px">金额合计: {{ totalBetAmount }}</span>
-          </div>
+          </div> -->
         </el-col>
-        <el-col :span="12">
+        <el-col :span="24">
           <el-button style="float: right" type="primary" @click="addOrderDetail" size="mini">添加子订单</el-button>
         </el-col>
       </el-row>
@@ -116,8 +122,14 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="每注金额" required>
-          <el-input v-model.number="manualSplitForm.bet_amount" type="number" placeholder="请输入每注金额"></el-input>
+        <el-form-item label="单量" required>
+          <el-input v-model.number="manualSplitForm.bet_count" type="number" placeholder="请输入单量"
+            @input="handleManualSplitCountChange"></el-input>
+        </el-form-item>
+
+        <el-form-item label="金额" required>
+          <el-input v-model.number="manualSplitForm.bet_amount" type="number" placeholder="请输入金额"
+            @input="handleManualSplitAmountChange"></el-input>
         </el-form-item>
       </el-form>
 
@@ -137,9 +149,13 @@
             <el-option label="体彩" :value="2"></el-option>
           </el-select>
         </el-form-item>
-
-        <el-form-item label="每注金额" required>
-          <el-input v-model.number="positionMergeForm.bet_amount" type="number" placeholder="请输入每注金额"></el-input>
+        <el-form-item label="单量" required>
+          <el-input v-model.number="positionMergeForm.bet_count" type="number" placeholder="请输入单量"
+            @input="handlePositionMergeCountChange"></el-input>
+        </el-form-item>
+        <el-form-item label="金额" required>
+          <el-input v-model.number="positionMergeForm.bet_amount" type="number" placeholder="请输入每注金额"
+            @input="handlePositionMergeAmountChange"></el-input>
         </el-form-item>
       </el-form>
 
@@ -190,6 +206,7 @@ export default {
       manualSplitForm: {
         game_type: "",
         game_category: 1,
+        bet_count: 1,
         bet_amount: 2,
       },
       // 手动拆分loading状态
@@ -199,6 +216,7 @@ export default {
       // 定位组合表单数据
       positionMergeForm: {
         game_category: 1,
+        bet_count: 1,
         bet_amount: 2,
       },
       // 定位组合数字缓存
@@ -443,9 +461,35 @@ export default {
       this.manualSplitForm = {
         game_type: "",
         game_category: 1,
+        bet_count: 1,
         bet_amount: 2,
       };
       this.manualSplitDialogVisible = true;
+    },
+
+    // 手动拆分-单量变化
+    handleManualSplitCountChange(val) {
+      if (val) {
+        this.manualSplitForm.bet_amount = val * 2;
+      }
+    },
+    // 手动拆分-金额变化
+    handleManualSplitAmountChange(val) {
+      if (val) {
+        this.manualSplitForm.bet_count = (val % 2 !== 0 || val < 2) ? 1 : val / 2;
+      }
+    },
+    // 定位组合-单量变化
+    handlePositionMergeCountChange(val) {
+      if (val) {
+        this.positionMergeForm.bet_amount = val * 2;
+      }
+    },
+    // 定位组合-金额变化
+    handlePositionMergeAmountChange(val) {
+      if (val) {
+        this.positionMergeForm.bet_count = (val % 2 !== 0 || val < 2) ? 1 : val / 2;
+      }
     },
 
     // 执行手动拆分
@@ -488,7 +532,7 @@ export default {
 
           // 预先计算注数和金额
           const betAmount = this.manualSplitForm.bet_amount;
-          const betCount = betAmount % 2 === 0 ? betAmount / 2 : 1;
+          const betCount = this.manualSplitForm.bet_count;
           const gameCategory = this.manualSplitForm.game_category;
           const gameType = this.manualSplitForm.game_type;
 
@@ -534,6 +578,7 @@ export default {
       this.positionMergeDigits.units = unitsMatch[1].split("");
 
       this.positionMergeForm.game_category = 1; // 默认福彩
+      this.positionMergeForm.bet_count = 1;
       this.positionMergeForm.bet_amount = 2; // 默认2元
       this.positionMergeDialogVisible = true;
     },
@@ -552,7 +597,7 @@ export default {
       const { hundreds, tens, units } = this.positionMergeDigits;
       const amount = Number(this.positionMergeForm.bet_amount);
       const category = this.positionMergeForm.game_category;
-      const betCount = amount % 2 === 0 ? amount / 2 : 1;
+      const betCount = this.positionMergeForm.bet_count;
 
       let count = 0;
       hundreds.forEach((h) => {
