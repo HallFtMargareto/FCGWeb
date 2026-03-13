@@ -154,12 +154,12 @@
           <div v-if="item.filter_tenth_num">
             <span style="color: #909399;">十位:</span>
             <span style="color: #606266; margin-left: 4px;">{{ item.filter_tenth_num }} / {{ item.filter_tenth_count
-            }}</span>
+              }}</span>
           </div>
           <div v-if="item.filter_ones_num">
             <span style="color: #909399;">个位:</span>
             <span style="color: #606266; margin-left: 4px;">{{ item.filter_ones_num }} / {{ item.filter_ones_count
-            }}</span>
+              }}</span>
           </div>
           <div v-if="item.filter_dd_num">
             <span style="color: #909399;">独胆:</span>
@@ -174,25 +174,25 @@
         <el-descriptions title="风控信息" :column="4" border>
           <el-descriptions-item label="总投注">{{
             rickDataInfo.total_info.totalBet
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
           <el-descriptions-item label="总佣金">{{
             rickDataInfo.total_info.totalCommission
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
           <el-descriptions-item label="净盘值">
             {{ rickDataInfo.total_info.netBank }}
           </el-descriptions-item>
 
-          <el-descriptions-item label="博弈比例">
-            95%
+          <el-descriptions-item label="博弈比例" :width="100">
+            {{ gameRatio }}
           </el-descriptions-item>
 
 
           <el-descriptions-item label="号码数">{{
             rickDataInfo.total_info.totalCount
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
           <el-descriptions-item label="转出单量">{{
             rickDataInfo.total_info.totalOutOrder
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
           <el-descriptions-item label="转出总金额">
             {{ rickDataInfo.total_info.totalOutOrderAmount }}
           </el-descriptions-item>
@@ -397,22 +397,22 @@
         <el-descriptions-item label="转出数量">
           <span class="summary-value">{{
             simulateSummary.totalTransCount || 0
-          }}</span>
+            }}</span>
         </el-descriptions-item>
         <el-descriptions-item label="转出金额">
           <span class="summary-value amount">{{
             simulateSummary.totalTransAmount || 0
-          }}</span>
+            }}</span>
         </el-descriptions-item>
         <el-descriptions-item label="中奖金额">
           <span class="summary-value amount">{{
             simulateSummary.totalWinAmount || 0
-          }}</span>
+            }}</span>
         </el-descriptions-item>
         <el-descriptions-item label="转出佣金">
           <span class="summary-value amount">{{
             simulateSummary.totalWaterAmount || 0
-          }}</span>
+            }}</span>
         </el-descriptions-item>
       </el-descriptions>
 
@@ -423,7 +423,7 @@
           <template slot-scope="scope">
             <el-tag size="mini" type="primary">{{
               scope.row.game_category === 1 ? "福彩" : "体彩"
-            }}</el-tag>
+              }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="转出号码" prop="split_number" align="center">
@@ -647,7 +647,7 @@ export default {
   },
   data() {
     return {
-      water_rate: undefined,
+      gameRatio: "0%",
       fast_trans: false,
       channel_trans: false,
       listApi: getFcgOrderSplitNumberList,
@@ -833,7 +833,8 @@ export default {
           this.channel_trans = res.data.channel_trans;
           //todo 本期转单方案数据
           this.transferSchemeList = res.data.transfer_scheme || [];
-          this.water_rate = res.data.water_rate;
+
+          this.gameRatio = res.data.game_ratio || 0;
         } else {
           this.chartData = null;
           this.$message.error(res.msg || "获取数据失败");
