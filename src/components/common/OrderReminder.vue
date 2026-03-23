@@ -192,7 +192,8 @@ export default {
           }
         }),
         showClose: true,
-        duration: duration // 设置为剩余时间，到时间自动关闭
+        duration: duration, // 设置为剩余时间，到时间自动关闭
+        offset: 40 // 设置距离顶部的偏移量，避免遮挡导航条
       });
     },
     timeToSeconds(timeStr) {
