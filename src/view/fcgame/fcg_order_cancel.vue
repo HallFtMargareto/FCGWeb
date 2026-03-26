@@ -3,38 +3,22 @@
     <div class="search-term">
       <searchform size="mini" :maxShow="3" @search="onQuery">
         <el-form-item label="期号">
-          <IssueSelect
-            v-model="searchInfo.issue_id"
-            placeholder="请选择期号"
-            clearable
-          ></IssueSelect>
+          <IssueSelect v-model="searchInfo.issue_id" placeholder="请选择期号" clearable></IssueSelect>
         </el-form-item>
 
         <template v-if="userInfo.perm['host']">
           <el-form-item label="所属组织">
-            <TenantSelect
-              v-model="searchInfo.tenant_id"
-              placeholder="请选择组织"
-              :autoSelectFirst="false"
-              clearable
-            ></TenantSelect>
+            <TenantSelect v-model="searchInfo.tenant_id" placeholder="请选择组织" :autoSelectFirst="false" clearable>
+            </TenantSelect>
           </el-form-item>
         </template>
 
         <el-form-item label="订单ID">
-          <el-input
-            v-model="searchInfo.order_id"
-            placeholder="请输入订单ID"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.order_id" placeholder="请输入订单ID" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="投注内容">
-          <el-input
-            v-model.number="searchInfo.bet_content"
-            placeholder="请输入"
-            clearable
-          ></el-input>
+          <el-input v-model.number="searchInfo.bet_content" placeholder="请输入" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="添加时间">
@@ -46,14 +30,8 @@
       </searchform>
     </div>
 
-    <el-table
-      :data="tableData"
-      @selection-change="handleSelectionChange"
-      @sort-change="sortChange"
-      ref="multipleTable"
-      :show-summary="showSummary"
-      :summary-method="getSummaries"
-    >
+    <el-table :data="tableData" @selection-change="handleSelectionChange" @sort-change="sortChange" ref="multipleTable"
+      :show-summary="showSummary" :summary-method="getSummaries">
       <el-table-column type="selection" width="50"></el-table-column>
       <!-- <el-table-column
         label="ID"
@@ -69,24 +47,21 @@
 
       <el-table-column label="投注内容" prop="bet_content"> </el-table-column>
 
-      <el-table-column
-        v-if="userInfo.perm['host']"
-        label="所属组织"
-        prop="platform_name"
-      >
+      <el-table-column v-if="userInfo.perm['host']" label="所属组织" prop="platform_name">
       </el-table-column>
       <el-table-column label="所属会话" prop="contact_nick_name">
       </el-table-column>
       <el-table-column label="操作账号" prop="admin_nick_name">
       </el-table-column>
 
-      <el-table-column
-        label="撤单时间"
-        width="160"
-        prop="created_at"
-        sortable="custom"
-      >
+      <el-table-column label="撤单时间" width="160" prop="created_at" sortable="custom">
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
+      </el-table-column>
+
+      <el-table-column label="操作" fixed="right" width="200">
+        <template slot-scope="scope">
+          <el-button @click="reorderRow(scope.row)" type="text" size="small" icon="el-icon-edit">重新生成</el-button>
+        </template>
       </el-table-column>
     </el-table>
 
@@ -94,61 +69,27 @@
     <div>
       <!-- 数据合计,按需求启用 -->
       <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
-      <el-pagination
-        :current-page="page"
-        :page-size="pageSize"
-        :page-sizes="[10, 30, 50, 100]"
-        :style="{ float: 'right', padding: '20px' }"
-        :total="total"
-        @current-change="handleCurrentChange"
-        @size-change="handleSizeChange"
-        layout="total, sizes, prev, pager, next, jumper"
-        background
-      ></el-pagination>
+      <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
+        :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
+        @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
     </div>
 
-    <dialogform
-      :visible.sync="openDialog"
-      :dialogTitle="dialogTitle"
-      :formDatas="formData"
-      :formRule="formRules"
-      @confirm="enterDialog"
-      ref="dialog"
-    >
+    <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
+      @confirm="enterDialog" ref="dialog">
       <el-form-item label="order_id" prop="order_id">
-        <el-input
-          v-model="formData.order_id"
-          clearable
-          placeholder="请输入"
-        ></el-input>
+        <el-input v-model="formData.order_id" clearable placeholder="请输入"></el-input>
       </el-form-item>
       <el-form-item label="msg_id" prop="msg_id">
-        <el-input
-          v-model.number="formData.msg_id"
-          placeholder="请输入"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.msg_id" placeholder="请输入" clearable></el-input>
       </el-form-item>
       <el-form-item label="bet_content" prop="bet_content">
-        <el-input
-          v-model.number="formData.bet_content"
-          placeholder="请输入"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.bet_content" placeholder="请输入" clearable></el-input>
       </el-form-item>
       <el-form-item label="tenant_id" prop="tenant_id">
-        <el-input
-          v-model.number="formData.tenant_id"
-          placeholder="请输入"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.tenant_id" placeholder="请输入" clearable></el-input>
       </el-form-item>
       <el-form-item label="admin_id" prop="admin_id">
-        <el-input
-          v-model.number="formData.admin_id"
-          placeholder="请输入"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.admin_id" placeholder="请输入" clearable></el-input>
       </el-form-item>
     </dialogform>
 
@@ -334,6 +275,27 @@ export default {
       this.searchInfo.action = "fcg_order_cancel";
       await this.$api.getExcel(this.searchInfo);
     },
+    async reorderRow(row) {
+      this.$confirm("确认重新生成该订单?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(async () => {
+          const res = await batchFcgOrderCancelOperation({
+            ids: [row.ID],
+            command: "reorder",
+          });
+          if (res.code == 0) {
+            this.$message({
+              type: "success",
+              message: "操作成功",
+            });
+            this.getTableData();
+          }
+        })
+        .catch(() => { });
+    },
   },
   async created() {
     await this.$nextTick();
@@ -343,5 +305,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
