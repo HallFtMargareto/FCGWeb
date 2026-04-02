@@ -42,6 +42,14 @@
           <el-button type="warning" @click="preLossRate" plain>预亏损率</el-button>
         </el-form-item>
 
+        <el-form-item label="全部转出">
+          <el-select v-model="all_trans" placeholder="全部转出">
+            <el-option label="是" :value="1"></el-option>
+            <el-option label="否" :value="0"></el-option>
+          </el-select>
+        </el-form-item>
+
+
         <!-- <el-divider content-position="center">号码过滤</el-divider> -->
 
         <!-- <el-form-item label="阈值比例">
@@ -659,6 +667,7 @@ export default {
       tenant_id: null,
       split_number: null,
       game_category: 1, // 默认福彩
+      all_trans: 0, //是否全部转出
       maxValue: 0,
       // 期号列表
       lotteryIssueList: [],
@@ -825,6 +834,9 @@ export default {
           onesCount: this.onesCount,
           ddNum: this.ddNum,
           ddCount: this.ddCount,
+
+          //全部转出
+          all_trans: this.all_trans,
         });
         if (res.code === 0 && res.data) {
           this.rickDataInfo = res.data;
@@ -868,10 +880,15 @@ export default {
     applyBetContent(items) {
       let prefix = this.game_category === 1 ? "福" : "体";
       items.forEach((item) => {
+        const exposureAmount = parseFloat(item.exposure_amount);
+        const betSuffix =
+          !isNaN(exposureAmount) && exposureAmount <= 1
+            ? "1元"
+            : `${item.trans_count}单`;
         this.$set(
           item,
           "bet_content",
-          `${prefix} ${item.split_number} ${item.trans_count}单`
+          `${prefix} ${item.split_number} ${betSuffix}`
         );
       });
     },
@@ -999,6 +1016,9 @@ export default {
         const number = item.split_number;
         const totalCount = parseInt(item.trans_count) || 0;
         const amount = parseFloat(item.trans_amount) || 0;
+        const exposureAmount = parseFloat(item.exposure_amount);
+        const useOneYuan =
+          !isNaN(exposureAmount) && exposureAmount <= 1;
         if (totalCount <= 0) {
           return;
         }
@@ -1010,7 +1030,9 @@ export default {
           if (!numberBatches[1]) {
             numberBatches[1] = [];
           }
-          numberBatches[1].push(`${number}/${totalCount}单`);
+          numberBatches[1].push(
+            `${number}/${useOneYuan ? "1元" : `${totalCount}单`}`
+          );
         } else {
           // 需要拆分
           const batchCount = Math.ceil(totalCount / this.batchThreshold);
@@ -1025,7 +1047,9 @@ export default {
               remainingCount,
               this.batchThreshold
             );
-            numberBatches[batchIndex].push(`${number}/${countInThisBatch}单`);
+            numberBatches[batchIndex].push(
+              `${number}/${useOneYuan ? "1元" : `${countInThisBatch}单`}`
+            );
             remainingCount -= countInThisBatch;
           }
         }
