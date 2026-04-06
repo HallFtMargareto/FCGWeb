@@ -2,11 +2,11 @@
   <el-dialog title="订单信息" :visible.sync="visible" width="60%" center class="order-detail-dialog" top="5">
     <div class="detail-section">
       <h3>投注文本</h3>
-      原文本: <code>{{ orderData.content }}</code> <br><br>
+      原文本: <code style="white-space: pre-wrap;"><br>{{ orderData.content }}<br></code><br>
 
-      AI调整: <code>{{ orderData.ai_content }}</code> <br><br>
+      AI调整: <code style="white-space: pre-wrap;"><br>{{ orderData.ai_content }}<br></code><br>
 
-      AI分析: <code>{{ orderData.re_ai_content }}</code><br><br>
+      AI分析: <code style="white-space: pre-wrap;"><br>{{ orderData.re_ai_content }}<br></code><br>
     </div>
 
     <div class="detail-section">
