@@ -161,7 +161,7 @@
         <el-col :span="6" v-if="statusTabState === '1' || mark_state === '1'">
           <el-button @click="toggleSelectAll">{{
             isAllSelected ? "取消全选" : "全选"
-          }}</el-button>
+            }}</el-button>
 
           <el-button v-if="statusTabState === '1'" icon="el-icon-s-unfold" @click="openBatchEditDialog">批量编辑</el-button>
           <el-button v-if="statusTabState === '1' && userInfo.perm['host']" icon="el-icon-delete"
@@ -228,7 +228,7 @@
             <el-descriptions :column="2" size="mini" border :labelStyle="{ width: '100px' }">
               <el-descriptions-item label="ID">{{
                 orderGroup.ID
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
 
               <el-descriptions-item label="总金额">
                 <span :style="{
@@ -248,7 +248,7 @@
 
               <el-descriptions-item label="识别次数">{{
                 orderGroup.version
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
               <el-descriptions-item label="代理佣金">¥ {{ orderGroup.commission }}</el-descriptions-item>
               <el-descriptions-item label="识别难度">
                 {{ getRiskLevelText(orderGroup.risk_score) }}
@@ -258,7 +258,7 @@
               </el-descriptions-item>
               <el-descriptions-item label="识别耗时">{{
                 orderGroup.message ? orderGroup.message.llmcons_at : ""
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
               <el-descriptions-item label="投注数量">
                 {{ orderGroup.total_bet_count }}
               </el-descriptions-item>
@@ -274,16 +274,16 @@
               </el-descriptions-item>
               <el-descriptions-item label="发单时间">{{
                 $utils.formatTimeToStr(orderGroup.sort_seq)
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
               <el-descriptions-item label="所属组织">
                 {{ getTenantName(orderGroup.tenant_id) }}
               </el-descriptions-item>
               <el-descriptions-item label="创建时间">{{
                 orderGroup.created_at
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
               <el-descriptions-item label="单号">{{
                 orderGroup.order_no
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
             </el-descriptions>
           </div>
 
