@@ -24,13 +24,13 @@
             <span class="lottery-label">福彩:</span>
             <span class="lottery-number fc-number">{{
               summaryData.issue.fc_draw_number
-            }}</span>
+              }}</span>
           </div>
           <div class="lottery-result-item" v-if="summaryData.issue.tc_state === 1">
             <span class="lottery-label">体彩:</span>
             <span class="lottery-number tc-number">{{
               summaryData.issue.tc_draw_number
-            }}</span>
+              }}</span>
           </div>
         </div>
       </div>
@@ -173,7 +173,7 @@
 
             <el-table-column prop="total_water_amount" label="佣金" align="center" width="100">
               <template slot-scope="scope"><span style="color: #667de8">¥{{ scope.row.total_water_amount
-              }}</span></template>
+                  }}</span></template>
             </el-table-column>
           </el-table-column>
 
@@ -289,7 +289,13 @@
             label="会话ID"
             align="center"
           ></el-table-column> -->
-          <el-table-column prop="nick_name" label="会话名称" align="center"></el-table-column>
+          <el-table-column prop="nick_name" label="会话名称" align="center">
+            <template slot-scope="scope">
+              <span style="color: #409eff; cursor: pointer" @click="copySessionData(scope.row)">
+                {{ scope.row.nick_name || "-" }}
+              </span>
+            </template>
+          </el-table-column>
           <el-table-column prop="total_bet_amount" label="投注金额" align="center">
             <template slot-scope="scope">¥{{ scope.row.total_bet_amount }}</template>
           </el-table-column>
@@ -1135,6 +1141,27 @@ export default {
       const item = this.localSessionStats.splice(index, 1)[0];
       this.localSessionStats.unshift(item);
       // this.$message.success("已置顶");
+    },
+    async copySessionData(row) {
+      const sessionData = `${row.nick_name || "-"}会话 投注金额:${row.total_bet_amount || 0} 佣金:${row.total_commission || 0} 中奖金额:${row.total_win_amount || 0} 福彩投注:${row.fc_total_bet_amount || 0} 中奖:${row.fc_total_win_amount || 0} 体彩投注:${row.tc_total_bet_amount || 0} 中奖:${row.tc_total_win_amount || 0} 预计利润:${this.calculateSessionProfit(row)}`;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(sessionData);
+        } else {
+          const textArea = document.createElement("textarea");
+          textArea.value = sessionData;
+          textArea.style.position = "fixed";
+          textArea.style.left = "-9999px";
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textArea);
+        }
+        this.$message.success("复制成功");
+      } catch (error) {
+        this.$message.error("复制失败");
+      }
     },
     // 加载数据
     async loadData() {
