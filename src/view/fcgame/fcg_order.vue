@@ -14,10 +14,10 @@
         </template>
 
         <el-form-item label="所属会话">
-          <el-select v-model="searchInfo.session_id" placeholder="请选择会话" clearable filterable>
-            <el-option v-for="item in contactList" :key="item.ID" :label="item.nick_name" :value="item.ID"></el-option>
-          </el-select>
+          <FcgContactSelect v-model="searchInfo.session_id" :tenant-id="searchInfo.tenant_id"
+            :tenant-ids="searchInfo.tenant_ids" cache-key-prefix="fcg_order_contact_list" />
         </el-form-item>
+
 
         <el-form-item label="投注内容">
           <el-input v-model="searchInfo.bet_content" placeholder="投注内容" clearable></el-input>
@@ -280,7 +280,7 @@
               </el-descriptions-item>
               <el-descriptions-item label="创建时间">{{
                 orderGroup.created_at
-                }}</el-descriptions-item>
+              }}</el-descriptions-item>
               <el-descriptions-item label="单号">{{
                 orderGroup.order_no
                 }}</el-descriptions-item>
@@ -357,10 +357,10 @@ import {
   batchFcgOrderOperation,
   getFcgOrderSummary,
 } from "@/api/fcgame/fcg_order";
-import { getFcgContactList } from "@/api/fcgame/fcg_contact.js";
 import infoList from "@/mixins/infoList";
 import { mapGetters } from "vuex";
 import TenantSelect from "@/components/tenant/index.vue";
+import FcgContactSelect from "@/components/fcgContactSelect/index.vue";
 // 引入新创建的组件
 import OrderEditDialog from "./components/OrderEditDialog.vue";
 import OrderDetailDialog from "./components/OrderDetailDialog.vue";
@@ -371,6 +371,7 @@ export default {
   name: "fcg_order",
   components: {
     TenantSelect,
+    FcgContactSelect,
     OrderEditDialog,
     OrderDetailDialog,
     ImportOrderDialog,
@@ -458,7 +459,6 @@ export default {
       // 防抖定时器
       searchDebounceTimer: null,
       formData: {},
-      contactList: [], // 会话数据列表
       tabState: "0",
       statusTabState: "all",
       mark_state: "all",
@@ -542,7 +542,6 @@ export default {
         console.error("从localStorage读取状态失败:", error);
       }
     },
-
     // 重写handleSizeChange方法，添加localStorage保存功能
     handleSizeChange(val) {
       this.pageSize = val;
@@ -1134,23 +1133,6 @@ export default {
 
     // 从localStorage加载保存的状态
     this.loadStateFromLocalStorage();
-
-    // 获取激活的会话列表
-    try {
-      const res = await getFcgContactList({
-        state: true,
-        tenant_id: this.searchInfo.tenant_id,
-        pageSize: 10000,
-      });
-      if (res.code === 0) {
-        this.contactList = res.data.list || [];
-      } else {
-        this.$message.error("获取会话列表失败");
-      }
-    } catch (error) {
-      console.error("获取会话列表异常:", error);
-      this.$message.error("获取会话列表异常");
-    }
 
     // 检查URL查询参数中的状态（优先级高于localStorage）
     const status = this.$route.query.status;
