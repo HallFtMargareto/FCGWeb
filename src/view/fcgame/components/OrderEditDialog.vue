@@ -15,17 +15,17 @@
         </el-col>
       </el-row>
       <el-row>
-        <el-col :span="5">
+        <el-col :span="7">
           <div style="padding: 8px 0">
             <span>总数量: {{ totalCount }}</span>
             <span style="margin-left: 20px">金额合计: {{ totalBetAmount }}</span>
           </div>
         </el-col>
-        <el-col :span="19" style="text-align: right">
+        <el-col :span="17" style="text-align: right">
           <span style="margin-right: 2%">
             <el-button @click="mergePositionNumber" size="mini">定位组合</el-button>
           </span>
-          <span style="margin-right: 39%">
+          <span style="margin-right: 30%">
             <el-button @click="clearOrderDetails" size="mini">清空订单</el-button>
             <el-button @click="openManualSplitDialog" size="mini">前台拆分</el-button>
           </span>
