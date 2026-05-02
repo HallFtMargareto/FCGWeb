@@ -3,44 +3,33 @@
     <div class="search-term">
       <searchform size="mini" :maxShow="4" @search="onQuery">
         <el-form-item label="用户名称">
-          <el-input
-            v-model="searchInfo.nick_name"
-            placeholder="发送用户名"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.nick_name" placeholder="发送用户名" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="所属组织" v-if="userInfo.perm['host']">
           <div style="display: flex; align-items: center; gap: 10px">
-            <TenantSelect
-              v-model="searchInfo.tenant_id"
-              placeholder="请选择组织"
-              :autoSelectFirst="false"
-              :multiple="false"
-              clearable
-              style="flex: 1"
-            ></TenantSelect>
+            <TenantSelect v-model="searchInfo.tenant_id" placeholder="请选择组织" :autoSelectFirst="false" :multiple="false"
+              clearable style="flex: 1"></TenantSelect>
           </div>
         </el-form-item>
 
+        <!-- <el-form-item label="所属会话">
+          <el-input v-model="searchInfo.session_name" placeholder="所属会话" clearable></el-input>
+        </el-form-item> -->
+
         <el-form-item label="所属会话">
-          <el-input
-            v-model="searchInfo.session_name"
-            placeholder="所属会话"
-            clearable
-          ></el-input>
+          <FcgContactSelect v-model="searchInfo.session_id" :tenant-id="searchInfo.tenant_id"
+            :tenant-ids="searchInfo.tenant_ids" cache-key-prefix="fcg_order_contact_list" />
         </el-form-item>
 
+
         <el-form-item label="识别状态">
-          <el-select
-            v-model="searchInfo.recognition_status"
-            placeholder="识别状态"
-            clearable
-          >
+          <el-select v-model="searchInfo.recognition_status" placeholder="识别状态" clearable>
             <el-option label="识别完成" :value="2"></el-option>
             <el-option label="识别失败" :value="3"></el-option>
             <el-option label="识别中" :value="1"></el-option>
             <el-option label="未识别" :value="0"></el-option>
+            <el-option label="组织禁用" :value="4"></el-option>
           </el-select>
         </el-form-item>
 
@@ -57,14 +46,10 @@
         </el-form-item> -->
 
         <el-form-item label="消息内容">
-          <el-input
-            v-model="searchInfo.message_content"
-            placeholder="消息文本内容"
-            clearable
-          ></el-input>
+          <el-input v-model="searchInfo.message_content" placeholder="消息文本内容" clearable></el-input>
         </el-form-item>
 
-        <el-form-item label="发送时间">
+        <!-- <el-form-item label="发送时间">
           <el-input
             v-model="searchInfo.create_time"
             placeholder="创建时间戳"
@@ -78,42 +63,30 @@
             placeholder="用户标识"
             clearable
           ></el-input>
-        </el-form-item>
+        </el-form-item> -->
 
         <!-- 
         <el-form-item label="消息状态">
           <el-input v-model.number="searchInfo.status" placeholder="请输入消息状态" clearable></el-input>
         </el-form-item> -->
 
-        <el-form-item label="消息编号">
+        <!-- <el-form-item label="消息编号">
           <el-input
             v-model="searchInfo.message_no"
             placeholder="业务唯一编号"
             clearable
           ></el-input>
-        </el-form-item>
+        </el-form-item> -->
 
-        <el-form-item label="任务列表">
-          <el-input
-            v-model="searchInfo.task_list"
-            placeholder="JSON格式任务列表"
-            clearable
-          ></el-input>
-        </el-form-item>
+        <!-- <el-form-item label="任务列表">
+          <el-input v-model="searchInfo.task_list" placeholder="JSON格式任务列表" clearable></el-input>
+        </el-form-item> -->
 
         <el-form-item label="添加时间">
-          <datepicker
-            v-model="searchInfo.startTime"
-            type="datetime"
-            placeholder="开始时间"
-          />
+          <datepicker v-model="searchInfo.startTime" type="datetime" placeholder="开始时间" />
         </el-form-item>
         <el-form-item label="结束时间">
-          <datepicker
-            v-model="searchInfo.endTime"
-            type="datetime"
-            placeholder="结束时间"
-          />
+          <datepicker v-model="searchInfo.endTime" type="datetime" placeholder="结束时间" />
         </el-form-item>
       </searchform>
 
@@ -126,15 +99,15 @@
         <el-button v-if="userInfo.perm['system.export']" @click="exportExcel" icon="el-icon-sold-out">导出</el-button>
       </el-form> -->
     </div>
+    <div>
+      <el-button v-if="isAllSelected && searchInfo.recognition_status == 4" type="warning" size="mini"
+        @click="handleRebuildSelected">
+        重新生成全选数据
+      </el-button>
+    </div>
 
-    <el-table
-      :data="tableData"
-      @selection-change="handleSelectionChange"
-      @sort-change="sortChange"
-      ref="multipleTable"
-      :show-summary="showSummary"
-      :summary-method="getSummaries"
-    >
+    <el-table :data="tableData" @selection-change="handleSelectionChange" @sort-change="sortChange" ref="multipleTable"
+      :show-summary="showSummary" :summary-method="getSummaries">
       <el-table-column type="selection" width="50"></el-table-column>
       <el-table-column label="ID" prop="ID" sortable></el-table-column>
 
@@ -176,40 +149,15 @@
 
       <el-table-column label="识别状态" prop="recognition_status" width="120">
         <template slot-scope="scope">
-          <el-tag
-            v-if="scope.row.recognition_status === 0"
-            type="info"
-            size="mini"
-            >未识别</el-tag
-          >
-          <el-tag
-            v-else-if="scope.row.recognition_status === 1"
-            type="warning"
-            size="mini"
-            >识别中</el-tag
-          >
-          <el-tag
-            v-else-if="scope.row.recognition_status === 2"
-            type="success"
-            size="mini"
-            >识别完成</el-tag
-          >
-          <el-tag
-            v-else-if="scope.row.recognition_status === 3"
-            type="danger"
-            size="mini"
-            >识别失败</el-tag
-          >
+          <el-tag v-if="scope.row.recognition_status === 0" type="info" size="mini">未识别</el-tag>
+          <el-tag v-else-if="scope.row.recognition_status === 1" type="warning" size="mini">识别中</el-tag>
+          <el-tag v-else-if="scope.row.recognition_status === 2" type="success" size="mini">识别完成</el-tag>
+          <el-tag v-else-if="scope.row.recognition_status === 3" type="danger" size="mini">识别失败</el-tag>
           <span v-else>未识别</span>
         </template>
       </el-table-column>
 
-      <el-table-column
-        label="LLM"
-        width="500"
-        prop="llm_resp"
-        show-overflow-tooltip
-      >
+      <el-table-column label="LLM" width="500" prop="llm_resp" show-overflow-tooltip>
         <template slot-scope="scope">
           <code style="white-space: pre-wrap; word-break: break-all">
             {{ scope.row.llm_resp }}
@@ -250,111 +198,49 @@
     <div>
       <!-- 数据合计,按需求启用 -->
       <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
-      <el-pagination
-        :current-page="page"
-        :page-size="pageSize"
-        :page-sizes="[10, 30, 50, 100]"
-        :style="{ float: 'right', padding: '20px' }"
-        :total="total"
-        @current-change="handleCurrentChange"
-        @size-change="handleSizeChange"
-        layout="total, sizes, prev, pager, next, jumper"
-        background
-      ></el-pagination>
+      <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
+        :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
+        @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
     </div>
 
-    <dialogform
-      :visible.sync="openDialog"
-      :dialogTitle="dialogTitle"
-      :formDatas="formData"
-      :formRule="formRules"
-      @confirm="enterDialog"
-      ref="dialog"
-    >
+    <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
+      @confirm="enterDialog" ref="dialog">
       <el-form-item label="租户ID" prop="tenant_id">
-        <el-input
-          v-model.number="formData.tenant_id"
-          placeholder="请输入租户ID"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.tenant_id" placeholder="请输入租户ID" clearable></el-input>
       </el-form-item>
       <el-form-item label="发送者" prop="user_name">
-        <el-input
-          v-model="formData.user_name"
-          placeholder="请输入发送者"
-          clearable
-        ></el-input>
+        <el-input v-model="formData.user_name" placeholder="请输入发送者" clearable></el-input>
       </el-form-item>
       <el-form-item label="用户名称" prop="nick_name">
-        <el-input
-          v-model="formData.nick_name"
-          placeholder="请输入用户名称"
-          clearable
-        ></el-input>
+        <el-input v-model="formData.nick_name" placeholder="请输入用户名称" clearable></el-input>
       </el-form-item>
       <el-form-item label="本地消息ID" prop="local_id">
-        <el-input
-          v-model.number="formData.local_id"
-          placeholder="请输入本地消息ID"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.local_id" placeholder="请输入本地消息ID" clearable></el-input>
       </el-form-item>
       <el-form-item label="排序序列" prop="sort_seq">
-        <el-input
-          v-model.number="formData.sort_seq"
-          placeholder="请输入排序序列"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.sort_seq" placeholder="请输入排序序列" clearable></el-input>
       </el-form-item>
       <el-form-item label="消息ID" prop="server_id">
-        <el-input
-          v-model.number="formData.server_id"
-          placeholder="请输入消息ID"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.server_id" placeholder="请输入消息ID" clearable></el-input>
       </el-form-item>
       <el-form-item label="消息类型" prop="local_type">
-        <el-input
-          v-model.number="formData.local_type"
-          placeholder="请输入消息类型"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.local_type" placeholder="请输入消息类型" clearable></el-input>
       </el-form-item>
       <el-form-item label="创建时间" prop="create_time">
-        <el-input
-          v-model.number="formData.create_time"
-          placeholder="请输入创建时间戳"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.create_time" placeholder="请输入创建时间戳" clearable></el-input>
       </el-form-item>
       <el-form-item label="真实发送者ID" prop="real_sender_id">
-        <el-input
-          v-model.number="formData.real_sender_id"
-          placeholder="请输入真实发送者ID"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.real_sender_id" placeholder="请输入真实发送者ID" clearable></el-input>
       </el-form-item>
       <el-form-item label="消息内容" prop="message_content">
-        <el-input
-          v-model="formData.message_content"
-          type="textarea"
-          :rows="3"
-          placeholder="请输入消息内容"
-          clearable
-        ></el-input>
+        <el-input v-model="formData.message_content" type="textarea" :rows="3" placeholder="请输入消息内容"
+          clearable></el-input>
       </el-form-item>
       <el-form-item label="消息状态" prop="status">
-        <el-input
-          v-model.number="formData.status"
-          placeholder="请输入消息状态"
-          clearable
-        ></el-input>
+        <el-input v-model.number="formData.status" placeholder="请输入消息状态" clearable></el-input>
       </el-form-item>
       <el-form-item label="识别状态" prop="recognition_status">
-        <el-select
-          v-model="formData.recognition_status"
-          placeholder="请选择识别状态"
-        >
+        <el-select v-model="formData.recognition_status" placeholder="请选择识别状态">
           <el-option label="未识别" :value="0"></el-option>
           <el-option label="识别中" :value="1"></el-option>
           <el-option label="识别完成" :value="2"></el-option>
@@ -362,20 +248,11 @@
         </el-select>
       </el-form-item>
       <el-form-item label="消息编号" prop="message_no">
-        <el-input
-          v-model="formData.message_no"
-          placeholder="请输入消息编号"
-          clearable
-        ></el-input>
+        <el-input v-model="formData.message_no" placeholder="请输入消息编号" clearable></el-input>
       </el-form-item>
       <el-form-item label="任务列表" prop="task_list">
-        <el-input
-          v-model="formData.task_list"
-          type="textarea"
-          :rows="3"
-          placeholder="请输入JSON格式的任务列表"
-          clearable
-        ></el-input>
+        <el-input v-model="formData.task_list" type="textarea" :rows="3" placeholder="请输入JSON格式的任务列表"
+          clearable></el-input>
       </el-form-item>
     </dialogform>
 
@@ -396,11 +273,22 @@ import {
 import infoList from "@/mixins/infoList";
 import { mapGetters } from "vuex";
 import { formatTimeToStr } from "@/utils/date";
+import FcgContactSelect from "@/components/fcgContactSelect/index.vue";
 export default {
   name: "fcg_message",
   mixins: [infoList],
   computed: {
     ...mapGetters("user", ["userInfo"]),
+    isAllSelected() {
+      return (
+        Array.isArray(this.tableData) &&
+        this.tableData.length > 0 &&
+        this.multipleSelection.length === this.tableData.length
+      );
+    },
+  },
+  components: {
+    FcgContactSelect
   },
   data() {
     return {
@@ -541,6 +429,37 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;
+    },
+    handleRebuildSelected() {
+      if (!this.isAllSelected) {
+        this.$message({
+          type: "warning",
+          message: "请先全选当前页数据",
+        });
+        return;
+      }
+
+      this.$confirm("是否重新生成?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(async () => {
+          const ids = this.multipleSelection.map((item) => item.ID);
+          const res = await batchFcgMessageOperation({
+            ids,
+            command: "rebuild",
+          });
+
+          if (res.code == 0) {
+            this.$message({
+              type: "success",
+              message: "重新生成任务已提交",
+            });
+            this.getTableData();
+          }
+        })
+        .catch(() => { });
     },
     handleCommand(command) {
       this.$confirm("是否要执行批量操作?", "提示", {
