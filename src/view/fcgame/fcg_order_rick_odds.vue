@@ -276,7 +276,8 @@
         <el-table-column prop="bet_content" label="转出内容" align="center" width="250">
           <template slot="header">
             <span>转出内容</span>
-            <i class="el-icon-document-copy" style="margin-left: 5px; cursor: pointer" @click="copyColumn"></i>
+            <i v-if="copy_trans" class="el-icon-document-copy" style="margin-left: 5px; cursor: pointer"
+              @click="copyColumn"></i>
           </template>
           <template slot-scope="scope">
             <span>{{ scope.row.bet_content }}</span>
@@ -658,6 +659,7 @@ export default {
       gameRatio: "0%",
       fast_trans: false,
       channel_trans: false,
+      copy_trans: false,
       listApi: getFcgOrderSplitNumberList,
       openDialog: false,
       dialogTitle: "",
@@ -792,6 +794,7 @@ export default {
           this.rickDataInfo = res.data;
           this.fast_trans = res.data.fast_trans;
           this.channel_trans = res.data.channel_trans;
+          this.copy_trans = res.data.copy_trans;
           //todo 本期转单方案数据
           this.transferSchemeList = res.data.transfer_scheme || [];
         } else {
@@ -843,6 +846,7 @@ export default {
 
           this.fast_trans = res.data.fast_trans;
           this.channel_trans = res.data.channel_trans;
+          this.copy_trans = res.data.copy_trans;
           //todo 本期转单方案数据
           this.transferSchemeList = res.data.transfer_scheme || [];
 

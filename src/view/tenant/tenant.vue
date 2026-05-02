@@ -145,7 +145,17 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="created_at" label="创建时间" sortable="custom">
+      <el-table-column label="复制转单" prop="copy_trans" align="center">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.copy_trans ? 'success' : 'info'" size="mini">
+            {{ scope.row.copy_trans ? "启用" : "禁用" }}
+          </el-tag>
+        </template>
+      </el-table-column>
+
+
+
+      <el-table-column prop="created_at" label="创建时间" sortable="custom" width="200">
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
       </el-table-column>
 
@@ -202,6 +212,10 @@
             <el-form-item label="渠道转单" prop="channel_trans">
               <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="启用" inactive-text="禁用"
                 v-model="formData.channel_trans" clearable></el-switch>
+            </el-form-item>
+            <el-form-item label="复制转单" prop="copy_trans">
+              <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="启用" inactive-text="禁用"
+                v-model="formData.copy_trans" clearable></el-switch>
             </el-form-item>
             <el-form-item label="备注" prop="remark">
               <el-input v-model="formData.remark" clearable placeholder="请输入"></el-input>
@@ -292,6 +306,7 @@ export default {
         enabled: true,
         fast_trans: false,
         channel_trans: false,
+        copy_trans: false,
         remark: "",
         create_by: "",
         update_by: "",
@@ -399,6 +414,7 @@ export default {
         enabled: true,
         fast_trans: false,
         channel_trans: false,
+        copy_trans: false,
         remark: "",
         create_by: "",
         update_by: "",

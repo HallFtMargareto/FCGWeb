@@ -100,9 +100,8 @@
       </el-form> -->
     </div>
     <div>
-      <el-button v-if="isAllSelected && searchInfo.recognition_status == 4" type="warning" size="mini"
-        @click="handleRebuildSelected">
-        重新生成全选数据
+      <el-button v-if="multipleSelection.length > 0" type="warning" size="mini" @click="handleRebuildSelected">
+        重新生成已选数据
       </el-button>
     </div>
 
@@ -279,13 +278,6 @@ export default {
   mixins: [infoList],
   computed: {
     ...mapGetters("user", ["userInfo"]),
-    isAllSelected() {
-      return (
-        Array.isArray(this.tableData) &&
-        this.tableData.length > 0 &&
-        this.multipleSelection.length === this.tableData.length
-      );
-    },
   },
   components: {
     FcgContactSelect
@@ -431,10 +423,10 @@ export default {
       this.multipleSelection = val;
     },
     handleRebuildSelected() {
-      if (!this.isAllSelected) {
+      if (this.multipleSelection.length === 0) {
         this.$message({
           type: "warning",
-          message: "请先全选当前页数据",
+          message: "请先选择需要重新生成的数据",
         });
         return;
       }
