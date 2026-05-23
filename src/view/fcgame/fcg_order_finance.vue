@@ -16,18 +16,18 @@
                 </template>
 
                 <el-form-item label="开始时间">
-                    <datepicker v-model="searchInfo.startTime" type="datetime" />
+                    <datepicker v-model="searchInfo.startTime" type="date" />
                 </el-form-item>
                 <el-form-item label="结束时间">
-                    <datepicker v-model="searchInfo.endTime" type="datetime" />
+                    <datepicker v-model="searchInfo.endTime" type="date" />
                 </el-form-item>
             </searchform>
         </div>
 
-        <div class="table-container">
-            <el-table ref="multipleTable" :data="tableData" :fit="false" border stripe size="small" style="width: 100%"
-                :show-summary="showSummary" :summary-method="getSummaries" @selection-change="handleSelectionChange"
-                @sort-change="sortChange">
+        <div ref="tableContainer" class="table-container">
+            <el-table ref="multipleTable" :data="tableData" :fit="false" :max-height="tableMaxHeight" border stripe
+                size="small" style="width: 100%" :show-summary="showSummary" :summary-method="getSummaries"
+                @selection-change="handleSelectionChange" @sort-change="sortChange">
                 <!-- <el-table-column type="selection" width="48" fixed="left"></el-table-column> -->
                 <!-- <el-table-column label="ID" prop="ID" sortable width="90" align="center" fixed="left"></el-table-column> -->
                 <el-table-column label="期号" prop="issue_no" width="120" align="center" fixed="left"></el-table-column>
@@ -166,14 +166,14 @@
             </el-table>
         </div>
 
-        <div class="table-footer">
+        <div ref="tableFooter" class="table-footer">
             <el-button size="mini" type="primary" plain @click="toggleSummary">
                 {{ showSummary ? "隐藏合计" : "合计" }}
             </el-button>
             <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
-                class="table-pagination" :style="{ padding: '20px 0' }" :total="total" @current-change="handleCurrentChange"
-                @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper"
-                background></el-pagination>
+                class="table-pagination" :style="{ padding: '20px 0' }" :total="total"
+                @current-change="handleCurrentChange" @size-change="handleSizeChange"
+                layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
         </div>
 
     </div>
@@ -204,6 +204,7 @@ export default {
             type: "",
             multipleSelection: [],
             tableLayoutTimer: null,
+            tableMaxHeight: 520,
             formData: {
                 issue_id: undefined,
                 tenant_id: undefined,
@@ -332,8 +333,26 @@ export default {
         },
     },
     methods: {
+        updateTableMaxHeight() {
+            const container = this.$refs.tableContainer;
+            if (!container) {
+                return;
+            }
+            const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+            const top = container.getBoundingClientRect().top;
+            const footerHeight = this.$refs.tableFooter ? this.$refs.tableFooter.offsetHeight : 60;
+            const bottomSpace = 24;
+            const nextHeight = Math.max(
+                320,
+                Math.floor(viewportHeight - top - footerHeight - bottomSpace)
+            );
+            if (nextHeight !== this.tableMaxHeight) {
+                this.tableMaxHeight = nextHeight;
+            }
+        },
         refreshTableLayout() {
             this.$nextTick(() => {
+                this.updateTableMaxHeight();
                 const table = this.$refs.multipleTable;
                 if (!table || typeof table.doLayout !== "function") {
                     return;
@@ -341,6 +360,7 @@ export default {
                 table.doLayout();
                 clearTimeout(this.tableLayoutTimer);
                 this.tableLayoutTimer = setTimeout(() => {
+                    this.updateTableMaxHeight();
                     table.doLayout();
                 }, 60);
             });
