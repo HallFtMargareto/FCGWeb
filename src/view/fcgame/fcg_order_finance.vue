@@ -166,12 +166,12 @@
             </el-table>
         </div>
 
-        <!-- class="pagination-container" -->
-        <div>
-            <!-- 数据合计,按需求启用 -->
-            <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
+        <div class="table-footer">
+            <el-button size="mini" type="primary" plain @click="toggleSummary">
+                {{ showSummary ? "隐藏合计" : "合计" }}
+            </el-button>
             <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
-                :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
+                class="table-pagination" :style="{ padding: '20px 0' }" :total="total" @current-change="handleCurrentChange"
                 @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper"
                 background></el-pagination>
         </div>
@@ -187,7 +187,6 @@ import {
     findFcgOrderFinance,
     getFcgOrderFinanceList,
     batchFcgOrderFinanceOperation,
-    getFcgOrderFinanceSummary,
 } from "@/api/fcgame/fcg_order_finance";
 import infoList from "@/mixins/infoList";
 import { mapGetters } from "vuex";
@@ -349,12 +348,24 @@ export default {
         handleWindowResize() {
             this.refreshTableLayout();
         },
+        toggleSummary() {
+            this.showSummary = !this.showSummary;
+            this.refreshTableLayout();
+        },
         onQuery() {
             this.summary = {};
             this.showSummary = false;
 
             this.page = 1;
             this.pageSize = 10;
+            this.getTableData();
+        },
+        handleSizeChange(val) {
+            this.pageSize = val;
+            this.getTableData();
+        },
+        handleCurrentChange(val) {
+            this.page = val;
             this.getTableData();
         },
         createRow() {
@@ -452,13 +463,8 @@ export default {
             this.orderType = this.directionMap[row.order] || "";
             this.getTableData();
         },
-        async getSummaryList() {
-            const res = await getFcgOrderFinanceSummary(this.searchInfo);
-            let keys = Object.keys(res.data.summary);
-            for (let key of keys) {
-                this.summary[key] = res.data.summary[key];
-            }
-            this.showSummary = true;
+        isCountField(prop) {
+            return /count|quantity|num|times/i.test(prop || "");
         },
         formatMoney(value) {
             const num = Number(value);
@@ -495,20 +501,35 @@ export default {
             return "#303133";
         },
         getSummaries(param) {
+            const { columns, data } = param;
             const sums = [];
-            const { columns } = param;
-            let that = this;
+            const nonSummaryProps = new Set(["issue_no", "tennat_name", "ID", "created_at"]);
+
             columns.forEach((column, index) => {
-                if (index === 1) {
+                if (index === 0) {
                     sums[index] = "合计";
                     return;
                 }
-                sums[index] =
-                    that.summary[column.property] != null
-                        ? that.summary[column.property]
-                        : null;
+
+                const prop = column.property;
+                if (!prop || nonSummaryProps.has(prop)) {
+                    sums[index] = "";
+                    return;
+                }
+
+                const values = data
+                    .map((item) => Number(item[prop]))
+                    .filter((value) => !Number.isNaN(value));
+
+                if (!values.length) {
+                    sums[index] = "";
+                    return;
+                }
+
+                const total = values.reduce((prev, curr) => prev + curr, 0);
+                sums[index] = this.isCountField(prop) ? `${total}` : this.formatMoney(total);
             });
-            // sums[0] = "合计";
+
             return sums;
         },
         importExcel() {
@@ -597,6 +618,18 @@ export default {
 
 .commission-text {
     color: #667de8;
+}
+
+.table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 8px;
+}
+
+.table-pagination {
+    margin-left: auto;
 }
 
 @media (max-width: 1400px) {
