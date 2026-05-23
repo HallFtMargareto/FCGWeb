@@ -23,6 +23,9 @@
         </el-col>
         <el-col :span="17" style="text-align: right">
           <span style="margin-right: 2%">
+            <el-button size="mini" @click="openDantuoSplitDialog">胆拖拆分</el-button>
+          </span>
+          <span style="margin-right: 2%">
             <el-button @click="mergePositionNumber" size="mini">定位组合</el-button>
           </span>
           <span style="margin-right: 30%">
@@ -164,6 +167,29 @@
         <el-button type="primary" @click="executePositionMerge" size="small">确 定</el-button>
       </span>
     </el-dialog>
+
+    <!-- 胆拖拆分弹窗 -->
+    <el-dialog title="胆拖拆分" :visible.sync="dantuoSplitDialogVisible" width="500px" append-to-body>
+      <el-form ref="dantuoSplitForm" :model="dantuoSplitForm" label-width="100px" size="small">
+        <el-form-item label="胆码" required>
+          <el-input v-model.trim="dantuoSplitForm.danma" placeholder="请输入胆码，如 9 或 12"></el-input>
+        </el-form-item>
+        <el-form-item label="拖码" required>
+          <el-input v-model.trim="dantuoSplitForm.tuoma" placeholder="请输入拖码，如 123568"></el-input>
+        </el-form-item>
+        <el-form-item label="单量" required>
+          <el-input v-model.number="dantuoSplitForm.bet_count" type="number" placeholder="请输入单量"></el-input>
+        </el-form-item>
+        <el-form-item label="价格" required>
+          <el-input v-model.number="dantuoSplitForm.bet_amount" type="number" placeholder="请输入价格"></el-input>
+        </el-form-item>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dantuoSplitDialogVisible = false" size="small">取 消</el-button>
+        <el-button type="primary" @click="executeDantuoSplit" size="small">确 定</el-button>
+      </span>
+    </el-dialog>
   </el-dialog>
 </template>
 
@@ -213,8 +239,18 @@ export default {
       manualSplitLoading: false,
       // 定位组合弹窗状态
       positionMergeDialogVisible: false,
+      // 胆拖拆分弹窗状态
+      dantuoSplitDialogVisible: false,
       // 定位组合表单数据
       positionMergeForm: {
+        game_category: 1,
+        bet_count: 1,
+        bet_amount: 2,
+      },
+      // 胆拖拆分表单数据
+      dantuoSplitForm: {
+        danma: "",
+        tuoma: "",
         game_category: 1,
         bet_count: 1,
         bet_amount: 2,
@@ -465,6 +501,109 @@ export default {
         bet_amount: 2,
       };
       this.manualSplitDialogVisible = true;
+    },
+
+    // 打开胆拖拆分弹窗
+    openDantuoSplitDialog() {
+      const defaultCategory =
+        this.formData.order_details && this.formData.order_details.length > 0
+          ? this.formData.order_details[0].game_category || 1
+          : 1;
+      this.dantuoSplitForm = {
+        danma: "",
+        tuoma: "",
+        game_category: defaultCategory,
+        bet_count: 1,
+        bet_amount: 2,
+      };
+      this.dantuoSplitDialogVisible = true;
+    },
+
+    // 从输入中提取去重后的数字，保持用户输入顺序
+    extractUniqueDigits(rawValue) {
+      const digits = (rawValue || "").match(/\d/g) || [];
+      return [...new Set(digits)];
+    },
+
+    // 从数组中取定长组合
+    buildDigitCombinations(sourceDigits, pickCount, start = 0, path = [], result = []) {
+      if (path.length === pickCount) {
+        result.push([...path]);
+        return result;
+      }
+
+      for (let i = start; i < sourceDigits.length; i++) {
+        path.push(sourceDigits[i]);
+        this.buildDigitCombinations(sourceDigits, pickCount, i + 1, path, result);
+        path.pop();
+      }
+
+      return result;
+    },
+
+    // 执行胆拖拆分（组六胆拖转直选）
+    executeDantuoSplit() {
+      const { danma, tuoma, game_category, bet_count, bet_amount } = this.dantuoSplitForm;
+      const danDigits = this.extractUniqueDigits(danma);
+      const tuoDigits = this.extractUniqueDigits(tuoma);
+
+      if (danDigits.length === 0) {
+        this.$message.warning("请输入胆码");
+        return;
+      }
+      if (tuoDigits.length === 0) {
+        this.$message.warning("请输入拖码");
+        return;
+      }
+      if (danDigits.length >= 3) {
+        this.$message.warning("组六胆拖最多支持2位胆码");
+        return;
+      }
+      if (!bet_count || Number(bet_count) <= 0) {
+        this.$message.warning("请输入有效的单量");
+        return;
+      }
+      if (!bet_amount || Number(bet_amount) <= 0) {
+        this.$message.warning("请输入有效的价格");
+        return;
+      }
+
+      const overlapDigits = danDigits.filter((digit) => tuoDigits.includes(digit));
+      if (overlapDigits.length > 0) {
+        this.$message.warning("胆码和拖码不能重复");
+        return;
+      }
+
+      const needFromTuo = 3 - danDigits.length;
+      if (tuoDigits.length < needFromTuo) {
+        this.$message.warning(`拖码数量不足，至少需要 ${needFromTuo} 位`);
+        return;
+      }
+
+      const combos = this.buildDigitCombinations(tuoDigits, needFromTuo);
+      const betNumbers = combos.map((combo) => `${danDigits.join("")}${combo.join("")}`);
+
+      if (!this.formData.order_details) {
+        this.formData.order_details = [];
+      }
+
+      const countValue = Number(bet_count);
+      const amountValue = Number(bet_amount);
+
+      betNumbers.forEach((betNumber) => {
+        this.formData.order_details.push({
+          game_category: game_category || 1,
+          game_type: 1, // 拆分后写入直选玩法
+          bet_number: betNumber,
+          bet_count: countValue,
+          bet_amount: amountValue,
+          multiple: 1,
+          order_amount: amountValue,
+        });
+      });
+
+      this.$message.success(`成功拆分 ${betNumbers.length} 个直选号码`);
+      this.dantuoSplitDialogVisible = false;
     },
 
     // 手动拆分-单量变化
