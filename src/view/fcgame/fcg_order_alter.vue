@@ -153,7 +153,9 @@
 
       <el-table-column label="投注内容" prop="source_content" min-width="150" align="left">
         <template slot-scope="scope">
-          <div style="white-space: pre-wrap;">{{ scope.row.source_content }}</div>
+          <div class="clickable-content" @click="openOrderDetail(scope.row)">
+            {{ scope.row.source_content }}
+          </div>
         </template>
       </el-table-column>
       <el-table-column label="标记状态" prop="source_mark_state" sortable="custom" width="100" align="center">
@@ -283,6 +285,9 @@
       </el-form-item>
     </dialogform>
 
+    <OrderDetailDialog ref="orderDetailDialog" v-model="orderDetailDialogVisible" :gameTypes="gameTypes">
+    </OrderDetailDialog>
+
     <uploadexcel ref="uploadexcel" action="FcgOrderAlter"></uploadexcel>
   </div>
 </template>
@@ -299,9 +304,13 @@ import {
 } from "@/api/fcgame/fcg_order_alter";
 import infoList from "@/mixins/infoList";
 import { mapGetters } from "vuex";
+import OrderDetailDialog from "./components/OrderDetailDialog.vue";
 export default {
   name: "fcg_order_alter",
   mixins: [infoList],
+  components: {
+    OrderDetailDialog,
+  },
   computed: {
     ...mapGetters("user", ["userInfo"]),
   },
@@ -316,9 +325,38 @@ export default {
       },
       listApi: getFcgOrderAlterList,
       openDialog: false,
+      orderDetailDialogVisible: false,
       dialogTitle: "",
       type: "",
       multipleSelection: [],
+      gameTypes: [
+        { value: 0, label: "全部玩法" },
+        { value: 1, label: "直选" },
+        { value: 14, label: "独胆" },
+        { value: 23, label: "豹子" },
+        { value: 2, label: "组三" },
+        { value: 3, label: "组六" },
+        { value: 4, label: "组六四码" },
+        { value: 5, label: "组六五码" },
+        { value: 6, label: "组六六码" },
+        { value: 7, label: "组六七码" },
+        { value: 8, label: "组六八码" },
+        { value: 9, label: "组三四码" },
+        { value: 24, label: "组三两码" },
+        { value: 25, label: "组三三码" },
+        { value: 10, label: "组三五码" },
+        { value: 11, label: "组三六码" },
+        { value: 12, label: "组三七码" },
+        { value: 13, label: "组三八码" },
+        { value: 16, label: "一码定位" },
+        { value: 15, label: "一码不定位" },
+        { value: 18, label: "两码定位" },
+        { value: 17, label: "两码不定位(双飞)" },
+        { value: 19, label: "复试-重复号" },
+        { value: 20, label: "复试-不同号" },
+        { value: 21, label: "包对子" },
+        { value: 22, label: "包对一" },
+      ],
       formData: {
         source: "",
         alter: "",
@@ -389,6 +427,17 @@ export default {
       this.page = 1;
       this.pageSize = 10;
       this.getTableData();
+    },
+    openOrderDetail(row) {
+      const orderId = row.order_id || row.ID;
+      if (!orderId) {
+        this.$message.warning("订单ID不存在");
+        return;
+      }
+      if (!this.userInfo.perm['host']) {
+        return
+      }
+      this.$refs.orderDetailDialog.open(orderId);
     },
     createRow() {
       this.formData = {};
@@ -588,6 +637,16 @@ export default {
 /* 金额列样式 */
 .el-table .cell {
   font-size: 13px;
+}
+
+.clickable-content {
+  white-space: pre-wrap;
+  cursor: pointer;
+  color: #409eff;
+}
+
+.clickable-content:hover {
+  text-decoration: underline;
 }
 
 /* 对话框样式优化 */
