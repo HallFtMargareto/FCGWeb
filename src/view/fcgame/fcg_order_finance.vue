@@ -377,7 +377,7 @@ export default {
             this.showSummary = false;
 
             this.page = 1;
-            this.pageSize = 10;
+            this.pageSize = 50;
             this.getTableData();
         },
         handleSizeChange(val) {
