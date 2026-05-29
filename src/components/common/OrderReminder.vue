@@ -16,11 +16,19 @@ export default {
       timeOffset: 0, // 服务器时间与本地时间的差值 (Server - Client)
       targetTime1: '',
       targetTime2: '',
+
+      channel_trans: false, //通道转单是否开启
+      trans_second: 30,     //通道转单弹窗倒计时
+
       // 记录当天是否已经提醒过，防止重复弹窗
       // Record whether notified today to prevent duplicate popups
       notifiedStatus: {
         time1: false,
         time2: false
+      },
+      channelTransTimers: {
+        time1: null,
+        time2: null
       }
     };
   },
@@ -37,6 +45,12 @@ export default {
     if (this.timer) {
       clearInterval(this.timer);
     }
+    Object.keys(this.channelTransTimers).forEach(key => {
+      if (this.channelTransTimers[key]) {
+        clearTimeout(this.channelTransTimers[key]);
+        this.channelTransTimers[key] = null;
+      }
+    });
   },
   methods: {
     async syncServerTime() {
@@ -68,6 +82,10 @@ export default {
           this.targetTime2 = data['tcft-end-time'];
         }
         console.log('Target times loaded:', this.targetTime1, this.targetTime2);
+
+        this.channel_trans = data["channel_trans"]
+        this.trans_second = data["trans_second"]
+        console.log(this.channel_trans, this.trans_second)
       }
     },
     checkTime() {
@@ -93,7 +111,7 @@ export default {
       // 检查时间段1
       if (currentSeconds >= target1Start && currentSeconds < target1End) {
         if (!this.notifiedStatus.time1) {
-          this.openNotification(target1End);
+          this.openNotification(target1End, 'time1');
           this.notifiedStatus.time1 = true;
         }
       } else {
@@ -108,7 +126,7 @@ export default {
       // 检查时间段2
       if (currentSeconds >= target2Start && currentSeconds < target2End) {
         if (!this.notifiedStatus.time2) {
-          this.openNotification(target2End);
+          this.openNotification(target2End, 'time2');
           this.notifiedStatus.time2 = true;
         }
       } else {
@@ -117,7 +135,7 @@ export default {
         }
       }
     },
-    openNotification(targetEndTime) {
+    openNotification(targetEndTime, notifyKey) {
       // 计算剩余毫秒数
       const now = new Date(Date.now() + this.timeOffset);
       const currentSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
@@ -126,6 +144,10 @@ export default {
       if (remainingSeconds <= 0) return;
 
       const duration = remainingSeconds * 1000;
+
+      if (this.isChannelTransEnabled()) {
+        this.scheduleChannelTransNotification(duration, notifyKey);
+      }
 
       // 定义倒计时组件
       const ReminderContent = {
@@ -169,7 +191,7 @@ export default {
         },
         render(h) {
           return h('div', { style: 'display: flex; align-items: center;' }, [
-            h('span', '快速转单即将停止,如需转单请及时处理'),
+            h('span', '快速转单即将停止,请及时处理'),
             h('span', {
               style: {
                 color: this.color,
@@ -195,6 +217,98 @@ export default {
         duration: duration, // 设置为剩余时间，到时间自动关闭
         offset: 40 // 设置距离顶部的偏移量，避免遮挡导航条
       });
+    },
+    scheduleChannelTransNotification(delay, notifyKey) {
+      const transSecond = Number(this.trans_second);
+      if (!Number.isFinite(transSecond) || transSecond <= 0) return;
+
+      if (notifyKey && this.channelTransTimers[notifyKey]) {
+        clearTimeout(this.channelTransTimers[notifyKey]);
+      }
+
+      const timer = setTimeout(() => {
+        if (notifyKey) {
+          this.channelTransTimers[notifyKey] = null;
+        }
+        if (this.isChannelTransEnabled()) {
+          this.openChannelTransNotification(transSecond);
+        }
+      }, delay);
+
+      if (notifyKey) {
+        this.channelTransTimers[notifyKey] = timer;
+      }
+    },
+    openChannelTransNotification(totalSeconds) {
+      const duration = totalSeconds * 1000;
+      const endTimestamp = Date.now() + duration;
+
+      const ChannelTransContent = {
+        props: ['endTimestamp', 'totalSeconds'],
+        data() {
+          return {
+            remainingText: '',
+            color: '#67C23A',
+            timer: null
+          };
+        },
+        mounted() {
+          this.updateTimer();
+          this.timer = setInterval(this.updateTimer, 1000);
+        },
+        beforeDestroy() {
+          if (this.timer) clearInterval(this.timer);
+        },
+        methods: {
+          updateTimer() {
+            const remaining = Math.ceil((this.endTimestamp - Date.now()) / 1000);
+
+            if (remaining <= 0) {
+              this.remainingText = '00:00';
+              this.color = '#F56C6C';
+              return;
+            }
+
+            const ratio = Math.max(0, Math.min(1, remaining / this.totalSeconds));
+            const hue = Math.floor(ratio * 120);
+            this.color = `hsl(${hue}, 80%, 45%)`;
+
+            const m = Math.floor(remaining / 60);
+            const s = remaining % 60;
+            this.remainingText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+          }
+        },
+        render(h) {
+          return h('div', { style: 'display: flex; align-items: center;' }, [
+            h('span', '通道转单即将停止, 请及时处理'),
+            h('span', {
+              style: {
+                color: this.color,
+                fontWeight: 'bold',
+                fontSize: '16px',
+                marginLeft: '10px',
+                minWidth: '50px'
+              }
+            }, this.remainingText)
+          ]);
+        }
+      };
+
+      this.$notify({
+        title: '温馨提示',
+        message: this.$createElement(ChannelTransContent, {
+          props: {
+            endTimestamp,
+            totalSeconds
+          }
+        }),
+        showClose: true,
+        duration,
+        offset: 40
+      });
+    },
+    isChannelTransEnabled() {
+      return this.channel_trans === true || this.channel_trans === 1 || this.channel_trans === '1' || this.channel_trans === 'true';
     },
     timeToSeconds(timeStr) {
       if (!timeStr) return 0;
