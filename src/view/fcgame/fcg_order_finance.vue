@@ -43,7 +43,7 @@
                     <el-table-column label="佣金" prop="total_commission" min-width="120" align="center">
                         <template slot-scope="scope">
                             <span class="money-text commission-text">{{ formatMoney(scope.row.total_commission)
-                            }}</span>
+                                }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="中奖" prop="total_win_amount" min-width="120" align="center">
@@ -62,7 +62,7 @@
                     <el-table-column label="转出佣金" prop="total_trans_water_amount" min-width="120" align="center">
                         <template slot-scope="scope">
                             <span class="money-text commission-text">{{ formatMoney(scope.row.total_trans_water_amount)
-                            }}</span>
+                                }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="转出中奖" prop="total_trans_win_amount" min-width="120" align="center">
@@ -91,7 +91,7 @@
                     <el-table-column label="佣金" prop="fc_total_commission" min-width="110" align="center">
                         <template slot-scope="scope">
                             <span class="money-text commission-text">{{ formatMoney(scope.row.fc_total_commission)
-                            }}</span>
+                                }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="中奖" prop="fc_total_win_amount" min-width="110" align="center">
@@ -110,7 +110,7 @@
                     <el-table-column label="转出佣金" prop="fc_total_water_amount" min-width="110" align="center">
                         <template slot-scope="scope">
                             <span class="money-text commission-text">{{ formatMoney(scope.row.fc_total_water_amount)
-                            }}</span>
+                                }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="转出中奖" prop="fc_trans_win_amount" min-width="110" align="center">
@@ -132,7 +132,7 @@
                     <el-table-column label="佣金" prop="tc_total_commission" min-width="110" align="center">
                         <template slot-scope="scope">
                             <span class="money-text commission-text">{{ formatMoney(scope.row.tc_total_commission)
-                            }}</span>
+                                }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="中奖" prop="tc_total_win_amount" min-width="110" align="center">
@@ -151,7 +151,7 @@
                     <el-table-column label="转出佣金" prop="tc_total_water_amount" min-width="110" align="center">
                         <template slot-scope="scope">
                             <span class="money-text commission-text">{{ formatMoney(scope.row.tc_total_water_amount)
-                            }}</span>
+                                }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="转出中奖" prop="tc_trans_win_amount" min-width="110" align="center">
@@ -562,6 +562,7 @@ export default {
         },
     },
     async created() {
+        this.pageSize = 50;
         await this.getTableData();
     },
     mounted() {
