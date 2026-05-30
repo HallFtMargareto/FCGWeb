@@ -452,8 +452,8 @@
     </el-dialog>
 
     <!-- 渠道选择弹窗 -->
-    <channel-select-dialog ref="channelSelectDialog" v-model="showChannelSelectDialog" @confirm="handleChannelConfirm"
-      @cancel="handleChannelCancel"></channel-select-dialog>
+    <channel-select-dialog ref="channelSelectDialog" v-model="showChannelSelectDialog" :game-category="game_category"
+      @confirm="handleChannelConfirm" @cancel="handleChannelCancel"></channel-select-dialog>
   </div>
 </template>
 

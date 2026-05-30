@@ -1,18 +1,8 @@
 <template>
-  <el-dialog
-    title="选择渠道"
-    :visible.sync="dialogVisible"
-    width="50%"
-    :close-on-click-modal="false"
-  >
+  <el-dialog title="选择渠道" :visible.sync="dialogVisible" width="50%" :close-on-click-modal="false">
     <div v-loading="loading">
       <el-radio-group v-model="selectedChannelId" v-if="channelList.length > 0">
-        <el-radio
-          v-for="channel in channelList"
-          :key="channel.ID"
-          :label="channel.ID"
-          class="channel-radio"
-        >
+        <el-radio v-for="channel in channelList" :key="channel.ID" :label="channel.ID" class="channel-radio">
           {{ channel.name }}
         </el-radio>
       </el-radio-group>
@@ -21,11 +11,7 @@
 
     <span slot="footer" class="dialog-footer">
       <el-button @click="handleCancel">取 消</el-button>
-      <el-button
-        type="primary"
-        @click="handleConfirm"
-        :disabled="!selectedChannelId"
-      >
+      <el-button type="primary" @click="handleConfirm" :disabled="!selectedChannelId">
         确 定
       </el-button>
     </span>
@@ -41,6 +27,10 @@ export default {
     value: {
       type: Boolean,
       default: false,
+    },
+    gameCategory: {
+      type: [Number, String],
+      default: undefined,
     },
   },
   data() {
@@ -75,12 +65,14 @@ export default {
           page: 1,
           pageSize: 1000,
           state: true, // 只获取启用的通道
+          game_category: this.gameCategory,
         });
         if (res.code === 0 && res.data && res.data.list) {
           this.channelList = res.data.list;
         } else {
           this.$message.error(res.msg || "获取通道列表失败");
           this.channelList = [];
+          this.dialogVisible = false;
         }
       } catch (error) {
         console.error("获取通道列表异常:", error);
