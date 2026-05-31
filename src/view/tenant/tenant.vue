@@ -159,12 +159,14 @@
         <template slot-scope="scope">{{ scope.row.created_at }}</template>
       </el-table-column>
 
-      <el-table-column label="操作" fixed="right" width="200">
+      <el-table-column label="操作" fixed="right" width="300">
         <template slot-scope="scope">
           <el-button v-if="userInfo.perm['system.update']" @click="editRow(scope.row)" type="text" size="small"
             icon="el-icon-edit">编辑</el-button>
           <el-button v-if="userInfo.perm['system.delete']" @click="deleteRow(scope.row)" type="text" size="small"
             icon="el-icon-delete">删除</el-button>
+          <el-button v-if="userInfo.perm['system.update']" @click="clearTodayIssueData(scope.row)" type="text"
+            size="small" icon="el-icon-refresh-left">清除本期数据</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -394,6 +396,108 @@ export default {
         }
         this.getTableData();
       }
+    },
+    async clearTodayIssueData(row) {
+      try {
+        await this.$confirm("是否确定清除本期数据?", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        });
+      } catch (error) {
+        return;
+      }
+
+      try {
+        const ids = [row.ID];
+        const res = await this.$api.batchSysTenantOperation({
+          ids,
+          command: "clear_today_issue_data",
+        });
+
+        if (res.code == 0) {
+          const success = this.showClearTodayIssueDataResult(res);
+          if (success) {
+            this.getTableData();
+          }
+        } else if (!res.msg) {
+          this.$message({
+            type: "error",
+            message: "清除本期数据失败",
+          });
+        }
+      } catch (error) {
+        console.error("清除本期数据失败:", error);
+        this.$message({
+          type: "error",
+          message: "清除本期数据失败",
+        });
+      }
+    },
+    showClearTodayIssueDataResult(res) {
+      const data = res.data || {};
+      const successCount = this.getBatchOperationCount(data, [
+        "success_count",
+        "successCount",
+        "success",
+        "success_ids",
+        "successIds",
+      ]);
+      const failCount = this.getBatchOperationCount(data, [
+        "fail_count",
+        "failCount",
+        "failed_count",
+        "failedCount",
+        "fail",
+        "failed",
+        "errors",
+      ]);
+      const failMessage = this.getBatchOperationFailMessage(data);
+
+      if (failCount > 0) {
+        const countMessage =
+          typeof successCount === "number"
+            ? `成功 ${successCount} 条，失败 ${failCount} 条`
+            : `失败 ${failCount} 条`;
+
+        this.$message({
+          type: successCount > 0 ? "warning" : "error",
+          message: failMessage ? `${countMessage}：${failMessage}` : countMessage,
+        });
+        return false;
+      }
+
+      this.$message({
+        type: "success",
+        message: res.msg || "清除本期数据成功",
+      });
+      return true;
+    },
+    getBatchOperationCount(data, keys) {
+      for (let i = 0; i < keys.length; i++) {
+        const value = data[keys[i]];
+        if (typeof value === "number") {
+          return value;
+        }
+        if (Array.isArray(value)) {
+          return value.length;
+        }
+      }
+      return undefined;
+    },
+    getBatchOperationFailMessage(data) {
+      const failList =
+        data.fail || data.failed || data.fail_list || data.failList || data.errors;
+      if (!Array.isArray(failList) || failList.length == 0) {
+        return "";
+      }
+      const firstFail = failList[0];
+      if (typeof firstFail === "string") {
+        return firstFail;
+      }
+      return firstFail
+        ? firstFail.msg || firstFail.message || firstFail.reason || ""
+        : "";
     },
     closeDialog() {
       this.$refs["ruleForm"].resetFields();
