@@ -74,7 +74,7 @@
 
           <el-table-column label="投注金额">
             <template slot-scope="scope">
-              <el-input v-model.number="scope.row.bet_amount" placeholder="投注金额"
+              <el-input v-model="scope.row.bet_amount" placeholder="投注金额"
                 @input="handleBetAmountChange(scope.row)"></el-input>
             </template>
           </el-table-column>
@@ -790,17 +790,25 @@ export default {
 
     // 订单详情-数量变化，自动计算金额
     handleBetCountChange(row) {
-      if (row.bet_count && row.bet_count > 0) {
+      const count = Number(row.bet_count);
+      if (count > 0) {
         // 按照默认单价2元计算
-        row.bet_amount = row.bet_count * 2;
+        row.bet_amount = count * 2;
       }
     },
 
     // 订单详情-金额变化，自动计算数量
     handleBetAmountChange(row) {
-      if (row.bet_amount && row.bet_amount > 0) {
-        // 按照默认单价2元计算，如果金额不是2的倍数或小于2，则数量为1
-        row.bet_count = (row.bet_amount % 2 !== 0 || row.bet_amount < 2) ? 1 : row.bet_amount / 2;
+      // 如果输入为空或不是有效数字，不进行计算
+      if (row.bet_amount === '' || row.bet_amount === null || row.bet_amount === undefined) {
+        return;
+      }
+
+      const amount = Number(row.bet_amount);
+      if (amount > 0) {
+        // 按照默认单价2元计算，无法整除时四舍五入取整，数量最低为1
+        const calculatedCount = Math.round(amount / 2);
+        row.bet_count = calculatedCount < 1 ? 1 : calculatedCount;
       }
     },
   },
