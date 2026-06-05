@@ -162,7 +162,7 @@
         <el-col :span="6" v-if="statusTabState === '1' || statusTabState === '2' || mark_state === '1'">
           <el-button @click="toggleSelectAll">{{
             isAllSelected ? "取消全选" : "全选"
-          }}</el-button>
+            }}</el-button>
 
           <el-button v-if="statusTabState === '1'" icon="el-icon-s-unfold" @click="openBatchEditDialog">
             批量编辑
@@ -234,7 +234,7 @@
             <el-descriptions :column="2" size="mini" border :labelStyle="{ width: '100px' }">
               <el-descriptions-item label="ID">{{
                 orderGroup.ID
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
 
               <el-descriptions-item label="总金额">
                 <span :style="{
@@ -254,7 +254,7 @@
 
               <el-descriptions-item label="识别次数">{{
                 orderGroup.version
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
               <el-descriptions-item label="代理佣金">¥ {{ orderGroup.commission }}</el-descriptions-item>
               <el-descriptions-item label="识别难度">
                 {{ getRiskLevelText(orderGroup.risk_score) }}
@@ -264,7 +264,7 @@
               </el-descriptions-item>
               <el-descriptions-item label="识别耗时">{{
                 orderGroup.message ? orderGroup.message.llmcons_at : ""
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
               <el-descriptions-item label="投注数量">
                 {{ orderGroup.total_bet_count }}
               </el-descriptions-item>
@@ -280,16 +280,16 @@
               </el-descriptions-item>
               <el-descriptions-item label="发单时间">{{
                 $utils.formatTimeToStr(orderGroup.sort_seq)
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
               <el-descriptions-item label="所属组织">
                 {{ getTenantName(orderGroup.tenant_id) }}
               </el-descriptions-item>
               <el-descriptions-item label="创建时间">{{
                 orderGroup.created_at
-                }}</el-descriptions-item>
+              }}</el-descriptions-item>
               <el-descriptions-item label="单号">{{
                 orderGroup.order_no
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
             </el-descriptions>
           </div>
 
@@ -298,7 +298,7 @@
             <el-table :data="orderGroup.order_details" size="small" border style="width: 100%" highlight-current-row>
               <el-table-column prop="seq" label="序号" align="center" sortable :sort-method="sortBySeq"
                 :sort-orders="['ascending', 'descending']"></el-table-column>
-              <el-table-column prop="game_category_name" label="游戏类型" align="center"
+              <el-table-column prop="game_category_name" label="游戏类型" align="center" width="80"
                 show-overflow-tooltip></el-table-column>
               <el-table-column prop="game_type_name" label="玩法" align="center" show-overflow-tooltip></el-table-column>
               <el-table-column prop="bet_number" label="投注号码" align="center" show-overflow-tooltip>
@@ -306,8 +306,9 @@
                   <div class="bet-number-clear">{{ scope.row.bet_number }}</div>
                 </template>
               </el-table-column>
-              <el-table-column prop="bet_count" label="投注数量" align="center"></el-table-column>
-              <el-table-column prop="bet_amount" label="投注金额" align="center">
+              <el-table-column prop="bet_count" label="数量" align="center"></el-table-column>
+              <el-table-column prop="bet_amount" label="投注金额" align="center" width="110" sortable
+                :sort-method="sortByBetAmount" :sort-orders="['ascending', 'descending']">
                 <template slot-scope="scope">
                   ¥ {{ scope.row.bet_amount }}
                 </template>
@@ -318,7 +319,8 @@
                 align="center"
               ></el-table-column> -->
               <el-table-column prop="odds" label="赔率" align="center"></el-table-column>
-              <el-table-column prop="win_amount" label="中奖金额" align="center">
+              <el-table-column prop="win_amount" label="中奖金额" align="center" width="110" sortable
+                :sort-method="sortByWinAmount" :sort-orders="['ascending', 'descending']">
                 <template slot-scope="scope">
                   <span :class="{ 'win-amount': scope.row.win_amount > 0 }">
                     {{ scope.row.win_amount }}
@@ -1106,6 +1108,22 @@ export default {
       const seqB = Number(b.seq);
       const safeA = Number.isNaN(seqA) ? 0 : seqA;
       const safeB = Number.isNaN(seqB) ? 0 : seqB;
+      return safeA - safeB;
+    },
+    // 投注金额排序方法
+    sortByBetAmount(a, b) {
+      const amountA = Number(a.bet_amount);
+      const amountB = Number(b.bet_amount);
+      const safeA = Number.isNaN(amountA) ? 0 : amountA;
+      const safeB = Number.isNaN(amountB) ? 0 : amountB;
+      return safeA - safeB;
+    },
+    // 中奖金额排序方法
+    sortByWinAmount(a, b) {
+      const amountA = Number(a.win_amount);
+      const amountB = Number(b.win_amount);
+      const safeA = Number.isNaN(amountA) ? 0 : amountA;
+      const safeB = Number.isNaN(amountB) ? 0 : amountB;
       return safeA - safeB;
     },
 
