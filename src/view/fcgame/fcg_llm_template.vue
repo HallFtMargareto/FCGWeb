@@ -12,6 +12,7 @@
             <el-option value="order_analysis" label="order_analysis"></el-option>
             <el-option value="order_mark" label="order_mark"></el-option>
             <el-option value="pre_loss_analysis" label="pre_loss_analysis"></el-option>
+            <el-option value="not_mark_order_parse" label="not_mark_order_parse"></el-option>
           </el-select>
         </el-form-item>
         <!-- <el-form-item label="场景">
@@ -96,6 +97,7 @@
                 <el-option value="order_analysis" label="order_analysis"></el-option>
                 <el-option value="order_mark" label="order_mark"></el-option>
                 <el-option value="pre_loss_analysis" label="pre_loss_analysis"></el-option>
+                <el-option value="not_mark_order_parse" label="not_mark_order_parse"></el-option>
               </el-select>
             </el-form-item>
           </el-col>

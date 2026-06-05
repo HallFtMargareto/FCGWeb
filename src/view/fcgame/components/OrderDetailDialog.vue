@@ -11,7 +11,7 @@
 
     <div class="detail-section">
       <h3>LLM报文</h3>
-      <code>{{ orderData.msg }}</code>
+      <code style="white-space: pre-wrap;">{{ orderData.msg }}</code>
     </div>
 
     <div class="detail-section">
