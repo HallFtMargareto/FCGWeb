@@ -65,15 +65,17 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="注数">
+          <el-table-column label="数量">
             <template slot-scope="scope">
-              <el-input v-model.number="scope.row.bet_count" placeholder="注数"></el-input>
+              <el-input v-model.number="scope.row.bet_count" placeholder="数量"
+                @input="handleBetCountChange(scope.row)"></el-input>
             </template>
           </el-table-column>
 
           <el-table-column label="投注金额">
             <template slot-scope="scope">
-              <el-input v-model="scope.row.bet_amount" placeholder="投注金额"></el-input>
+              <el-input v-model.number="scope.row.bet_amount" placeholder="投注金额"
+                @input="handleBetAmountChange(scope.row)"></el-input>
             </template>
           </el-table-column>
 
@@ -784,6 +786,22 @@ export default {
         .catch(() => {
           // 用户取消操作
         });
+    },
+
+    // 订单详情-数量变化，自动计算金额
+    handleBetCountChange(row) {
+      if (row.bet_count && row.bet_count > 0) {
+        // 按照默认单价2元计算
+        row.bet_amount = row.bet_count * 2;
+      }
+    },
+
+    // 订单详情-金额变化，自动计算数量
+    handleBetAmountChange(row) {
+      if (row.bet_amount && row.bet_amount > 0) {
+        // 按照默认单价2元计算，如果金额不是2的倍数或小于2，则数量为1
+        row.bet_count = (row.bet_amount % 2 !== 0 || row.bet_amount < 2) ? 1 : row.bet_amount / 2;
+      }
     },
   },
 };
