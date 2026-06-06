@@ -126,11 +126,11 @@
           <!-- 订单状态标签页 -->
           <el-tabs v-model="statusTabState" @tab-click="handleStatusTabClick">
             <el-tab-pane label="全部订单" name="all"></el-tab-pane>
-            <!-- <el-tab-pane label="待识别" name="0"></el-tab-pane> -->
             <el-tab-pane label="识别失败" name="1"></el-tab-pane>
             <el-tab-pane label="识别成功" name="2"></el-tab-pane>
             <el-tab-pane label="已中奖" name="4"></el-tab-pane>
             <el-tab-pane label="未中奖" name="3"></el-tab-pane>
+            <el-tab-pane label="待识别" name="100"></el-tab-pane>
           </el-tabs>
         </el-col>
 
