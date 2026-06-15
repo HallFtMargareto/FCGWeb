@@ -6,6 +6,13 @@
           <el-input v-model="searchInfo.name" placeholder="通道名称" clearable></el-input>
         </el-form-item>
 
+        <template v-if="userInfo.perm['host']">
+          <el-form-item label="所属组织">
+            <TenantSelect v-model="searchInfo.tenant_id" placeholder="请选择组织" :autoSelectFirst="false" :multiple="false"
+              clearable></TenantSelect>
+          </el-form-item>
+        </template>
+
         <el-form-item label="通道编码">
           <el-input v-model="searchInfo.code" placeholder="通道编码" clearable></el-input>
         </el-form-item>
@@ -48,7 +55,7 @@
       </searchform>
 
       <el-form size="mini" :inline="true" class="btn-form-inline">
-        <el-button @click="createRow" icon="el-icon-plus" type="primary">新增</el-button>
+        <el-button v-if="userInfo.perm['host']" @click="createRow" icon="el-icon-plus" type="primary">新增</el-button>
         <el-button v-if="
           userInfo.perm['system.batch_delete'] && multipleSelection.length > 0
         " @click="handleCommand('remove')" icon="el-icon-delete" type="danger" plain>批量删除</el-button>
@@ -75,17 +82,23 @@
       <el-table-column label="通道名称" prop="name" show-overflow-tooltip>
       </el-table-column>
 
+      <el-table-column label="组织名称" prop="tenant_id" show-overflow-tooltip>
+        <template slot-scope="scope">
+          {{ getTenantName(scope.row.tenant_id) }}
+        </template>
+      </el-table-column>
+
       <!-- <el-table-column label="通道类型" prop="type_id"> </el-table-column> -->
       <!-- <el-table-column label="通道编码" prop="code" show-overflow-tooltip>
       </el-table-column> -->
 
       <el-table-column label="通道水费" prop="water_amount"> </el-table-column>
 
-      <el-table-column label="通道回调地址" width="300">
+      <!-- <el-table-column label="通道回调地址" width="300">
         <template slot-scope="scope">{{ scope.row.callback_url }}
           <i v-if="scope.row.callback_url" class="el-icon-document-copy"
             @click="onCopy(scope.row.callback_url)"></i></template>
-      </el-table-column>
+      </el-table-column> -->
 
       <!-- <el-table-column label="开启查询" prop="is_query">
         <template slot-scope="scope">
@@ -151,6 +164,11 @@
       @confirm="enterDialog" ref="dialog">
       <el-tabs v-model="activeName">
         <el-tab-pane label="基础信息" name="first">
+          <el-form-item label="所属组织" prop="tenant_id">
+            <TenantSelect v-model="formData.tenant_id" placeholder="请选择组织" :autoSelectFirst="false" :multiple="false"
+              clearable></TenantSelect>
+          </el-form-item>
+
           <el-form-item label="通道名称" prop="name">
             <el-input v-model="formData.name" placeholder="请输入" clearable></el-input>
           </el-form-item>
@@ -215,9 +233,9 @@
             <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="是" inactive-text="否"
               v-model="formData.is_query"></el-switch>
           </el-form-item>
-          <el-form-item label="查询次数" prop="query_count" v-if="formData.is_query">
+          <!-- <el-form-item label="查询次数" prop="query_count" v-if="formData.is_query">
             <el-input v-model.number="formData.query_count" placeholder="请输入" clearable></el-input>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="查询间隔" prop="query_interval" v-if="formData.is_query">
             <el-input v-model.number="formData.query_interval" placeholder="请输入" clearable>
               <template slot="append">分钟</template>
@@ -304,6 +322,7 @@ export default {
   mixins: [infoList],
   computed: {
     ...mapGetters("user", ["userInfo"]),
+    ...mapGetters("gameInfo", ["tenants"]),
   },
   data() {
     return {
@@ -315,7 +334,35 @@ export default {
       type: "",
       multipleSelection: [],
       activeName: "first",
-      formData: {
+      formData: this.getDefaultFormData(),
+      formRules: {
+        tenant_id: [
+          { required: true, message: "请选择所属组织", trigger: "change" },
+        ],
+        type_id: [{ required: true, message: "请填写数据", trigger: "blur" }],
+        // provider_id: [
+        //   { required: true, message: "请填写数据", trigger: "blur" },
+        // ],
+        template_id: [
+          { required: true, message: "请选择模板", trigger: "blur" },
+        ],
+        name: [{ required: true, message: "请填写数据", trigger: "blur" }],
+      },
+    };
+  },
+  methods: {
+    // 根据组织ID获取组织名称，数据来源与 TenantSelect 保持一致
+    getTenantName(tenantId) {
+      if (!tenantId || !this.tenants || this.tenants.length === 0) {
+        return "";
+      }
+      const tenant = this.tenants.find((item) => item.ID === tenantId);
+      return tenant ? tenant.platform_name : "";
+    },
+    // 获取弹窗表单默认值，确保新增和关闭后状态一致
+    getDefaultFormData() {
+      return {
+        tenant_id: undefined,
         owner_id: undefined,
         type_id: undefined,
         provider_id: undefined,
@@ -330,26 +377,21 @@ export default {
         is_activity: true,
         total_expense: undefined,
         total_order: undefined,
-        params: "",
+        params: [],
         remark: "",
         is_message: true,
         msg_template_id: undefined,
         callback_url: "",
         negative_profit: true,
-      },
-      formRules: {
-        type_id: [{ required: true, message: "请填写数据", trigger: "blur" }],
-        // provider_id: [
-        //   { required: true, message: "请填写数据", trigger: "blur" },
-        // ],
-        template_id: [
-          { required: true, message: "请选择模板", trigger: "blur" },
-        ],
-        name: [{ required: true, message: "请填写数据", trigger: "blur" }],
-      },
-    };
-  },
-  methods: {
+      };
+    },
+    // 统一关闭弹窗并重置表单，避免成功后弹窗残留
+    closeDialog() {
+      this.activeName = "first";
+      this.$refs.dialog && this.$refs.dialog.handleClose();
+      this.formData = this.getDefaultFormData();
+      this.openDialog = false;
+    },
     setProd(row) {
       this.$refs.product.settingProd(row);
     },
@@ -366,8 +408,8 @@ export default {
       this.getTableData();
     },
     createRow() {
-      this.formData = {};
-      this.formData.params = [];
+      this.formData = this.getDefaultFormData();
+      this.activeName = "first";
       this.type = "create";
       this.dialogTitle = "创建";
       this.openDialog = true;
@@ -416,8 +458,7 @@ export default {
           type: "success",
           message: "操作成功",
         });
-        this.$refs.dialog.handleClose();
-        this.openDialog = false;
+        this.closeDialog();
         this.getTableData();
       }
     },

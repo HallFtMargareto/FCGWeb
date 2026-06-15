@@ -2,60 +2,33 @@
   <div>
     <el-tabs tab-position="left" @tab-click="handleTabClick" :value="activeTab">
       <el-tab-pane label="网站配置" name="site" v-if="init">
-        <el-form
-          ref="site"
-          :model="config.site"
-          :rules="site_rules"
-          size="medium"
-          label-width="150px"
-          label-position="left"
-        >
+        <el-form ref="site" :model="config.site" :rules="site_rules" size="medium" label-width="150px"
+          label-position="left">
           <el-col :span="12">
             <el-row class="el-row-cnf">
               <el-col :span="24">
                 <el-form-item label="网站名称" prop="site_name">
-                  <el-input
-                    v-model="config.site.site_name"
-                    placeholder="请输入网站名称"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                  <el-input v-model="config.site.site_name" placeholder="请输入网站名称" clearable
+                    :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="网站地址" prop="site_url">
-                  <el-input
-                    v-model="config.site.site_url"
-                    placeholder="请输入网站地址"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                  <el-input v-model="config.site.site_url" placeholder="请输入网站地址" clearable
+                    :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="WEBSOCKET地址" prop="web_socket">
-                  <el-input
-                    v-model="config.site.web_socket"
-                    placeholder="请输入WEBSOCKET地址"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                  <el-input v-model="config.site.web_socket" placeholder="请输入WEBSOCKET地址" clearable
+                    :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="网站LOGO" prop="site_logo">
-                  <selectimg
-                    :limit="5"
-                    v-model="config.site.logo_action"
-                    :show.sync="show_imgc"
-                  >
+                  <selectimg :limit="5" v-model="config.site.logo_action" :show.sync="show_imgc">
                   </selectimg>
-                  <el-button
-                    size="small"
-                    type="primary"
-                    icon="el-icon-upload"
-                    @click="show_imgc = !show_imgc"
-                    >选择图片
+                  <el-button size="small" type="primary" icon="el-icon-upload" @click="show_imgc = !show_imgc">选择图片
                   </el-button>
                 </el-form-item>
               </el-col>
@@ -66,31 +39,19 @@
               </el-col>
               <el-col :span="24">
                 <el-form-item label="网站顶部提示" prop="site_tips">
-                  <el-input
-                    v-model="config.site.site_tips"
-                    type="textarea"
-                    placeholder="请输入网站顶部提示"
-                    :autosize="{ minRows: 4, maxRows: 4 }"
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                  <el-input v-model="config.site.site_tips" type="textarea" placeholder="请输入网站顶部提示"
+                    :autosize="{ minRows: 4, maxRows: 4 }" :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="系统公告内容" prop="site_remark">
-                  <el-input
-                    v-model="config.site.site_remark"
-                    type="textarea"
-                    placeholder="请输入系统公告内容"
-                    :autosize="{ minRows: 4, maxRows: 4 }"
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                  <el-input v-model="config.site.site_remark" type="textarea" placeholder="请输入系统公告内容"
+                    :autosize="{ minRows: 4, maxRows: 4 }" :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item size="large">
-                  <el-button type="primary" @click="submitForm('site')"
-                    >提交</el-button
-                  >
+                  <el-button type="primary" @click="submitForm('site')">提交</el-button>
                   <!-- <el-button @click="resetForm">重置</el-button> -->
                 </el-form-item>
               </el-col>
@@ -99,21 +60,13 @@
         </el-form>
       </el-tab-pane>
       <el-tab-pane label="福彩配置" name="fcgame">
-        <el-form
-          ref="site"
-          :model="config.fcgame"
-          :rules="site_rules"
-          size="medium"
-          label-width="150px"
-          label-position="left"
-        >
+        <el-form ref="site" :model="config.fcgame" :rules="site_rules" size="medium" label-width="150px"
+          label-position="left">
           <el-row class="el-row-cnf">
             <el-col :span="24">
               <el-form-item label="开盘时间">
-                <time-range-picker
-                  :start-time.sync="config.fcgame.market_start_time"
-                  :end-time.sync="config.fcgame.market_end_time"
-                >
+                <time-range-picker :start-time.sync="config.fcgame.market_start_time"
+                  :end-time.sync="config.fcgame.market_end_time">
                 </time-range-picker>
               </el-form-item>
             </el-col>
@@ -124,12 +77,23 @@
             </el-col>
             <el-col :span="24">
               <el-form-item label="默认转单组织ID" prop="trans_tenant_id">
-                <el-input
-                  v-model.number="config.fcgame.trans_tenant_id"
-                  placeholder="默认转单组织ID"
-                  clearable
-                  :style="{ width: '26%' }"
-                ></el-input>
+                <el-input v-model.number="config.fcgame.trans_tenant_id" placeholder="默认转单组织ID" clearable
+                  :style="{ width: '26%' }"></el-input>
+              </el-form-item>
+            </el-col>
+
+
+            <el-col :span="24">
+              <el-form-item label="立即转单时间范围">
+                <time-range-picker :start-time.sync="config.fcgame.imme_fc_start_time"
+                  :end-time.sync="config.fcgame.imme_fc_end_time">
+                </time-range-picker>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="立即转单组织ID" prop="imme_fc_trans_tenant_id">
+                <el-input v-model.number="config.fcgame.imme_fc_trans_tenant_id" placeholder="立即转单组织ID" clearable
+                  :style="{ width: '26%' }"></el-input>
               </el-form-item>
             </el-col>
             <!-- <el-col :span="24">
@@ -139,9 +103,7 @@
             </el-col> -->
             <el-col :span="24">
               <el-form-item size="large">
-                <el-button type="primary" @click="submitForm('site')"
-                  >提交</el-button
-                >
+                <el-button type="primary" @click="submitForm('site')">提交</el-button>
                 <!-- <el-button @click="resetForm">重置</el-button> -->
               </el-form-item>
             </el-col>
@@ -149,21 +111,13 @@
         </el-form>
       </el-tab-pane>
       <el-tab-pane label="体彩配置" name="tcgame">
-        <el-form
-          ref="site"
-          :model="config.tcgame"
-          :rules="site_rules"
-          size="medium"
-          label-width="150px"
-          label-position="left"
-        >
+        <el-form ref="site" :model="config.tcgame" :rules="site_rules" size="medium" label-width="150px"
+          label-position="left">
           <el-row class="el-row-cnf">
             <el-col :span="24">
               <el-form-item label="开盘时间">
-                <time-range-picker
-                  :start-time.sync="config.tcgame.market_start_time"
-                  :end-time.sync="config.tcgame.market_end_time"
-                >
+                <time-range-picker :start-time.sync="config.tcgame.market_start_time"
+                  :end-time.sync="config.tcgame.market_end_time">
                 </time-range-picker>
               </el-form-item>
             </el-col>
@@ -174,18 +128,28 @@
             </el-col>
             <el-col :span="24">
               <el-form-item label="默认转单组织ID" prop="trans_tenant_id">
-                <el-input
-                  v-model.number="config.tcgame.trans_tenant_id"
-                  placeholder="默认转单组织ID"
-                  :style="{ width: '26%' }"
-                ></el-input>
+                <el-input v-model.number="config.tcgame.trans_tenant_id" placeholder="默认转单组织ID"
+                  :style="{ width: '26%' }"></el-input>
+              </el-form-item>
+            </el-col>
+
+            <el-col :span="24">
+              <el-form-item label="立即转单时间范围">
+                <time-range-picker :start-time.sync="config.tcgame.imme_tc_start_time"
+                  :end-time.sync="config.tcgame.imme_tc_end_time">
+                </time-range-picker>
               </el-form-item>
             </el-col>
             <el-col :span="24">
+              <el-form-item label="立即转单组织ID" prop="imme_tc_trans_tenant_id">
+                <el-input v-model.number="config.tcgame.imme_tc_trans_tenant_id" placeholder="立即转单组织ID" clearable
+                  :style="{ width: '26%' }"></el-input>
+              </el-form-item>
+            </el-col>
+
+            <el-col :span="24">
               <el-form-item size="large">
-                <el-button type="primary" @click="submitForm('site')"
-                  >提交</el-button
-                >
+                <el-button type="primary" @click="submitForm('site')">提交</el-button>
                 <!-- <el-button @click="resetForm">重置</el-button> -->
               </el-form-item>
             </el-col>
@@ -193,162 +157,91 @@
         </el-form>
       </el-tab-pane>
       <el-tab-pane label="模型配置" name="llm">
-        <el-form
-          ref="llm"
-          :model="config.llm_model"
-          size="medium"
-          label-width="150px"
-          label-position="left"
-        >
+        <el-form ref="llm" :model="config.llm_model" size="medium" label-width="150px" label-position="left">
           <el-col :span="12">
             <el-row class="el-row-cnf">
               <el-col :span="24">
                 <el-form-item label="API Key" prop="api_key">
-                  <el-input
-                    v-model="config.llm_model.api_key"
-                    placeholder="请输入API Key"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                  <el-input v-model="config.llm_model.api_key" placeholder="请输入API Key" clearable
+                    :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="API Key环境变量" prop="api_key_env_var">
-                  <el-input
-                    v-model="config.llm_model.api_key_env_var"
-                    placeholder="请输入API Key环境变量名称"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                  <el-input v-model="config.llm_model.api_key_env_var" placeholder="请输入API Key环境变量名称" clearable
+                    :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="API Base URL" prop="api_base_url">
-                  <el-input
-                    v-model="config.llm_model.api_base_url"
-                    placeholder="请输入API Base URL"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                  <el-input v-model="config.llm_model.api_base_url" placeholder="请输入API Base URL" clearable
+                    :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="模型名称" prop="model_name">
-                  <el-input
-                    v-model="config.llm_model.model_name"
-                    placeholder="请输入使用的模型名称"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                  <el-input v-model="config.llm_model.model_name" placeholder="请输入使用的模型名称" clearable
+                    :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item
-                  label="默认系统提示词"
-                  prop="default_system_prompt"
-                >
-                  <el-input
-                    v-model="config.llm_model.default_system_prompt"
-                    type="textarea"
-                    placeholder="请输入默认系统提示词"
-                    :autosize="{ minRows: 4, maxRows: 6 }"
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                <el-form-item label="默认系统提示词" prop="default_system_prompt">
+                  <el-input v-model="config.llm_model.default_system_prompt" type="textarea" placeholder="请输入默认系统提示词"
+                    :autosize="{ minRows: 4, maxRows: 6 }" :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="最大重试次数" prop="max_retries">
-                  <el-input-number
-                    v-model="config.llm_model.max_retries"
-                    :min="0"
-                    :max="10"
-                    controls-position="right"
-                    :style="{ width: '100%' }"
-                  ></el-input-number>
+                  <el-input-number v-model="config.llm_model.max_retries" :min="0" :max="10" controls-position="right"
+                    :style="{ width: '100%' }"></el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="请求超时时间(秒)" prop="request_timeout">
-                  <el-input-number
-                    v-model="config.llm_model.request_timeout"
-                    :min="1"
-                    :max="300"
-                    controls-position="right"
-                    :style="{ width: '100%' }"
-                  ></el-input-number>
+                  <el-input-number v-model="config.llm_model.request_timeout" :min="1" :max="300"
+                    controls-position="right" :style="{ width: '100%' }"></el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="Content-Type" prop="content_type">
-                  <el-input
-                    v-model="config.llm_model.content_type"
-                    placeholder="请输入Content-Type"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                  <el-input v-model="config.llm_model.content_type" placeholder="请输入Content-Type" clearable
+                    :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="Authorization前缀" prop="auth_prefix">
-                  <el-input
-                    v-model="config.llm_model.auth_prefix"
-                    placeholder="请输入请求头Authorization前缀"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                  <el-input v-model="config.llm_model.auth_prefix" placeholder="请输入请求头Authorization前缀" clearable
+                    :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="默认温度参数" prop="default_temperature">
-                  <el-slider
-                    v-model="config.llm_model.default_temperature"
-                    :min="0"
-                    :max="1"
-                    :step="0.1"
-                    show-input
-                  ></el-slider>
+                  <el-slider v-model="config.llm_model.default_temperature" :min="0" :max="1" :step="0.1"
+                    show-input></el-slider>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="默认TopP参数" prop="default_top_p">
-                  <el-slider
-                    v-model="config.llm_model.default_top_p"
-                    :min="0"
-                    :max="1"
-                    :step="0.1"
-                    show-input
-                  ></el-slider>
+                  <el-slider v-model="config.llm_model.default_top_p" :min="0" :max="1" :step="0.1"
+                    show-input></el-slider>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="最大Token数" prop="max_tokens">
-                  <el-input-number
-                    v-model="config.llm_model.max_tokens"
-                    :min="1"
-                    :max="10000"
-                    controls-position="right"
-                    :style="{ width: '100%' }"
-                  ></el-input-number>
+                  <el-input-number v-model="config.llm_model.max_tokens" :min="1" :max="10000" controls-position="right"
+                    :style="{ width: '100%' }"></el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="Response_Format" prop="response_format">
-                  <el-input
-                    v-model="config.llm_model.response_format"
-                    placeholder="请输入Response_Format"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                  <el-input v-model="config.llm_model.response_format" placeholder="请输入Response_Format" clearable
+                    :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="思考模式" prop="thinking_mode">
-                  <el-input
-                    v-model="config.llm_model.thinking_mode"
-                    placeholder="请输入思考模式"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                  <el-input v-model="config.llm_model.thinking_mode" placeholder="请输入思考模式" clearable
+                    :style="{ width: '100%' }"></el-input>
                   <div class="el-form-item__tip">
                     disabled：强制关闭深度思考能力，模型不输出思维链内容 <br />
                     enabled：强制开启深度思考能力，模型强制输出思维链内容。<br />
@@ -358,9 +251,7 @@
               </el-col>
               <el-col :span="24">
                 <el-form-item size="large">
-                  <el-button type="primary" @click="submitForm('llm')"
-                    >提交</el-button
-                  >
+                  <el-button type="primary" @click="submitForm('llm')">提交</el-button>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -501,9 +392,7 @@
             <el-card class="data-clear-card">
               <div slot="header" class="clearfix">
                 <span>数据清除操作</span>
-                <el-tag type="danger" size="small" style="margin-left: 10px"
-                  >危险操作</el-tag
-                >
+                <el-tag type="danger" size="small" style="margin-left: 10px">危险操作</el-tag>
               </div>
               <el-row>
                 <el-col :span="8">
@@ -513,12 +402,7 @@
                       <p class="operation-desc">
                         清除所有业务数据，此操作不可恢复
                       </p>
-                      <el-button
-                        type="danger"
-                        size="medium"
-                        @click="handleClearData"
-                        :loading="clearDataLoading"
-                      >
+                      <el-button type="danger" size="medium" @click="handleClearData" :loading="clearDataLoading">
                         清除数据
                       </el-button>
                     </div>
@@ -531,12 +415,8 @@
                       <p class="operation-desc">
                         清除所有开奖记录，此操作不可恢复
                       </p>
-                      <el-button
-                        type="warning"
-                        size="medium"
-                        @click="handleClearLottery"
-                        :loading="clearLotteryLoading"
-                      >
+                      <el-button type="warning" size="medium" @click="handleClearLottery"
+                        :loading="clearLotteryLoading">
                         清除开奖
                       </el-button>
                     </div>
@@ -549,12 +429,7 @@
                       <p class="operation-desc">
                         清除所有订单标记，此操作不可恢复
                       </p>
-                      <el-button
-                        type="warning"
-                        size="medium"
-                        @click="handleClearMark"
-                        :loading="clearOrderMark"
-                      >
+                      <el-button type="warning" size="medium" @click="handleClearMark" :loading="clearOrderMark">
                         清除标记
                       </el-button>
                     </div>
@@ -861,6 +736,7 @@ export default {
   display: table;
   content: "";
 }
+
 .clearfix:after {
   clear: both;
 }
