@@ -141,7 +141,7 @@
             <el-tab-pane label="未标记" name="1"></el-tab-pane>
             <el-tab-pane label="已标记" name="2"></el-tab-pane>
             <el-tab-pane label="自动标记" name="3"></el-tab-pane>
-            <!-- <el-tab-pane label="已转出" name="11"></el-tab-pane> -->
+            <el-tab-pane label="已转出" name="11"></el-tab-pane>
             <el-tab-pane label="AI标记" name="5"></el-tab-pane>
             <el-tab-pane label="最近标记" name="10"></el-tab-pane>
           </el-tabs>
@@ -207,10 +207,10 @@
             <span class="chat-content">{{ orderGroup.chat_content }}</span>
           </div>
           <div class="right-content">
-            <!-- <el-button type="text" size="mini" icon="el-icon-s-promotion"
-              v-if="statusTabState === 'all' || statusTabState === '2'">
+            <el-button type="text" size="mini" icon="el-icon-s-promotion" v-if="orderGroup.order_status === 2"
+              @click="handleImmediateTransfer(orderGroup)">
               立即转出
-            </el-button> -->
+            </el-button>
             <el-button type="text" size="mini" icon="el-icon-error" @click="handleMarkFailClick(orderGroup)">
               标记失败
             </el-button>
@@ -239,7 +239,7 @@
             <el-descriptions :column="2" size="mini" border :labelStyle="{ width: '100px' }">
               <el-descriptions-item label="ID">{{
                 orderGroup.ID
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
 
               <el-descriptions-item label="总金额">
                 <span :style="{
@@ -291,7 +291,7 @@
               </el-descriptions-item>
               <el-descriptions-item label="创建时间">{{
                 orderGroup.created_at
-                }}</el-descriptions-item>
+              }}</el-descriptions-item>
               <el-descriptions-item label="单号">{{
                 orderGroup.order_no
               }}</el-descriptions-item>
@@ -788,6 +788,46 @@ export default {
           message: "标记订单失败",
         });
       }
+    },
+    // 处理立即转出点击事件
+    async handleImmediateTransfer(orderGroup) {
+      this.$confirm("确定要立即转出这个订单吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(async () => {
+          try {
+            const orderId = orderGroup.ID;
+            const res = await batchFcgOrderOperation({
+              command: "imme_trans",
+              ids: [orderId],
+            });
+
+            if (res.code === 0) {
+              this.$message({
+                type: "success",
+                message: "转出成功",
+              });
+              // 重新获取数据以确保状态同步
+              this.getTableData();
+            } else {
+              this.$message({
+                type: "error",
+                message: res.msg || "转出失败",
+              });
+            }
+          } catch (error) {
+            console.error("转出订单失败:", error);
+            this.$message({
+              type: "error",
+              message: "转出订单失败",
+            });
+          }
+        })
+        .catch(() => {
+          // 用户点击取消，不做任何处理
+        });
     },
     // 处理标记失败点击事件
     async handleMarkFailClick(orderGroup) {
