@@ -24,13 +24,13 @@
             <span class="lottery-label">福彩:</span>
             <span class="lottery-number fc-number">{{
               summaryData.issue.fc_draw_number
-            }}</span>
+              }}</span>
           </div>
           <div class="lottery-result-item" v-if="summaryData.issue.tc_state === 1">
             <span class="lottery-label">体彩:</span>
             <span class="lottery-number tc-number">{{
               summaryData.issue.tc_draw_number
-            }}</span>
+              }}</span>
           </div>
         </div>
       </div>
@@ -59,7 +59,7 @@
 
       <el-card class="stat-card" shadow="never">
         <div class="stat-item">
-          <div class="stat-label">转出</div>
+          <div class="stat-label">风控转出</div>
           <div class="stat-value">
             ¥{{ totalTransferOutAmount }}
             /
@@ -185,7 +185,7 @@
 
             <el-table-column prop="total_water_amount" label="佣金" align="center" width="100">
               <template slot-scope="scope"><span style="color: #667de8">¥{{ scope.row.total_water_amount
-                  }}</span></template>
+              }}</span></template>
             </el-table-column>
           </el-table-column>
 
@@ -205,7 +205,7 @@
     <div class="charts-row">
       <el-card class="chart-card" shadow="never" :body-style="{ padding: '10px' }">
         <div slot="header" class="card-header">
-          <span><span>订单状态分布</span><span>{{ totalOrderCount }}</span></span>
+          <span><span>状态分布</span><span>{{ totalOrderCount }}</span></span>
         </div>
         <div class="chart-container">
           <el-table :data="orderStatusData" size="mini" style="width: 100%">

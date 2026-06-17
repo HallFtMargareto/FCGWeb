@@ -258,75 +258,45 @@
           </el-col>
         </el-form>
       </el-tab-pane>
-      <!-- <el-tab-pane label="邮件设置" name="email">
-        <el-form
-          ref="email"
-          :model="config.email"
-          :rules="email_rules"
-          size="medium"
-          label-width="150px"
-          label-position="left"
-        >
+      <el-tab-pane label="邮件设置" name="email">
+        <el-form ref="email" :model="config.email" :rules="email_rules" size="medium" label-width="150px"
+          label-position="left">
           <el-col :span="12">
             <el-row class="el-row-cnf">
               <el-col :span="24">
-                <el-form-item label="SMTP服务器" prop="email_host">
-                  <el-input
-                    v-model="config.email.email_host"
-                    placeholder="请输入SMTP服务器"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                <el-form-item label="SMTP服务器" prop="smtp_host">
+                  <el-input v-model="config.email.smtp_host" placeholder="请输入SMTP服务器" clearable
+                    :style="{ width: '100%' }"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="SMTP端口" prop="smtp_port">
+                  <el-input v-model="config.email.smtp_port" placeholder="请输入端口" clearable
+                    :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="SMTP用户名" prop="stmp_user">
-                  <el-input
-                    v-model="config.email.stmp_user"
-                    placeholder="请输入SMTP用户名"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                  <el-input v-model="config.email.stmp_user" placeholder="请输入SMTP用户名" clearable
+                    :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="SMTP密码" prop="stmp_pwd">
-                  <el-input
-                    v-model="config.email.stmp_pwd"
-                    placeholder="请输入SMTP密码"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                  <el-input v-model="config.email.stmp_pwd" placeholder="请输入SMTP密码" clearable
+                    :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item label="端口" prop="email_port">
-                  <el-input
-                    v-model="config.email.email_port"
-                    placeholder="请输入端口"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="发件人名称" prop="send_name">
-                  <el-input
-                    v-model="config.email.send_name"
-                    placeholder="请输入发件人名称"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                <el-form-item label="发件人名称" prop="from_name">
+                  <el-input v-model="config.email.from_name" placeholder="请输入发件人名称" clearable
+                    :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="管理员邮箱" prop="admin_email">
-                  <el-input
-                    v-model="config.email.admin_email"
-                    placeholder="请输入管理员邮箱"
-                    clearable
-                    :style="{ width: '100%' }"
-                  ></el-input>
+                  <el-input v-model="config.email.admin_email" placeholder="请输入管理员邮箱" clearable
+                    :style="{ width: '100%' }"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
@@ -336,15 +306,13 @@
               </el-col>
               <el-col :span="24">
                 <el-form-item size="large">
-                  <el-button type="primary" @click="submitForm('email')"
-                    >提交</el-button
-                  >
+                  <el-button type="primary" @click="submitForm('email')">提交</el-button>
                 </el-form-item>
               </el-col>
             </el-row>
           </el-col>
         </el-form>
-      </el-tab-pane> -->
+      </el-tab-pane>
       <!-- <el-tab-pane label="充值设置" name="charge">
         <el-form
           ref="charge"
@@ -480,7 +448,7 @@ export default {
         ],
       },
       email_rules: {
-        email_host: [
+        smtp_host: [
           {
             required: true,
             message: "请输入SMTP服务器",
@@ -501,7 +469,7 @@ export default {
             trigger: "blur",
           },
         ],
-        email_port: [
+        smtp_port: [
           {
             required: true,
             message: "请输入端口",
@@ -514,14 +482,7 @@ export default {
             message: "请输入发件人名称",
             trigger: "blur",
           },
-        ],
-        admin_email: [
-          {
-            required: true,
-            message: "请输入管理员邮箱",
-            trigger: "blur",
-          },
-        ],
+        ]
       },
     };
   },

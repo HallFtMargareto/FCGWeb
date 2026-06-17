@@ -153,6 +153,13 @@
         </template>
       </el-table-column>
 
+      <el-table-column label="立即转出" prop="imme_trans" align="center">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.imme_trans ? 'success' : 'info'" size="mini">
+            {{ scope.row.imme_trans ? "启用" : "禁用" }}
+          </el-tag>
+        </template>
+      </el-table-column>
 
 
       <el-table-column prop="created_at" label="创建时间" sortable="custom" width="200">
@@ -218,6 +225,10 @@
             <el-form-item label="复制转单" prop="copy_trans">
               <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="启用" inactive-text="禁用"
                 v-model="formData.copy_trans" clearable></el-switch>
+            </el-form-item>
+            <el-form-item label="立即转出" prop="imme_trans">
+              <el-switch active-color="#13ce66" inactive-color="#ff4949" active-text="启用" inactive-text="禁用"
+                v-model="formData.imme_trans" clearable></el-switch>
             </el-form-item>
             <el-form-item label="备注" prop="remark">
               <el-input v-model="formData.remark" clearable placeholder="请输入"></el-input>

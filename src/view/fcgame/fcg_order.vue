@@ -163,7 +163,7 @@
         <el-col :span="6" v-if="statusTabState === '1' || statusTabState === '2' || mark_state === '1'">
           <el-button @click="toggleSelectAll">{{
             isAllSelected ? "取消全选" : "全选"
-          }}</el-button>
+            }}</el-button>
 
           <el-button v-if="statusTabState === '1'" icon="el-icon-s-unfold" @click="openBatchEditDialog">
             批量编辑
@@ -207,7 +207,8 @@
             <span class="chat-content">{{ orderGroup.chat_content }}</span>
           </div>
           <div class="right-content">
-            <el-button type="text" size="mini" icon="el-icon-s-promotion" v-if="orderGroup.order_status === 2"
+            <el-button type="text" size="mini" icon="el-icon-s-promotion"
+              v-if="orderGroup.order_status === 2 && orderGroup.is_imme == 0"
               @click="handleImmediateTransfer(orderGroup)">
               立即转出
             </el-button>
@@ -239,7 +240,7 @@
             <el-descriptions :column="2" size="mini" border :labelStyle="{ width: '100px' }">
               <el-descriptions-item label="ID">{{
                 orderGroup.ID
-                }}</el-descriptions-item>
+              }}</el-descriptions-item>
 
               <el-descriptions-item label="总金额">
                 <span :style="{
@@ -259,7 +260,7 @@
 
               <el-descriptions-item label="识别次数">{{
                 orderGroup.version
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
               <el-descriptions-item label="代理佣金">¥ {{ orderGroup.commission }}</el-descriptions-item>
               <el-descriptions-item label="识别难度">
                 {{ getRiskLevelText(orderGroup.risk_score) }}
@@ -269,13 +270,16 @@
               </el-descriptions-item>
               <el-descriptions-item label="识别耗时">{{
                 orderGroup.message ? orderGroup.message.llmcons_at : ""
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
               <el-descriptions-item label="投注数量">
                 {{ orderGroup.total_bet_count }}
               </el-descriptions-item>
               <el-descriptions-item label="订单状态">
                 <el-tag :type="getOrderStatusType(orderGroup.order_status)" size="mini">
                   {{ getOrderStatusText(orderGroup.order_status) }}
+                </el-tag>
+                <el-tag v-if="orderGroup.is_imme == 1" type="success" size="mini" style="margin-left: 5px;">
+                  已转出
                 </el-tag>
               </el-descriptions-item>
               <el-descriptions-item label="中奖金额">
@@ -285,16 +289,16 @@
               </el-descriptions-item>
               <el-descriptions-item label="发单时间">{{
                 $utils.formatTimeToStr(orderGroup.sort_seq)
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
               <el-descriptions-item label="所属组织">
                 {{ getTenantName(orderGroup.tenant_id) }}
               </el-descriptions-item>
               <el-descriptions-item label="创建时间">{{
                 orderGroup.created_at
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
               <el-descriptions-item label="单号">{{
                 orderGroup.order_no
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
             </el-descriptions>
           </div>
 
@@ -345,7 +349,7 @@
       </el-card>
 
       <div>
-        <el-col span="24">
+        <el-col>
           <!-- 数据合计,按需求启用 -->
           <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
           <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 20, 30, 50]"
