@@ -24,13 +24,13 @@
             <span class="lottery-label">福彩:</span>
             <span class="lottery-number fc-number">{{
               summaryData.issue.fc_draw_number
-              }}</span>
+            }}</span>
           </div>
           <div class="lottery-result-item" v-if="summaryData.issue.tc_state === 1">
             <span class="lottery-label">体彩:</span>
             <span class="lottery-number tc-number">{{
               summaryData.issue.tc_draw_number
-              }}</span>
+            }}</span>
           </div>
         </div>
       </div>
@@ -63,9 +63,21 @@
           <div class="stat-value">
             ¥{{ totalTransferOutAmount }}
             /
-            <span style="color: #667de8">¥{{ totalTransferOutWaterAmount }}</span>
+            <span class="commission-text">¥{{ totalTransferOutWaterAmount }}</span>
             /
-            <span style="color: rgb(103, 194, 58)">¥{{ totalWinferOutAmount }}</span>
+            <span class="winam">¥{{ totalWinferOutAmount }}</span>
+          </div>
+        </div>
+      </el-card>
+      <el-card class="stat-card" shadow="never">
+        <div class="stat-item">
+          <div class="stat-label">立即转出</div>
+          <div class="stat-value">
+            ¥{{ totalImmediateTransferOutAmount }}
+            /
+            <span class="commission-text">¥{{ totalImmediateTransferOutCommission }}</span>
+            /
+            <span class="winam">¥{{ totalImmediateTransferOutWinAmount }}</span>
           </div>
         </div>
       </el-card>
@@ -248,7 +260,7 @@
 
       <el-card class="chart-card" shadow="never" :body-style="{ padding: '10px' }">
         <div slot="header" class="card-header">
-          <span><span>转出明细</span><span>{{ totalTransferOutCount }}</span></span>
+          <span><span>风控转出</span><span>{{ totalTransferOutCount }}</span></span>
         </div>
         <div class="chart-container">
           <el-table :data="transferOutDetailsData" size="mini" style="width: 100%">
@@ -260,6 +272,34 @@
             <el-table-column prop="total_water_amount" label="转出佣金" align="center">
               <template slot-scope="scope">
                 <span style="color: #667de8">¥{{ scope.row.total_water_amount }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="total_win_amount" label="中奖金额" align="center">
+              <template slot-scope="scope">
+                <span :style="{
+                  color: getWinAmountColor(
+                    scope.row.total_amount,
+                    scope.row.total_win_amount
+                  ),
+                }">¥{{ scope.row.total_win_amount }}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </el-card>
+      <el-card class="chart-card" shadow="never" :body-style="{ padding: '10px' }">
+        <div slot="header" class="card-header">
+          <span><span>立即转出</span><span>{{ totalImmediateTransferOutCount }}</span></span>
+        </div>
+        <div class="chart-container">
+          <el-table :data="immediateTransferOutDetailsData" size="mini" style="width: 100%">
+            <el-table-column prop="game_category_name" label="彩种" align="center" width="70"></el-table-column>
+            <el-table-column prop="total_amount" label="转出金额" align="center">
+              <template slot-scope="scope">¥{{ scope.row.total_amount }}</template>
+            </el-table-column>
+            <el-table-column prop="total_commission" label="转出佣金" align="center">
+              <template slot-scope="scope">
+                <span class="commission-text">¥{{ getImmediateTransferOutCommission(scope.row) }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="total_win_amount" label="中奖金额" align="center">
@@ -510,6 +550,8 @@ export default {
         game_category_stats: [],
         transferout_total: null,
         transferout_details: [],
+        imme_transferout_total: null,
+        imme_transferout_details: [],
       },
       localSessionStats: [],
       loading: false,
@@ -555,39 +597,73 @@ export default {
     // 总转出金额
     totalTransferOutAmount() {
       return this.summaryData.transferout_total
-        ? parseFloat(
-          this.summaryData.transferout_total.total_amount || 0
+        ? this.parseAmount(
+          this.summaryData.transferout_total.total_amount
         ).toFixed(2)
         : "0.00";
     },
     // 总转出金额
     totalWinferOutAmount() {
       return this.summaryData.transferout_total
-        ? parseFloat(
-          this.summaryData.transferout_total.total_win_amount || 0
+        ? this.parseAmount(
+          this.summaryData.transferout_total.total_win_amount
         ).toFixed(2)
         : "0.00";
     },
     // 总转出水钱
     totalTransferOutWaterAmount() {
       return this.summaryData.transferout_total
-        ? parseFloat(
-          this.summaryData.transferout_total.total_water_amount || 0
+        ? this.parseAmount(
+          this.summaryData.transferout_total.total_water_amount
         ).toFixed(2)
         : "0.00";
     },
-    // 总利润 = 总投注金额 - 总佣金 - 总中奖金额 - 总转出 + 转出佣金 + 转出中奖
+    // 总立即转出金额
+    totalImmediateTransferOutAmount() {
+      return this.summaryData.imme_transferout_total
+        ? this.parseAmount(
+          this.summaryData.imme_transferout_total.total_amount
+        ).toFixed(2)
+        : "0.00";
+    },
+    // 总立即转出佣金
+    totalImmediateTransferOutCommission() {
+      return this.summaryData.imme_transferout_total
+        ? this.getAmountByKeys(this.summaryData.imme_transferout_total, [
+          "total_commission",
+          "total_water_amount",
+        ]).toFixed(2)
+        : "0.00";
+    },
+    // 总立即转出中奖金额
+    totalImmediateTransferOutWinAmount() {
+      return this.summaryData.imme_transferout_total
+        ? this.parseAmount(
+          this.summaryData.imme_transferout_total.total_win_amount
+        ).toFixed(2)
+        : "0.00";
+    },
+    // 总利润 = 总投注金额 - 总佣金 - 总中奖金额 - 总转出 + 转出佣金 + 转出中奖 - 立即转出 + 立即转出佣金 + 立即转出中奖
     totalProfit() {
       if (this.summaryData.issue.status != 3) {
-        return 0
+        return "0.00";
       }
-      const totalBet = parseFloat(this.totalBetAmount);
-      const totalCommission = parseFloat(this.totalCommission);
-      const totalWin = parseFloat(this.totalWinAmount);
-      const totalTransferOut = parseFloat(this.totalTransferOutAmount);
-      const totalWinferOutAmount = parseFloat(this.totalWinferOutAmount);
-      const totalTransferOutWaterAmount = parseFloat(
+      const totalBet = this.parseAmount(this.totalBetAmount);
+      const totalCommission = this.parseAmount(this.totalCommission);
+      const totalWin = this.parseAmount(this.totalWinAmount);
+      const totalTransferOut = this.parseAmount(this.totalTransferOutAmount);
+      const totalWinferOutAmount = this.parseAmount(this.totalWinferOutAmount);
+      const totalTransferOutWaterAmount = this.parseAmount(
         this.totalTransferOutWaterAmount
+      );
+      const totalImmediateTransferOutAmount = this.parseAmount(
+        this.totalImmediateTransferOutAmount
+      );
+      const totalImmediateTransferOutCommission = this.parseAmount(
+        this.totalImmediateTransferOutCommission
+      );
+      const totalImmediateTransferOutWinAmount = this.parseAmount(
+        this.totalImmediateTransferOutWinAmount
       );
       const profit =
         totalBet -
@@ -595,7 +671,10 @@ export default {
         totalWin -
         totalTransferOut +
         totalTransferOutWaterAmount +
-        totalWinferOutAmount;
+        totalWinferOutAmount -
+        totalImmediateTransferOutAmount +
+        totalImmediateTransferOutCommission +
+        totalImmediateTransferOutWinAmount;
       return profit.toFixed(2);
     },
     // 订单状态数据
@@ -677,6 +756,17 @@ export default {
         ? this.summaryData.transferout_total.total_water_amount || 0
         : 0;
     },
+    // 立即转出明细数据
+    immediateTransferOutDetailsData() {
+      return this.summaryData.imme_transferout_details || [];
+    },
+    // 立即转出明细总数
+    totalImmediateTransferOutCount() {
+      return this.summaryData.imme_transferout_total &&
+        this.summaryData.imme_transferout_total.total_count != null
+        ? this.summaryData.imme_transferout_total.total_count
+        : this.immediateTransferOutDetailsData.length;
+    },
     // 玩法统计相关计算属性
     totalGameTypeOrders() {
       return (this.summaryData.game_type_stats || []).reduce((sum, item) => {
@@ -711,6 +801,22 @@ export default {
     },
   },
   methods: {
+    // 统一处理金额字段，兼容 null、undefined、空字符串等情况
+    parseAmount(value) {
+      const amount = parseFloat(value);
+      return Number.isNaN(amount) ? 0 : amount;
+    },
+    // 按字段顺序读取第一个有效金额，避免 0 被误判为无值
+    getAmountByKeys(source, keys) {
+      if (!source) return 0;
+      for (const key of keys) {
+        const value = source[key];
+        if (value !== undefined && value !== null && value !== "") {
+          return this.parseAmount(value);
+        }
+      }
+      return 0;
+    },
     // 获取游戏类型文本
     getGameTypeText(gameType) {
       return GAME_TYPE_MAP[gameType] || `玩法${gameType}`;
@@ -760,8 +866,8 @@ export default {
     },
     // 获取中奖金额颜色
     getWinAmountColor(winAmount, betAmount) {
-      const win = parseFloat(winAmount || 0);
-      const bet = parseFloat(betAmount || 0);
+      const win = this.parseAmount(winAmount);
+      const bet = this.parseAmount(betAmount);
       if (win > bet) {
         return "#f56c6c"; // 中奖金额大于投注金额，红色
       } else if (win < bet) {
@@ -769,18 +875,66 @@ export default {
       }
       return "#303133"; // 默认颜色
     },
-    // 计算组织总利润 = 总投注金额 - 总佣金 - 总中奖金额 - 总转出 + 转出佣金 + 转出中奖
+    // 获取立即转出佣金字段，兼容后端不同命名
+    getImmediateTransferOutCommission(item) {
+      return this.getAmountByKeys(item, [
+        "total_commission",
+        "total_water_amount",
+      ]).toFixed(2);
+    },
+    // 按彩种获取立即转出汇总，供利润计算复用
+    getImmediateTransferOutByCategory(gameCategory) {
+      const details = this.summaryData.imme_transferout_details || [];
+      return (
+        details.find((item) => item.game_category == gameCategory) || null
+      );
+    },
+    // 获取组织维度的立即转出金额，兼容后端可能的不同字段命名
+    getTenantImmediateTransferOutAmount(tenant) {
+      return this.getAmountByKeys(tenant, [
+        "imme_total_trans_amount",
+        "imme_transferout_amount",
+        "imme_total_amount",
+        "total_imme_trans_amount",
+        "total_imme_transferout_amount",
+      ]);
+    },
+    // 获取组织维度的立即转出佣金，兼容后端可能的不同字段命名
+    getTenantImmediateTransferOutCommission(tenant) {
+      return this.getAmountByKeys(tenant, [
+        "imme_total_commission",
+        "imme_transferout_commission",
+        "imme_total_water_amount",
+        "total_imme_commission",
+        "total_imme_water_amount",
+      ]);
+    },
+    // 获取组织维度的立即转出中奖金额，兼容后端可能的不同字段命名
+    getTenantImmediateTransferOutWinAmount(tenant) {
+      return this.getAmountByKeys(tenant, [
+        "imme_total_win_amount",
+        "imme_transferout_win_amount",
+        "total_imme_win_amount",
+      ]);
+    },
+    // 计算组织总利润 = 总投注金额 - 总佣金 - 总中奖金额 - 总转出 + 转出佣金 + 转出中奖 - 立即转出 + 立即转出佣金 + 立即转出中奖
     calculateTenantProfit(tenant) {
-      const totalBet = parseFloat(tenant.total_bet_amount || 0);
-      const totalCommission = parseFloat(tenant.total_commission || 0);
-      const totalWin = parseFloat(tenant.total_win_amount || 0);
-      const totalTransferOut = parseFloat(tenant.total_trans_amount || 0);
-      const totalTransferOutWaterAmount = parseFloat(
+      const totalBet = this.parseAmount(tenant.total_bet_amount);
+      const totalCommission = this.parseAmount(tenant.total_commission);
+      const totalWin = this.parseAmount(tenant.total_win_amount);
+      const totalTransferOut = this.parseAmount(tenant.total_trans_amount);
+      const totalTransferOutWaterAmount = this.parseAmount(
         tenant.total_water_amount || 0
       );
-      const totalTransferOutWinAmount = parseFloat(
+      const totalTransferOutWinAmount = this.parseAmount(
         tenant.total_trans_win_amount || 0
       );
+      const totalImmediateTransferOutAmount =
+        this.getTenantImmediateTransferOutAmount(tenant);
+      const totalImmediateTransferOutCommission =
+        this.getTenantImmediateTransferOutCommission(tenant);
+      const totalImmediateTransferOutWinAmount =
+        this.getTenantImmediateTransferOutWinAmount(tenant);
 
       const profit =
         totalBet -
@@ -788,23 +942,26 @@ export default {
         totalWin -
         totalTransferOut +
         totalTransferOutWaterAmount +
-        totalTransferOutWinAmount;
+        totalTransferOutWinAmount -
+        totalImmediateTransferOutAmount +
+        totalImmediateTransferOutCommission +
+        totalImmediateTransferOutWinAmount;
       return profit.toFixed(2);
     },
     // 计算会话总利润 = 总投注金额 - 总佣金 - 总中奖金额
     calculateSessionProfit(session) {
-      const totalBet = parseFloat(session.total_bet_amount || 0);
-      const totalCommission = parseFloat(session.total_commission || 0);
-      const totalWin = parseFloat(session.total_win_amount || 0);
+      const totalBet = this.parseAmount(session.total_bet_amount);
+      const totalCommission = this.parseAmount(session.total_commission);
+      const totalWin = this.parseAmount(session.total_win_amount);
 
       const profit = totalBet - totalCommission - totalWin;
       return profit.toFixed(2);
     },
-    // 计算彩种利润 = 投注金额 - 佣金 - 中奖金额 - 彩种的转出金额 + 转出佣金 + 转出中奖金额
+    // 计算彩种利润 = 投注金额 - 佣金 - 中奖金额 - 彩种转出 + 转出佣金 + 转出中奖 - 立即转出 + 立即转出佣金 + 立即转出中奖
     calculateGameCategoryProfit(row) {
-      const betAmount = parseFloat(row.gc_bet_amount || 0);
-      const commission = parseFloat(row.gc_water_amount || 0);
-      const winAmount = parseFloat(row.gc_win_amount || 0);
+      const betAmount = this.parseAmount(row.gc_bet_amount);
+      const commission = this.parseAmount(row.gc_water_amount);
+      const winAmount = this.parseAmount(row.gc_win_amount);
 
       if (row.game_category == 1) {
         if (this.summaryData.issue.fc_state == 0) {
@@ -824,15 +981,28 @@ export default {
         (item) => item.game_category == row.game_category
       );
 
-      const transferOutAmount = transferItem
-        ? parseFloat(transferItem.total_amount || 0)
-        : 0;
-      const transferOutCommission = transferItem
-        ? parseFloat(transferItem.total_water_amount || 0)
-        : 0;
-      const transferOutWinAmount = transferItem
-        ? parseFloat(transferItem.total_win_amount || 0)
-        : 0;
+      const transferOutAmount = this.parseAmount(
+        transferItem && transferItem.total_amount
+      );
+      const transferOutCommission = this.parseAmount(
+        transferItem && transferItem.total_water_amount
+      );
+      const transferOutWinAmount = this.parseAmount(
+        transferItem && transferItem.total_win_amount
+      );
+      const immediateTransferItem = this.getImmediateTransferOutByCategory(
+        row.game_category
+      );
+      const immediateTransferOutAmount = this.parseAmount(
+        immediateTransferItem && immediateTransferItem.total_amount
+      );
+      const immediateTransferOutCommission = this.getAmountByKeys(
+        immediateTransferItem,
+        ["total_commission", "total_water_amount"]
+      );
+      const immediateTransferOutWinAmount = this.parseAmount(
+        immediateTransferItem && immediateTransferItem.total_win_amount
+      );
 
       const profit =
         betAmount -
@@ -840,7 +1010,10 @@ export default {
         winAmount -
         transferOutAmount +
         transferOutCommission +
-        transferOutWinAmount;
+        transferOutWinAmount -
+        immediateTransferOutAmount +
+        immediateTransferOutCommission +
+        immediateTransferOutWinAmount;
 
       return profit.toFixed(2);
     },
@@ -1178,6 +1351,8 @@ export default {
             game_category_stats: [],
             transferout_total: null,
             transferout_details: [],
+            imme_transferout_total: null,
+            imme_transferout_details: [],
           };
         } else {
           this.$message.error(res.msg || "获取数据失败");
@@ -1299,11 +1474,33 @@ export default {
   font-weight: 500;
 }
 
+.commission-text {
+  color: #667de8;
+}
+
+/* 图表卡片按两列布局显示 */
+.charts-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.chart-card {
+  width: calc((100% - 16px) / 2);
+  box-sizing: border-box;
+}
+
 /* 响应式调整 */
 @media (max-width: 1400px) {
   .table-container ::v-deep .el-table .cell {
     padding: 0 4px;
     font-size: 12px;
+  }
+}
+
+@media (max-width: 992px) {
+  .chart-card {
+    width: 100%;
   }
 }
 </style>
