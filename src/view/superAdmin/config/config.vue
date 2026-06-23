@@ -101,9 +101,9 @@
             </el-col>
             <el-col :span="24">
               <el-row class="week-time-row">
-                <el-col :span="8" v-for="(time, day) in config.fcgame.imme_fc_end_time_list" :key="day">
-                  <el-form-item :label="day">
-                    <el-time-picker v-model="config.fcgame.imme_fc_end_time_list[day]" format="HH:mm:ss"
+                <el-col :span="8" v-for="item in sortedFcWeekTimeList" :key="item.day">
+                  <el-form-item :label="item.day">
+                    <el-time-picker v-model="config.fcgame.imme_fc_end_time_list[item.day]" format="HH:mm:ss"
                       value-format="HH:mm:ss" placeholder="选择时间">
                     </el-time-picker>
                   </el-form-item>
@@ -165,9 +165,9 @@
             </el-col>
             <el-col :span="24">
               <el-row class="week-time-row">
-                <el-col :span="8" v-for="(time, day) in config.tcgame.imme_tc_end_time_list" :key="day">
-                  <el-form-item :label="day">
-                    <el-time-picker v-model="config.tcgame.imme_tc_end_time_list[day]" format="HH:mm:ss"
+                <el-col :span="8" v-for="item in sortedTcWeekTimeList" :key="item.day">
+                  <el-form-item :label="item.day">
+                    <el-time-picker v-model="config.tcgame.imme_tc_end_time_list[item.day]" format="HH:mm:ss"
                       value-format="HH:mm:ss" placeholder="选择时间">
                     </el-time-picker>
                   </el-form-item>
@@ -465,6 +465,7 @@ export default {
       clearDataLoading: false,
       clearLotteryLoading: false,
       clearOrderMark: false,
+      weekOrder: ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"],
       site_rules: {
         site_name: [
           {
@@ -512,6 +513,28 @@ export default {
         ]
       },
     };
+  },
+  computed: {
+    // 按星期顺序处理福彩的时间列表
+    sortedFcWeekTimeList() {
+      if (!this.config.fcgame || !this.config.fcgame.imme_fc_end_time_list) {
+        return [];
+      }
+      return this.weekOrder.map(day => ({
+        day,
+        time: this.config.fcgame.imme_fc_end_time_list[day]
+      }));
+    },
+    // 按星期顺序处理体彩的时间列表
+    sortedTcWeekTimeList() {
+      if (!this.config.tcgame || !this.config.tcgame.imme_tc_end_time_list) {
+        return [];
+      }
+      return this.weekOrder.map(day => ({
+        day,
+        time: this.config.tcgame.imme_tc_end_time_list[day]
+      }));
+    }
   },
   mounted() {
     // this.$refs.config.sites.fetchData();
