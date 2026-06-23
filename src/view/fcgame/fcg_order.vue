@@ -176,6 +176,11 @@
           <el-button v-if="mark_state === '1'" @click="handleBatchMark" :disabled="multipleSelection.length === 0">
             批量标记
           </el-button>
+
+          <el-button v-if="statusTabState === '2'" icon="el-icon-s-promotion" :disabled="multipleSelection.length === 0"
+            style="margin-left: 50px;" @click="handleBatchTransfer">
+            批量转出
+          </el-button>
         </el-col>
         <el-col :span="(statusTabState === '1' || statusTabState === '2' || mark_state === '1') ? 18 : 24">
           <!-- 数据合计,按需求启用 -->
@@ -1099,6 +1104,67 @@ export default {
           message: "批量标记异常，请稍后重试",
         });
       }
+    },
+
+    // 批量转出处理方法
+    async handleBatchTransfer() {
+      if (this.multipleSelection.length === 0) {
+        this.$message({
+          type: "warning",
+          message: "请选择需要转出的订单",
+        });
+        return;
+      }
+
+      this.$confirm(
+        `确定要转出选中的 ${this.multipleSelection.length} 个订单吗？`,
+        "批量转出确认",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }
+      )
+        .then(async () => {
+          try {
+            const ids = this.multipleSelection.map(
+              (item) => item.order_id || item.ID
+            );
+            const res = await batchFcgOrderOperation({
+              command: "imme_trans",
+              ids: ids,
+            });
+
+            if (res.code === 0) {
+              this.$message({
+                type: "success",
+                message: `成功转出 ${this.multipleSelection.length} 个订单`,
+              });
+              // 清空选择
+              this.clearSelections();
+              // 刷新数据
+              this.getTableData();
+            } else {
+              this.$message({
+                type: "error",
+                message: res.msg || "批量转出失败",
+              });
+            }
+          } catch (error) {
+            console.error("批量转出异常:", error);
+            this.$message({
+              type: "error",
+              message: "批量转出异常，请稍后重试",
+            });
+          }
+        })
+        .catch(() => {
+          // 用户取消操作
+          this.$message({
+            type: "info",
+            message: "已取消批量转出",
+          });
+        });
     },
     handleCommand(command) {
       this.$confirm("是否要执行批量操作?", "提示", {

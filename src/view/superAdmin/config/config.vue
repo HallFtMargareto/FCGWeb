@@ -84,7 +84,7 @@
 
 
             <el-col :span="24">
-              <el-form-item label="立即转单时间范围">
+              <el-form-item label="立即转单邮件发送">
                 <time-range-picker :start-time.sync="config.fcgame.imme_fc_start_time"
                   :end-time.sync="config.fcgame.imme_fc_end_time">
                 </time-range-picker>
@@ -95,6 +95,20 @@
                 <el-input v-model.number="config.fcgame.imme_fc_trans_tenant_id" placeholder="立即转单组织ID" clearable
                   :style="{ width: '26%' }"></el-input>
               </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-divider content-position="left">立即转单结束时间（按星期）</el-divider>
+            </el-col>
+            <el-col :span="24">
+              <el-row class="week-time-row">
+                <el-col :span="8" v-for="(time, day) in config.fcgame.imme_fc_end_time_list" :key="day">
+                  <el-form-item :label="day">
+                    <el-time-picker v-model="config.fcgame.imme_fc_end_time_list[day]" format="HH:mm:ss"
+                      value-format="HH:mm:ss" placeholder="选择时间">
+                    </el-time-picker>
+                  </el-form-item>
+                </el-col>
+              </el-row>
             </el-col>
             <!-- <el-col :span="24">
               <el-form-item label="全局状态" prop="open_state">
@@ -134,7 +148,7 @@
             </el-col>
 
             <el-col :span="24">
-              <el-form-item label="立即转单时间范围">
+              <el-form-item label="立即转单邮件发送">
                 <time-range-picker :start-time.sync="config.tcgame.imme_tc_start_time"
                   :end-time.sync="config.tcgame.imme_tc_end_time">
                 </time-range-picker>
@@ -146,7 +160,20 @@
                   :style="{ width: '26%' }"></el-input>
               </el-form-item>
             </el-col>
-
+            <el-col :span="24">
+              <el-divider content-position="left">立即转单结束时间（按星期）</el-divider>
+            </el-col>
+            <el-col :span="24">
+              <el-row class="week-time-row">
+                <el-col :span="8" v-for="(time, day) in config.tcgame.imme_tc_end_time_list" :key="day">
+                  <el-form-item :label="day">
+                    <el-time-picker v-model="config.tcgame.imme_tc_end_time_list[day]" format="HH:mm:ss"
+                      value-format="HH:mm:ss" placeholder="选择时间">
+                    </el-time-picker>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+            </el-col>
             <el-col :span="24">
               <el-form-item size="large">
                 <el-button type="primary" @click="submitForm('site')">提交</el-button>
@@ -668,6 +695,37 @@ export default {
     let res = await getSystemConfig({ key: "" });
     if (res.data && res.data.config) {
       this.config = { ...this.config, ...res.data.config }; // 合并默认值与接口返回值
+    }
+
+    // 确保福彩和体彩的周时间列表有默认值
+    if (!this.config.fcgame) {
+      this.config.fcgame = {};
+    }
+    if (!this.config.fcgame.imme_fc_end_time_list) {
+      this.config.fcgame.imme_fc_end_time_list = {
+        "星期一": "21:16:00",
+        "星期二": "21:16:00",
+        "星期三": "21:16:00",
+        "星期四": "21:16:00",
+        "星期五": "21:16:00",
+        "星期六": "21:15:00",
+        "星期日": "21:16:00"
+      };
+    }
+
+    if (!this.config.tcgame) {
+      this.config.tcgame = {};
+    }
+    if (!this.config.tcgame.imme_tc_end_time_list) {
+      this.config.tcgame.imme_tc_end_time_list = {
+        "星期一": "21:28:00",
+        "星期二": "21:26:00",
+        "星期三": "21:28:00",
+        "星期四": "21:25:00",
+        "星期五": "21:26:00",
+        "星期六": "21:28:00",
+        "星期日": "21:26:00"
+      };
     }
 
     if (this.config.site.logo_action != "") {

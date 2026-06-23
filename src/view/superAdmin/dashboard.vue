@@ -59,18 +59,6 @@
 
       <el-card class="stat-card" shadow="never">
         <div class="stat-item">
-          <div class="stat-label">风控转出</div>
-          <div class="stat-value">
-            ¥{{ totalTransferOutAmount }}
-            /
-            <span class="commission-text">¥{{ totalTransferOutWaterAmount }}</span>
-            /
-            <span class="winam">¥{{ totalWinferOutAmount }}</span>
-          </div>
-        </div>
-      </el-card>
-      <el-card class="stat-card" shadow="never">
-        <div class="stat-item">
           <div class="stat-label">立即转出</div>
           <div class="stat-value">
             ¥{{ totalImmediateTransferOutAmount }}
@@ -81,6 +69,20 @@
           </div>
         </div>
       </el-card>
+
+      <el-card class="stat-card" shadow="never">
+        <div class="stat-item">
+          <div class="stat-label">风控转出</div>
+          <div class="stat-value">
+            ¥{{ totalTransferOutAmount }}
+            /
+            <span class="commission-text">¥{{ totalTransferOutWaterAmount }}</span>
+            /
+            <span class="winam">¥{{ totalWinferOutAmount }}</span>
+          </div>
+        </div>
+      </el-card>
+
       <el-card class="stat-card" shadow="never">
         <div class="stat-item">
           <div class="stat-label">利润</div>
@@ -260,6 +262,35 @@
 
       <el-card class="chart-card" shadow="never" :body-style="{ padding: '10px' }">
         <div slot="header" class="card-header">
+          <span><span>立即转出</span><span>{{ totalImmediateTransferOutCount }}</span></span>
+        </div>
+        <div class="chart-container">
+          <el-table :data="immediateTransferOutDetailsData" size="mini" style="width: 100%">
+            <el-table-column prop="game_category_name" label="彩种" align="center" width="70"></el-table-column>
+            <el-table-column prop="total_amount" label="转出金额" align="center">
+              <template slot-scope="scope">¥{{ scope.row.total_amount }}</template>
+            </el-table-column>
+            <el-table-column prop="total_commission" label="转出佣金" align="center">
+              <template slot-scope="scope">
+                <span class="commission-text">¥{{ getImmediateTransferOutCommission(scope.row) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="total_win_amount" label="中奖金额" align="center">
+              <template slot-scope="scope">
+                <span :style="{
+                  color: getWinAmountColor(
+                    scope.row.total_amount,
+                    scope.row.total_win_amount
+                  ),
+                }">¥{{ scope.row.total_win_amount }}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </el-card>
+
+      <el-card class="chart-card" shadow="never" :body-style="{ padding: '10px' }">
+        <div slot="header" class="card-header">
           <span><span>风控转出</span><span>{{ totalTransferOutCount }}</span></span>
         </div>
         <div class="chart-container">
@@ -287,34 +318,7 @@
           </el-table>
         </div>
       </el-card>
-      <el-card class="chart-card" shadow="never" :body-style="{ padding: '10px' }">
-        <div slot="header" class="card-header">
-          <span><span>立即转出</span><span>{{ totalImmediateTransferOutCount }}</span></span>
-        </div>
-        <div class="chart-container">
-          <el-table :data="immediateTransferOutDetailsData" size="mini" style="width: 100%">
-            <el-table-column prop="game_category_name" label="彩种" align="center" width="70"></el-table-column>
-            <el-table-column prop="total_amount" label="转出金额" align="center">
-              <template slot-scope="scope">¥{{ scope.row.total_amount }}</template>
-            </el-table-column>
-            <el-table-column prop="total_commission" label="转出佣金" align="center">
-              <template slot-scope="scope">
-                <span class="commission-text">¥{{ getImmediateTransferOutCommission(scope.row) }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="total_win_amount" label="中奖金额" align="center">
-              <template slot-scope="scope">
-                <span :style="{
-                  color: getWinAmountColor(
-                    scope.row.total_amount,
-                    scope.row.total_win_amount
-                  ),
-                }">¥{{ scope.row.total_win_amount }}</span>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-card>
+
     </div>
 
     <!-- 会话统计表格 -->

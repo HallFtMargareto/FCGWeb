@@ -149,11 +149,16 @@
       ></el-table-column> -->
 
       <el-table-column label="订单ID" prop="order_id" width="100" align="center" fixed="left">
+        <template slot-scope="scope">
+          <div class="clickable-content" @click="openOrderDetail(scope.row)">
+            {{ scope.row.ID }}
+          </div>
+        </template>
       </el-table-column>
 
       <el-table-column label="投注内容" prop="source_content" min-width="150" align="left">
         <template slot-scope="scope">
-          <div class="clickable-content" @click="openOrderDetail(scope.row)">
+          <div class="clickable-content" @click="copyOrderDetail(scope.row)">
             {{ scope.row.source_content }}
           </div>
         </template>
@@ -438,6 +443,30 @@ export default {
         return
       }
       this.$refs.orderDetailDialog.open(orderId);
+    },
+    // 复制订单详情内容到剪贴板
+    copyOrderDetail(row) {
+      const content = row.source_content;
+      if (!content) {
+        this.$message.warning("没有可复制的内容");
+        return;
+      }
+      navigator.clipboard.writeText(content).then(() => {
+        this.$message.success("复制成功");
+      }).catch(() => {
+        // 兼容旧浏览器
+        const textArea = document.createElement("textarea");
+        textArea.value = content;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand("copy");
+          this.$message.success("复制成功");
+        } catch (err) {
+          this.$message.error("复制失败");
+        }
+        document.body.removeChild(textArea);
+      });
     },
     createRow() {
       this.formData = {};
