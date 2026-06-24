@@ -162,8 +162,8 @@
       <el-row :gutter="24">
         <el-col :span="6" v-if="statusTabState === '1' || statusTabState === '2' || mark_state === '1'">
           <el-button @click="toggleSelectAll">{{
-            isAllSelected ? "取消全选" : "全选"
-            }}</el-button>
+            isAllSelected ? "取消" : "全选"
+          }}</el-button>
 
           <el-button v-if="statusTabState === '1'" icon="el-icon-s-unfold" @click="openBatchEditDialog">
             批量编辑
@@ -178,7 +178,7 @@
           </el-button>
 
           <el-button v-if="statusTabState === '2'" icon="el-icon-s-promotion" :disabled="multipleSelection.length === 0"
-            style="margin-left: 50px;" @click="handleBatchTransfer">
+            @click="handleBatchTransfer">
             批量转出
           </el-button>
         </el-col>
@@ -245,7 +245,7 @@
             <el-descriptions :column="2" size="mini" border :labelStyle="{ width: '100px' }">
               <el-descriptions-item label="ID">{{
                 orderGroup.ID
-              }}</el-descriptions-item>
+                }}</el-descriptions-item>
 
               <el-descriptions-item label="总金额">
                 <span :style="{
@@ -265,7 +265,7 @@
 
               <el-descriptions-item label="识别次数">{{
                 orderGroup.version
-                }}</el-descriptions-item>
+              }}</el-descriptions-item>
               <el-descriptions-item label="代理佣金">¥ {{ orderGroup.commission }}</el-descriptions-item>
               <el-descriptions-item label="识别难度">
                 {{ getRiskLevelText(orderGroup.risk_score) }}
@@ -275,7 +275,7 @@
               </el-descriptions-item>
               <el-descriptions-item label="识别耗时">{{
                 orderGroup.message ? orderGroup.message.llmcons_at : ""
-                }}</el-descriptions-item>
+              }}</el-descriptions-item>
               <el-descriptions-item label="投注数量">
                 {{ orderGroup.total_bet_count }}
               </el-descriptions-item>
@@ -294,16 +294,16 @@
               </el-descriptions-item>
               <el-descriptions-item label="发单时间">{{
                 $utils.formatTimeToStr(orderGroup.sort_seq)
-                }}</el-descriptions-item>
+              }}</el-descriptions-item>
               <el-descriptions-item label="所属组织">
                 {{ getTenantName(orderGroup.tenant_id) }}
               </el-descriptions-item>
               <el-descriptions-item label="创建时间">{{
                 orderGroup.created_at
-                }}</el-descriptions-item>
+              }}</el-descriptions-item>
               <el-descriptions-item label="单号">{{
                 orderGroup.order_no
-                }}</el-descriptions-item>
+              }}</el-descriptions-item>
             </el-descriptions>
           </div>
 
@@ -468,6 +468,7 @@ export default {
           total_bet_count: order.bet_count || 0,
           total_bet_amount: order.bet_amount || 0,
           order_details: orderDetails,
+          selected: order.selected || false, // 保留原始数据中的 selected 状态
         };
       });
     },
@@ -946,6 +947,15 @@ export default {
 
     // 处理订单选择变化
     handleOrderSelectionChange(orderGroup) {
+      // 更新原始 tableData 中的选中状态
+      const orderId = orderGroup.order_id || orderGroup.ID;
+      const originalOrder = this.tableData.find(
+        (item) => (item.order_id || item.ID) === orderId
+      );
+      if (originalOrder) {
+        this.$set(originalOrder, "selected", orderGroup.selected);
+      }
+
       // 更新multipleSelection数组
       if (orderGroup.selected) {
         // 如果选中，添加到选择数组
@@ -972,8 +982,8 @@ export default {
     clearSelections() {
       this.multipleSelection = [];
       // 清空所有订单的选中状态
-      if (this.groupedTableData && this.groupedTableData.length > 0) {
-        this.groupedTableData.forEach((order) => {
+      if (this.tableData && this.tableData.length > 0) {
+        this.tableData.forEach((order) => {
           this.$set(order, "selected", false);
         });
       }
@@ -981,14 +991,14 @@ export default {
 
     // 全选/取消全选
     toggleSelectAll() {
-      if (!this.groupedTableData || this.groupedTableData.length === 0) {
+      if (!this.tableData || this.tableData.length === 0) {
         return;
       }
 
       const shouldSelectAll = !this.isAllSelected;
 
-      // 遍历所有订单，设置选中状态
-      this.groupedTableData.forEach((order) => {
+      // 遍历原始 tableData，设置选中状态
+      this.tableData.forEach((order) => {
         this.$set(order, "selected", shouldSelectAll);
       });
 
