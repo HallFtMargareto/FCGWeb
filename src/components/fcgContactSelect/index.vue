@@ -68,6 +68,8 @@ export default {
       loading: false,
       contactList: [],
       selectedValue: this.value,
+      // 缓存上一次的 tenantSignature
+      lastTenantSignature: null,
     };
   },
   computed: {
@@ -79,8 +81,19 @@ export default {
       ) {
         return String(this.tenantId);
       }
-      if (Array.isArray(this.normalizedTenantIds) && this.normalizedTenantIds.length > 0) {
-        return this.normalizedTenantIds.map((item) => String(item)).sort().join(",");
+      // 解析并排序 tenantIds，确保相同的组合产生相同的签名
+      let ids = [];
+      if (Array.isArray(this.tenantIds)) {
+        ids = this.tenantIds;
+      } else if (typeof this.tenantIds === "string" && this.tenantIds) {
+        ids = this.tenantIds
+          .split(",")
+          .map((id) => id.trim())
+          .filter((id) => id !== "");
+      }
+      if (ids.length > 0) {
+        // 排序 ID，确保顺序不影响签名
+        return ids.map((item) => String(item)).sort().join(",");
       }
       return "all";
     },
@@ -129,11 +142,17 @@ export default {
     selectedValue(newVal) {
       this.$emit("input", newVal);
     },
-    tenantSignature() {
-      this.loadContactList();
+    // 监听 tenantSignature 变化
+    tenantSignature(newSignature) {
+      // 只有当签名真正不同时才重新加载
+      if (newSignature !== this.lastTenantSignature) {
+        this.lastTenantSignature = newSignature;
+        this.loadContactList();
+      }
     },
   },
   created() {
+    this.lastTenantSignature = this.tenantSignature;
     this.loadContactList();
   },
   methods: {
