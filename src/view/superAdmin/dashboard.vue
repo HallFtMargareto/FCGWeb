@@ -845,7 +845,7 @@ export default {
     getWinRateColor(rate) {
       if (rate >= 80) return "#67C23A";
       if (rate >= 50) return "#E6A23C";
-      if (rate >= 20) return "#F56C6C";
+      if (rate >= 20) return "#ff2800";
       return "#909399";
     },
     // 获取投注金额占比
@@ -862,9 +862,9 @@ export default {
     getProfitColor(profit) {
       const profitValue = parseFloat(profit);
       if (profitValue > 0) {
-        return "#67c23a"; // 绿色
+        return "#ff2800"; // 红色
       } else if (profitValue < 0) {
-        return "#f56c6c"; // 红色
+        return "#00ce45"; // 绿色
       }
       return "#303133"; // 默认颜色
     },
@@ -873,9 +873,9 @@ export default {
       const win = this.parseAmount(winAmount);
       const bet = this.parseAmount(betAmount);
       if (win > bet) {
-        return "#f56c6c"; // 中奖金额大于投注金额，红色
+        return "#00ce45"; // 中奖金额小于投注金额，红色
       } else if (win < bet) {
-        return "#67c23a"; // 中奖金额小于投注金额，绿色
+        return "#ff2800"; // 中奖金额大于投注金额，绿色
       }
       return "#303133"; // 默认颜色
     },
@@ -1217,7 +1217,7 @@ export default {
             type: "bar",
             data: data.map((item) => item.betAmount),
             itemStyle: {
-              color: "#67C23A",
+              color: "#67c23a",
             },
           },
           {
@@ -1225,7 +1225,7 @@ export default {
             type: "bar",
             data: data.map((item) => item.winAmount),
             itemStyle: {
-              color: "rgb(245, 108, 108)",
+              color: "#ff2800",
             },
           },
         ],
