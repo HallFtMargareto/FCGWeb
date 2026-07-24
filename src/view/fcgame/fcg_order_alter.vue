@@ -151,7 +151,7 @@
       <el-table-column label="订单ID" prop="order_id" width="100" align="center" fixed="left">
         <template slot-scope="scope">
           <div class="clickable-content" @click="openOrderDetail(scope.row)">
-            {{ scope.row.ID }}
+            {{ scope.row.order_id }}
           </div>
         </template>
       </el-table-column>
