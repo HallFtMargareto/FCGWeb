@@ -117,7 +117,7 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="异常订单">
+        <el-form-item label="异常订单" v-if="userInfo.perm['host']">
           <el-select v-model="searchInfo.abnormal_od" placeholder="获取订单详情">
             <el-option label="检查" value="1"></el-option>
             <el-option label="忽略" value="0"></el-option>
