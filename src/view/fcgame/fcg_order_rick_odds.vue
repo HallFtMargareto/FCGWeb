@@ -11,7 +11,7 @@
         </el-form-item>
 
         <el-form-item label="彩票类型">
-          <el-select v-model="game_category" placeholder="彩票类型">
+          <el-select v-model="game_category" placeholder="彩票类型" @change="categoryChange">
             <el-option label="福彩" :value="1"></el-option>
             <el-option label="体彩" :value="2"></el-option>
           </el-select>
@@ -732,6 +732,9 @@ export default {
   },
   methods: {
     ...mapMutations("common", ["setAlpha", "setBeta"]),
+    categoryChange() {
+      this.getChartData()
+    },
     // 更新排序后的预亏损数据
     updateSortedPreLossData() {
       this.sortedPreLossData = this.filteredPreLossData;
