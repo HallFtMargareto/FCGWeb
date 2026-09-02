@@ -153,6 +153,17 @@
               :style="{ color: item.fast_trans ? '#67c23a' : '#909399', fontWeight: item.fast_trans ? 'bold' : 'normal', marginLeft: '4px' }">{{
                 item.fast_trans ? '是' : '否' }}</span>
           </div>
+          <div>
+            <span style="color: #909399;">渠道转单:</span>
+            <span
+              :style="{ color: item.channel_id > 0 ? '#67c23a' : '#909399', fontWeight: item.channel_id > 0 ? 'bold' : 'normal', marginLeft: '4px' }">
+              {{ item.channel_id > 0 ? '是' : '否' }}
+            </span>
+          </div>
+          <div v-if="item.channel_id > 0">
+            <span style="color: #909399;">渠道响应:</span>
+            <code> {{ item.remark }} </code>
+          </div>
 
           <div v-if="item.ks_amount > 0">
             <span style="color: #909399;">预亏损金额:</span>
@@ -269,7 +280,7 @@
         <el-table-column prop="trans_amount" label="转出金额" align="center" sortable="custom"
           :sort-orders="['descending', 'ascending', null]"></el-table-column>
 
-        <el-table-column label="快速转单数据" align="center">
+        <el-table-column label="已转出单量" align="center">
           <template slot-scope="scope">
             <span class="risk-level-ORANGE">{{ scope.row.trans_ed_count }} / {{ scope.row.trans_ed_amount }}¥</span>
           </template>

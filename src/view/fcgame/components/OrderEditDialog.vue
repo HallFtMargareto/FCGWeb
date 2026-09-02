@@ -9,7 +9,12 @@
           </el-form-item>
         </el-col>
         <el-col :span="16">
-          <el-form-item label="修改内容">
+          <el-form-item>
+            <span slot="label">
+              修改内容
+              <el-button style="margin-left: 10px" type="text" size="mini"
+                @click="openGenerateNumberDialog">生成号码</el-button>
+            </span>
             <el-input type="textarea" :rows="5" v-model="formData.bet_content" style="margin-left: 5px"></el-input>
           </el-form-item>
         </el-col>
@@ -192,6 +197,23 @@
         <el-button type="primary" @click="executeDantuoSplit" size="small">确 定</el-button>
       </span>
     </el-dialog>
+
+    <!-- 生成号码弹窗 -->
+    <el-dialog title="生成号码" :visible.sync="generateNumberDialogVisible" width="400px" append-to-body>
+      <el-form ref="generateNumberForm" :model="generateNumberForm" label-width="100px" size="small">
+        <el-form-item label="起始号码" required>
+          <el-input v-model.trim="generateNumberForm.start_number" maxlength="3" placeholder="如 000"></el-input>
+        </el-form-item>
+        <el-form-item label="结束号码" required>
+          <el-input v-model.trim="generateNumberForm.end_number" maxlength="3" placeholder="如 999"></el-input>
+        </el-form-item>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="generateNumberDialogVisible = false" size="small">取 消</el-button>
+        <el-button type="primary" @click="executeGenerateNumber" size="small">确 定</el-button>
+      </span>
+    </el-dialog>
   </el-dialog>
 </template>
 
@@ -262,6 +284,15 @@ export default {
         hundreds: [],
         tens: [],
         units: [],
+      },
+      // 生成号码弹窗状态
+      generateNumberDialogVisible: false,
+      // 是否已生成过号码（用于判断是否覆盖原内容）
+      hasGeneratedNumber: false,
+      // 生成号码表单数据
+      generateNumberForm: {
+        start_number: "",
+        end_number: "",
       },
     };
   },
@@ -484,6 +515,7 @@ export default {
       );
 
       this.backend = false;
+      this.hasGeneratedNumber = false;
       this.formData = {
         ID: undefined,
         order_no: "",
@@ -519,6 +551,60 @@ export default {
         bet_amount: 2,
       };
       this.dantuoSplitDialogVisible = true;
+    },
+
+    // 打开生成号码弹窗
+    openGenerateNumberDialog() {
+      this.generateNumberForm = {
+        start_number: "",
+        end_number: "",
+      };
+      this.generateNumberDialogVisible = true;
+    },
+
+    // 执行生成号码，将范围内的所有号码填入修改内容文本框
+    executeGenerateNumber() {
+      const { start_number, end_number } = this.generateNumberForm;
+
+      // 校验输入非空
+      if (!start_number || !end_number) {
+        this.$message.warning("请输入起始号码和结束号码");
+        return;
+      }
+
+      // 校验为三位数字
+      const isThreeDigit = /^\d{3}$/;
+      if (!isThreeDigit.test(start_number) || !isThreeDigit.test(end_number)) {
+        this.$message.warning("请输入三位数字号码");
+        return;
+      }
+
+      const start = parseInt(start_number, 10);
+      const end = parseInt(end_number, 10);
+
+      // 校验范围有效
+      if (start > end) {
+        this.$message.warning("起始号码不能大于结束号码");
+        return;
+      }
+
+      // 生成从起始到结束的所有号码，不足三位前补零
+      const numbers = [];
+      for (let i = start; i <= end; i++) {
+        numbers.push(String(i).padStart(3, "0"));
+      }
+
+      const generated = numbers.join(" ");
+      if (this.hasGeneratedNumber) {
+        // 非首次生成，追加到新的一行，不覆盖已有内容
+        this.formData.bet_content = this.formData.bet_content + "\n" + generated;
+      } else {
+        // 首次生成，清空原内容后写入
+        this.formData.bet_content = generated;
+        this.hasGeneratedNumber = true;
+      }
+      this.$message.success(`成功生成 ${numbers.length} 个号码`);
+      this.generateNumberDialogVisible = false;
     },
 
     // 从输入中提取去重后的数字，保持用户输入顺序
