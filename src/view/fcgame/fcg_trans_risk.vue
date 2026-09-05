@@ -3,23 +3,11 @@
     <div class="search-term">
       <searchform size="mini" :maxShow="10" @search="getChartData">
         <el-form-item label="期号">
-          <IssueSelect
-            v-model="chartIssueId"
-            placeholder="请选择期号"
-            clearable
-          ></IssueSelect>
+          <IssueSelect v-model="chartIssueId" placeholder="请选择期号" clearable></IssueSelect>
         </el-form-item>
 
-        <el-form-item
-          label="所属组织"
-          v-if="this.$store.state.user.userInfo.perm['host']"
-        >
-          <TenantSelect
-            v-model="tenant_id"
-            placeholder="请选择组织"
-            :autoSelectFirst="false"
-            clearable
-          ></TenantSelect>
+        <el-form-item label="所属组织" v-if="this.$store.state.user.userInfo.perm['host']">
+          <TenantSelect v-model="tenant_id" placeholder="请选择组织" :autoSelectFirst="false" clearable></TenantSelect>
         </el-form-item>
 
         <el-form-item label="彩票类型">
@@ -30,37 +18,24 @@
         </el-form-item>
 
         <el-form-item label="转出单量">
-          <el-input
-            v-model.number="search_trans_count"
-            placeholder="转出单量筛选"
-            clearable
-          ></el-input>
+          <el-input v-model.number="search_trans_count" placeholder="转出单量筛选" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="拆分单量">
-          <el-input
-            v-model.number="batchThreshold"
-            placeholder="拆分单量"
-          ></el-input>
+          <el-input v-model.number="batchThreshold" placeholder="拆分单量"></el-input>
         </el-form-item>
 
         <el-form-item label=" ">
-          <el-button type="success" @click="generateContent" plain
-            >生成内容</el-button
-          >
+          <el-button type="success" @click="generateContent" plain>生成内容</el-button>
         </el-form-item>
       </searchform>
     </div>
 
-    <div
-      style="height: 100%"
-      class="rick-data-info"
-      v-if="
-        rickDataInfo &&
-        rickDataInfo.rick_order &&
-        rickDataInfo.rick_order.length > 0
-      "
-    >
+    <div style="height: 100%" class="rick-data-info" v-if="
+      rickDataInfo &&
+      rickDataInfo.rick_order &&
+      rickDataInfo.rick_order.length > 0
+    ">
       <div class="total-info-with-button">
         <el-descriptions title="抛单风控信息" :column="3" border>
           <el-descriptions-item label="总投注">{{
@@ -82,93 +57,41 @@
           <el-descriptions-item label="转出总金额">{{
             rickDataInfo.total_info.totalOutOrderAmount
           }}</el-descriptions-item>
+          <el-descriptions-item label="博弈比例">{{
+            rickDataInfo.total_info.bioRate
+          }}</el-descriptions-item>
         </el-descriptions>
         <div class="button-column">
-          <el-button
-            :disabled="multipleSelection.length === 0"
-            :loading="fastTransferLoading"
-            @click="handleFastTransfer(true)"
-            size="medium"
-          >
+          <el-button :disabled="multipleSelection.length === 0" :loading="fastTransferLoading"
+            @click="handleFastTransfer(true)" size="medium">
             模拟转出
           </el-button>
         </div>
       </div>
-      <el-table
-        :data="filteredRickOrder"
-        style="width: 100%"
-        border
-        height="600px"
-        highlight-current-row
-        @selection-change="handleSelectionChange"
-        @sort-change="handleSortChange"
-      >
+      <el-table :data="filteredRickOrder" style="width: 100%" border height="600px" highlight-current-row
+        @selection-change="handleSelectionChange" @sort-change="handleSortChange">
         <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column
-          type="index"
-          label="序号"
-          width="60"
-          align="center"
-          :index="indexMethod"
-        >
+        <el-table-column type="index" label="序号" width="60" align="center" :index="indexMethod">
         </el-table-column>
-        <el-table-column
-          prop="split_number"
-          label="拆单号码"
-          align="center"
-          sortable="custom"
-          :sort-orders="['descending', 'ascending', null]"
-        ></el-table-column>
-        <el-table-column
-          prop="split_count"
-          label="号码数量"
-          align="center"
-          sortable="custom"
-          :sort-orders="['descending', 'ascending', null]"
-        ></el-table-column>
-        <el-table-column
-          prop="exposure_amount"
-          label="投注金额"
-          align="center"
-          sortable="custom"
-          :sort-orders="['descending', 'ascending', null]"
-        ></el-table-column>
-        <el-table-column
-          prop="potential_payout"
-          label="中奖赔付"
-          align="center"
-          sortable="custom"
-          :sort-orders="['descending', 'ascending', null]"
-        >
+        <el-table-column prop="split_number" label="拆单号码" align="center" sortable="custom"
+          :sort-orders="['descending', 'ascending', null]"></el-table-column>
+        <el-table-column prop="split_count" label="号码数量" align="center" sortable="custom"
+          :sort-orders="['descending', 'ascending', null]"></el-table-column>
+        <el-table-column prop="exposure_amount" label="投注金额" align="center" sortable="custom"
+          :sort-orders="['descending', 'ascending', null]"></el-table-column>
+        <el-table-column prop="potential_payout" label="中奖赔付" align="center" sortable="custom"
+          :sort-orders="['descending', 'ascending', null]">
           <template slot-scope="scope">
             -{{ scope.row.potential_payout }}
           </template>
         </el-table-column>
-        <el-table-column
-          prop="trans_count"
-          label="转出单量"
-          align="center"
-        ></el-table-column>
-        <el-table-column
-          prop="trans_amount"
-          label="转出金额"
-          align="center"
-          sortable="custom"
-          :sort-orders="['descending', 'ascending', null]"
-        ></el-table-column>
-        <el-table-column
-          prop="bet_content"
-          label="转出内容"
-          align="center"
-          width="250"
-        >
+        <el-table-column prop="trans_count" label="转出单量" align="center"></el-table-column>
+        <el-table-column prop="trans_amount" label="转出金额" align="center" sortable="custom"
+          :sort-orders="['descending', 'ascending', null]"></el-table-column>
+        <el-table-column prop="bet_content" label="转出内容" align="center" width="250">
           <template slot="header">
             <span>转出内容</span>
-            <i
-              class="el-icon-document-copy"
-              style="margin-left: 5px; cursor: pointer"
-              @click="copyColumn"
-            ></i>
+            <i class="el-icon-document-copy" style="margin-left: 5px; cursor: pointer" @click="copyColumn"></i>
           </template>
           <template slot-scope="scope">
             <span>{{ scope.row.bet_content }}</span>
@@ -178,12 +101,7 @@
     </div>
 
     <!-- 模拟转出结果弹窗 -->
-    <el-dialog
-      title="模拟转出结果"
-      :visible.sync="showSimulateDialog"
-      width="70%"
-      :close-on-click-modal="false"
-    >
+    <el-dialog title="模拟转出结果" :visible.sync="showSimulateDialog" width="70%" :close-on-click-modal="false">
       <!-- 汇总信息 -->
       <el-descriptions :column="4" border style="margin-bottom: 15px">
         <el-descriptions-item label="转出数量">
@@ -1013,7 +931,7 @@ export default {
         showCancelButton: false,
         confirmButtonText: "确定",
         dangerouslyUseHTMLString: true,
-      }).catch(() => {});
+      }).catch(() => { });
     },
 
     // 复制预亏损数据为markdown表格格式
