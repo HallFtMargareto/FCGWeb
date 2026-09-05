@@ -1307,6 +1307,10 @@ export default {
 
     // 处理快速转出按钮点击
     async handleFastTransfer(emulated) {
+      // 防止重复点击：loading中直接返回，避免同一数据被多次请求
+      if (this.fastTransferLoading) {
+        return;
+      }
       // 判断是否有选择数据
       if (this.multipleSelection.length === 0) {
         this.$message.warning("请选择数据");
@@ -1364,6 +1368,8 @@ export default {
             this.showSimulateDialog = true;
           } else {
             this.$message.success("快速转出成功");
+            // 等待数据刷新完成后才释放loading，防止用户在数据刷新期间重复点击
+            await this.getChartData();
           }
         } else {
           this.$message.error(res.msg || "快速转出失败");
