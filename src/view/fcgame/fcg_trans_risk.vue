@@ -11,7 +11,7 @@
         </el-form-item>
 
         <el-form-item label="彩票类型">
-          <el-select v-model="game_category" placeholder="彩票类型">
+          <el-select v-model="game_category" placeholder="彩票类型" @change="categoryChange">
             <el-option label="福彩" :value="1"></el-option>
             <el-option label="体彩" :value="2"></el-option>
           </el-select>
@@ -36,32 +36,89 @@
       rickDataInfo.rick_order &&
       rickDataInfo.rick_order.length > 0
     ">
+      <div v-if="transferSchemeList && transferSchemeList.length > 0" style="margin-bottom: 15px">
+        <div v-for="item in transferSchemeList" :key="item.ID"
+          style="margin-bottom: 10px; padding: 8px 15px; background-color: #f0f9eb; border: 1px solid #e1f3d8; border-radius: 4px; display: flex; flex-wrap: wrap; align-items: center; gap: 15px; font-size: 13px;">
+          <div style="font-weight: bold; color: #67c23a; display: flex; align-items: center;">
+            <i class="el-icon-s-order" style="margin-right: 4px;"></i>已转出方案
+          </div>
+          <div>
+            <span style="color: #909399;">时间:</span>
+            <span style="color: #606266; margin-left: 4px;">{{ item.created_at }}</span>
+          </div>
+          <div>
+            <span style="color: #909399;">转出:</span>
+            <span style="color: #303133; font-weight: bold; margin-left: 4px;">{{ item.total_count }}</span>单 /
+            <span style="color: #f56c6c; font-weight: bold;">{{ item.total_amount }}</span>元
+          </div>
+          <div>
+            <span style="color: #909399;">号码数:</span>
+            <span style="color: #606266; margin-left: 4px;">{{ item.item_count }}</span>
+          </div>
+          <div>
+            <span style="color: #909399;">快速转单:</span>
+            <span
+              :style="{ color: item.fast_trans ? '#67c23a' : '#909399', fontWeight: item.fast_trans ? 'bold' : 'normal', marginLeft: '4px' }">{{
+                item.fast_trans ? '是' : '否' }}</span>
+          </div>
+          <div>
+            <span style="color: #909399;">渠道转单:</span>
+            <span
+              :style="{ color: item.channel_id > 0 ? '#67c23a' : '#909399', fontWeight: item.channel_id > 0 ? 'bold' : 'normal', marginLeft: '4px' }">
+              {{ item.channel_id > 0 ? '是' : '否' }}
+            </span>
+          </div>
+          <div v-if="item.channel_id > 0">
+            <span style="color: #909399;">渠道响应:</span>
+            <code> {{ item.remark }} </code>
+          </div>
+          <div v-if="item.ks_amount > 0">
+            <span style="color: #909399;">预亏损金额:</span>
+            <span style="color: #606266; margin-left: 4px;">{{ item.ks_amount }}</span>
+          </div>
+          <div v-if="item.query_trans_count > 0">
+            <span style="color: #909399;">转出单量过滤:</span>
+            <span style="color: #606266; margin-left: 4px;">{{ item.query_trans_count }}</span>
+          </div>
+        </div>
+      </div>
       <div class="total-info-with-button">
         <el-descriptions title="抛单风控信息" :column="3" border>
           <el-descriptions-item label="总投注">{{
             rickDataInfo.total_info.totalBet
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
           <el-descriptions-item label="总佣金">{{
             rickDataInfo.total_info.totalCommission
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
           <!-- <el-descriptions-item label="净盘值">
             {{ rickDataInfo.total_info.netBank }}
           </el-descriptions-item> -->
 
           <el-descriptions-item label="号码数">{{
             rickDataInfo.total_info.totalCount
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
           <el-descriptions-item label="转出单量">{{
             rickDataInfo.total_info.totalOutOrder
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
           <el-descriptions-item label="转出总金额">{{
             rickDataInfo.total_info.totalOutOrderAmount
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
+          <el-descriptions-item label=""></el-descriptions-item>
+          <el-descriptions-item label="剩余金额">{{
+            rickDataInfo.total_info.syAmount
+            }}</el-descriptions-item>
+          <el-descriptions-item label="最大亏损金额">{{
+            rickDataInfo.total_info.zdksAmount
+            }}</el-descriptions-item>
           <el-descriptions-item label="博弈比例">{{
             rickDataInfo.total_info.bioRate
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
         </el-descriptions>
         <div class="button-column">
+          <el-button v-if="channel_trans" type="primary" :disabled="multipleSelection.length === 0"
+            :loading="fastTransferLoading" @click="handleChannelTransfer()" size="medium">
+            渠道转单
+          </el-button>
           <el-button :disabled="multipleSelection.length === 0" :loading="fastTransferLoading"
             @click="handleFastTransfer(true)" size="medium">
             模拟转出
@@ -69,7 +126,8 @@
         </div>
       </div>
       <el-table :data="filteredRickOrder" style="width: 100%" border height="600px" highlight-current-row
-        @selection-change="handleSelectionChange" @sort-change="handleSortChange">
+        @selection-change="handleSelectionChange" @select="handleRowSelect" @select-all="handleSelectAll"
+        @sort-change="handleSortChange">
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column type="index" label="序号" width="60" align="center" :index="indexMethod">
         </el-table-column>
@@ -107,22 +165,22 @@
         <el-descriptions-item label="转出数量">
           <span class="summary-value">{{
             simulateSummary.totalTransCount || 0
-          }}</span>
+            }}</span>
         </el-descriptions-item>
         <el-descriptions-item label="转出金额">
           <span class="summary-value amount">{{
             simulateSummary.totalTransAmount || 0
-          }}</span>
+            }}</span>
         </el-descriptions-item>
         <el-descriptions-item label="中奖金额">
           <span class="summary-value amount">{{
             simulateSummary.totalWinAmount || 0
-          }}</span>
+            }}</span>
         </el-descriptions-item>
         <el-descriptions-item label="转出佣金">
           <span class="summary-value amount">{{
             simulateSummary.totalWaterAmount || 0
-          }}</span>
+            }}</span>
         </el-descriptions-item>
       </el-descriptions>
 
@@ -133,7 +191,7 @@
           <template slot-scope="scope">
             <el-tag size="mini" type="primary">{{
               scope.row.game_category === 1 ? "福彩" : "体彩"
-            }}</el-tag>
+              }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="转出号码" prop="split_number" align="center">
@@ -151,6 +209,10 @@
         <el-button @click="showSimulateDialog = false">关 闭</el-button>
       </span>
     </el-dialog>
+
+    <!-- 渠道选择弹窗 -->
+    <channel-select-dialog ref="channelSelectDialog" v-model="showChannelSelectDialog" :game-category="game_category"
+      @confirm="handleChannelConfirm" @cancel="handleChannelCancel"></channel-select-dialog>
   </div>
 </template>
 
@@ -164,9 +226,14 @@ import { preLossDataAnalysisSSE } from "@/api/fcgame/fcg_aianalysis";
 import infoList from "@/mixins/infoList";
 import { mapGetters, mapMutations } from "vuex";
 import MarkdownIt from "markdown-it";
+import ChannelSelectDialog from "@/view/fcgame/components/ChannelSelectDialog.vue";
+import { MessageBox } from "element-ui";
 export default {
   name: "fcg_order_split_number",
   mixins: [infoList],
+  components: {
+    ChannelSelectDialog,
+  },
   computed: {
     ...mapGetters("user", ["userInfo"]),
     // 渲染后的Markdown内容
@@ -338,6 +405,7 @@ export default {
   data() {
     return {
       listApi: getFcgOrderSplitNumberList,
+      channel_trans: false, // 是否允许渠道转单
       openDialog: false,
       dialogTitle: "",
       type: "",
@@ -382,10 +450,17 @@ export default {
         totalWinAmount: 0,
         totalWaterAmount: 0,
       }, // 模拟转出汇总数据
+      showChannelSelectDialog: false, // 渠道选择弹窗显示状态
+      selectedChannelId: null, // 选中的渠道ID
+      transferSchemeList: [], // 本期转单方案列表
     };
   },
   methods: {
     ...mapMutations("common", ["setAlpha", "setBeta"]),
+    // 彩票类型切换时刷新数据
+    categoryChange() {
+      this.getChartData();
+    },
     // 更新排序后的预亏损数据
     updateSortedPreLossData() {
       this.sortedPreLossData = this.filteredPreLossData;
@@ -443,6 +518,9 @@ export default {
         });
         if (res.code === 0 && res.data) {
           this.rickDataInfo = res.data;
+          this.channel_trans = res.data.channel_trans;
+          // 本期转单方案数据
+          this.transferSchemeList = res.data.transfer_scheme || [];
         } else {
           this.chartData = null;
           this.$message.error(res.msg || "获取数据失败");
@@ -454,6 +532,43 @@ export default {
 
     handleSelectionChange(val) {
       this.multipleSelection = val;
+      if (val && val.length > 0) {
+        this.applyBetContent(val);
+      }
+    },
+
+    // 全选事件处理
+    handleSelectAll(selection) {
+      this.multipleSelection = selection;
+      if (selection && selection.length > 0) {
+        this.applyBetContent(selection);
+      }
+    },
+
+    // 单行选择事件处理
+    handleRowSelect(selection, row) {
+      if (row) {
+        this.applyBetContent([row]);
+      }
+      this.multipleSelection = selection || [];
+    },
+
+    // 为选中的行生成转出内容
+    applyBetContent(items) {
+      let prefix = this.game_category === 1 ? "福" : "体";
+      items.forEach((item) => {
+        // 当投注金额<=1时，使用"1元"作为后缀，否则使用单量
+        const exposureAmount = parseFloat(item.exposure_amount);
+        const betSuffix =
+          !isNaN(exposureAmount) && exposureAmount <= 1
+            ? "1元"
+            : `${item.trans_count}单`;
+        this.$set(
+          item,
+          "bet_content",
+          `${prefix} ${item.split_number} ${betSuffix}`
+        );
+      });
     },
 
     // 处理表格排序变化
@@ -563,18 +678,7 @@ export default {
         return;
       }
 
-      // 按照规则定开头文字
-      let prefix = this.game_category === 1 ? "福" : "体";
-
-      // 遍历选中的数据，生成 bet_content
-      this.multipleSelection.forEach((item) => {
-        // item.bet_content = `${prefix} ${item.split_number} ${item.trans_count}单`;
-        this.$set(
-          item,
-          "bet_content",
-          `${prefix} ${item.split_number} ${item.trans_count}单`
-        );
-      });
+      this.applyBetContent(this.multipleSelection);
     },
 
     // 生成批次内容
@@ -583,17 +687,31 @@ export default {
 
       // 为每个号码计算批次信息
       const numberBatches = {};
+      let totalTransCount = 0;
+      let totalTransAmount = 0;
 
       validData.forEach((item) => {
         const number = item.split_number;
         const totalCount = parseInt(item.trans_count) || 0;
+        const amount = parseFloat(item.trans_amount) || 0;
+        // 当投注金额<=1时，使用"1元"作为后缀
+        const exposureAmount = parseFloat(item.exposure_amount);
+        const useOneYuan =
+          !isNaN(exposureAmount) && exposureAmount <= 1;
+        if (totalCount <= 0) {
+          return;
+        }
+        totalTransCount += totalCount;
+        totalTransAmount += amount;
 
         if (totalCount <= this.batchThreshold) {
           // 不需要拆分，直接添加到第一批次
           if (!numberBatches[1]) {
             numberBatches[1] = [];
           }
-          numberBatches[1].push(`${number}/${totalCount}单`);
+          numberBatches[1].push(
+            `${number}/${useOneYuan ? "1元" : `${totalCount}单`}`
+          );
         } else {
           // 需要拆分
           const batchCount = Math.ceil(totalCount / this.batchThreshold);
@@ -608,7 +726,9 @@ export default {
               remainingCount,
               this.batchThreshold
             );
-            numberBatches[batchIndex].push(`${number}/${countInThisBatch}单`);
+            numberBatches[batchIndex].push(
+              `${number}/${useOneYuan ? "1元" : `${countInThisBatch}单`}`
+            );
             remainingCount -= countInThisBatch;
           }
         }
@@ -637,7 +757,6 @@ export default {
               lines.push(`${prefix} ${line}`);
             } else {
               lines.push(" ");
-              // lines.push(line);
               lines.push(`${prefix} ${line}`);
             }
           });
@@ -649,6 +768,10 @@ export default {
         }
       }
 
+      // 追加总单量和总金额汇总行
+      if (totalTransCount > 0) {
+        lines.push(`总单量： ${totalTransCount}单，总金额：${parseFloat(totalTransAmount).toFixed(2)}元。`);
+      }
       return lines.join("\n");
     },
 
@@ -659,9 +782,9 @@ export default {
         return;
       }
 
-      // 过滤掉 bet_content 为空的数据
+      // 过滤掉 bet_content 为空或转出单量为0的数据
       const validData = this.multipleSelection.filter(
-        (item) => item.bet_content
+        (item) => item.bet_content && ((parseInt(item.trans_count) || 0) > 0)
       );
 
       // 如果没有有效数据，提示用户
@@ -690,8 +813,17 @@ export default {
 
         this.$message.success("复制成功");
 
-        // 复制成功后发送数据到后台
-        await this.sendTransferData(validData);
+        // 复制成功后弹窗确认是否保存方案
+        try {
+          await MessageBox.confirm("复制成功，是否保存复制方案？", "提示", {
+            confirmButtonText: "保存",
+            cancelButtonText: "不保存",
+            type: "warning",
+          });
+          await this.sendTransferData(validData);
+        } catch (e) {
+          // 选择"不保存"或关闭弹窗不做任何处理
+        }
       } catch (err) {
         this.$message.error("复制失败");
         console.error("复制失败:", err);
@@ -733,6 +865,82 @@ export default {
         console.error("保存转出数据失败:", error);
       } finally {
         this.copyLoading = false;
+      }
+    },
+
+    // 点击渠道转单按钮
+    handleChannelTransfer() {
+      // 已存在转出方案时不允许重复操作
+      if (this.transferSchemeList && this.transferSchemeList.length > 0) {
+        this.$message.warning("已存在转出方案，请勿重复操作");
+        return;
+      }
+      if (this.multipleSelection.length === 0) {
+        this.$message.warning("请选择数据");
+        return;
+      }
+      this.showChannelSelectDialog = true;
+      // 通过 ref 调用组件的 open 方法
+      this.$nextTick(() => {
+        this.$refs.channelSelectDialog.open();
+      });
+    },
+
+    // 确认选择渠道
+    handleChannelConfirm(channelId) {
+      this.selectedChannelId = channelId;
+      // 执行渠道转单操作
+      this.executeChannelTransfer();
+    },
+
+    // 取消选择渠道
+    handleChannelCancel() {
+      this.selectedChannelId = null;
+    },
+
+    // 执行渠道转单操作
+    async executeChannelTransfer() {
+      try {
+        this.fastTransferLoading = true;
+
+        // 构建transfer_list数据
+        const transfer_list = this.multipleSelection.map((item) => ({
+          split_number: item.split_number,
+          trans_count: item.trans_count,
+          trans_amount: item.trans_amount,
+          tenant_id: this.tenant_id,
+        }));
+
+        // 构建请求数据
+        const requestData = {
+          game_category: this.game_category,
+          ids: [this.chartIssueId],
+          issue_id: this.chartIssueId,
+          command: "transfer",
+          transfer_list: transfer_list,
+          channel_id: this.selectedChannelId, // 添加选中的渠道ID
+        };
+
+        const params = {
+          ks_amount: this.ks_amount, // 预亏损金额
+          trans_count: this.search_trans_count, // 转出单量
+        };
+
+        // 调用API接口
+        const res = await batchFcgOrderSplitNumberOperation(requestData, params);
+
+        if (res.code === 0) {
+          this.$message.success("渠道转单成功");
+          // 刷新数据
+          this.getChartData();
+        } else {
+          this.$message.error(res.msg || "渠道转单失败");
+        }
+      } catch (error) {
+        this.$message.error("渠道转单失败");
+        console.error("渠道转单失败:", error);
+      } finally {
+        this.fastTransferLoading = false;
       }
     },
 
