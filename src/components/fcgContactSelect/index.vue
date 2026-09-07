@@ -1,7 +1,8 @@
 <template>
   <div>
     <el-select v-model="selectedValue" :placeholder="placeholder" :size="size" :disabled="disabled"
-      :clearable="clearable" :filterable="filterable" :loading="loading" @change="handleChange" @clear="handleClear">
+      :clearable="clearable" :filterable="filterable" :loading="loading" :multiple="multiple"
+      :collapse-tags="multiple" style="width: 100%" @change="handleChange" @clear="handleClear">
       <el-option v-for="item in contactList" :key="item.ID" :label="item.nick_name" :value="item.ID" />
     </el-select>
   </div>
@@ -14,8 +15,13 @@ export default {
   name: "FcgContactSelect",
   props: {
     value: {
-      type: [String, Number],
+      type: [String, Number, Array],
       default: undefined,
+    },
+    // 是否开启多选模式，开启后 v-model 为数组
+    multiple: {
+      type: Boolean,
+      default: false,
     },
     placeholder: {
       type: String,
@@ -161,7 +167,8 @@ export default {
       this.$emit("change", value, selectedItem);
     },
     handleClear() {
-      this.selectedValue = null;
+      // 多选模式清空为数组，单选模式清空为 null
+      this.selectedValue = this.multiple ? [] : null;
       this.$emit("clear");
     },
     shouldBypassCache() {

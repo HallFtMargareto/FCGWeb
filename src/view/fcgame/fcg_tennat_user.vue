@@ -28,9 +28,9 @@
     <el-table :data="tableData" border stripe>
       <el-table-column label="ID" prop="ID" sortable width="80"></el-table-column>
 
-      <el-table-column label="账号" prop="userName" min-width="150"></el-table-column>
+      <el-table-column label="账号" prop="username" min-width="150"></el-table-column>
 
-      <el-table-column label="昵称" prop="nickName" min-width="120"></el-table-column>
+      <el-table-column label="昵称" prop="nick_name" min-width="120"></el-table-column>
 
       <!-- host 账号可查看所有组织的用户，显示所属组织列 -->
       <el-table-column label="所属组织" min-width="150" v-if="userInfo.perm['host']">
@@ -39,18 +39,18 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="所属角色" min-width="120">
+      <el-table-column label="关联会话" min-width="120">
         <template slot-scope="scope">
-          {{ scope.row.authority && scope.row.authority.authorityName }}
+          {{ scope.row.session_names }}
         </template>
       </el-table-column>
 
       <!-- 初始账号标识 -->
-      <el-table-column label="初始账号" width="90" align="center">
+      <!-- <el-table-column label="初始账号" width="90" align="center">
         <template slot-scope="scope">
           <booltag :tagState="scope.row.is_first" true-text="是" false-text="否"></booltag>
         </template>
-      </el-table-column>
+      </el-table-column> -->
 
       <!-- 账号状态，支持下拉切换 -->
       <el-table-column label="状态" min-width="130" align="center">
@@ -74,7 +74,7 @@
       </el-table-column>
 
       <el-table-column label="创建时间" width="160">
-        <template slot-scope="scope">{{ scope.row.CreatedAt }}</template>
+        <template slot-scope="scope">{{ scope.row.created_at }}</template>
       </el-table-column>
 
       <!-- 操作列 -->
@@ -99,7 +99,8 @@
 
     <!-- 新建/编辑用户弹窗 -->
     <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
-      @confirm="enterDialog" width="40%" ref="dialog">
+      @confirm="enterDialog" width="30%" ref="dialog">
+
       <!-- 创建时才显示账号输入框 -->
       <el-form-item label="登录账号" prop="userName" v-if="type === 'create'">
         <el-input v-model="formData.userName" placeholder="请输入登录用户名" clearable></el-input>
@@ -112,22 +113,6 @@
 
       <el-form-item label="用户昵称" prop="nickName">
         <el-input v-model="formData.nickName" placeholder="请输入用户昵称" clearable></el-input>
-      </el-form-item>
-
-      <el-form-item label="所属角色" prop="authorityId">
-        <el-cascader v-model="formData.authorityId" :options="authOptions" :show-all-levels="false" style="width: 100%"
-          :props="{
-            checkStrictly: true,
-            label: 'authorityName',
-            value: 'authorityId',
-            disabled: 'disabled',
-            emitPath: false,
-            expandTrigger: 'hover',
-          }" filterable></el-cascader>
-      </el-form-item>
-
-      <el-form-item label="头像URL">
-        <el-input v-model="formData.headerImg" placeholder="请输入头像URL（可选）" clearable></el-input>
       </el-form-item>
 
       <!-- 编辑时才显示状态选择 -->
@@ -144,10 +129,10 @@
         <TenantSelect v-model="formData.tenantId" placeholder="请选择所属组织" clearable style="width: 100%"></TenantSelect>
       </el-form-item>
 
-      <!-- 创建时选择关联会话，按所属组织过滤会话列表 -->
+      <!-- 创建时选择关联会话，支持多选，按所属组织过滤会话列表 -->
       <el-form-item label="关联会话" prop="sessionId" v-if="type === 'create'">
-        <FcgContactSelect v-model="formData.sessionId" :tenant-id="formData.tenantId" placeholder="请选择关联会话"
-          clearable style="width: 100%"></FcgContactSelect>
+        <FcgContactSelect v-model="formData.sessionId" :tenant-id="formData.tenantId" multiple placeholder="请选择关联会话"
+          clearable></FcgContactSelect>
       </el-form-item>
     </dialogform>
 
@@ -204,12 +189,6 @@ export default {
           nickName: [
             { required: true, message: "请输入用户昵称", trigger: "blur" },
           ],
-          authorityId: [
-            { required: true, message: "请选择所属角色", trigger: "change" },
-          ],
-          tenantId: [
-            { required: true, message: "请选择所属组织", trigger: "change" },
-          ],
         };
       }
       // 编辑模式下不强制校验字段（空值不更新）
@@ -230,7 +209,8 @@ export default {
         authorityId: "",
         headerImg: "",
         tenantId: undefined,
-        sessionId: undefined,
+        // 关联会话，多选模式为数组
+        sessionId: [],
         status: 1,
       },
       // 重置密码弹窗相关
@@ -327,7 +307,8 @@ export default {
         authorityId: "",
         headerImg: "",
         tenantId: undefined,
-        sessionId: undefined,
+        // 关联会话，多选模式为数组
+        sessionId: [],
         status: 1,
       };
       this.type = "create";
@@ -443,9 +424,6 @@ export default {
   async created() {
     // 获取用户列表
     await this.getTableData();
-    // 获取角色列表用于级联选择器
-    const res = await this.$api.getAuthorityList({ page: 1, pageSize: 999 });
-    this.setOptions(res.data.list);
   },
 };
 </script>
