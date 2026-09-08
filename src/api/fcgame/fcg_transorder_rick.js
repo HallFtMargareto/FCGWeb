@@ -8,3 +8,13 @@ export const getFcgTransOrderList = (params) => {
         params
     })
 }
+
+
+// 分页获取FcgTransferoutSplitList列表
+export const getFcgTransPDFKList = (params) => {
+    return service({
+        url: "/fcg_transorder_rick/yksl",
+        method: 'get',
+        params
+    })
+}
