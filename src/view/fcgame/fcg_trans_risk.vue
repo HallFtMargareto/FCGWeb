@@ -87,33 +87,33 @@
         <el-descriptions title="抛单风控信息" :column="3" border>
           <el-descriptions-item label="总投注">{{
             rickDataInfo.total_info.totalBet
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
           <el-descriptions-item label="总佣金">{{
             rickDataInfo.total_info.totalCommission
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
           <!-- <el-descriptions-item label="净盘值">
             {{ rickDataInfo.total_info.netBank }}
           </el-descriptions-item> -->
 
           <el-descriptions-item label="号码数">{{
             rickDataInfo.total_info.totalCount
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
           <el-descriptions-item label="转出单量">{{
             rickDataInfo.total_info.totalOutOrder
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
           <el-descriptions-item label="转出总金额">{{
             rickDataInfo.total_info.totalOutOrderAmount
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
           <el-descriptions-item label=""></el-descriptions-item>
           <el-descriptions-item label="剩余金额">{{
             rickDataInfo.total_info.syAmount
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
           <el-descriptions-item label="最大亏损金额">{{
             rickDataInfo.total_info.zdksAmount
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
           <el-descriptions-item label="博弈比例">{{
             rickDataInfo.total_info.bioRate
-          }}</el-descriptions-item>
+            }}</el-descriptions-item>
         </el-descriptions>
         <div class="button-column">
           <el-button v-if="channel_trans" type="primary" :disabled="multipleSelection.length === 0"
@@ -168,7 +168,7 @@
         </el-table-column>
         <el-table-column prop="YLRate" label="盈利概率" align="center" sortable>
           <template slot-scope="scope">
-            {{ (parseFloat(scope.row.YLRate) * 100).toFixed(2) }}%
+            {{ parseFloat(scope.row.YLRate).toFixed(2) }}
           </template>
         </el-table-column>
         <el-table-column prop="YLAmount" label="盈利金额" align="center" sortable>
@@ -183,7 +183,7 @@
         </el-table-column>
         <el-table-column prop="BoiRate" label="博弈比例" align="center" sortable>
           <template slot-scope="scope">
-            {{ (parseFloat(scope.row.BoiRate) * 100).toFixed(2) }}%
+            {{ parseFloat(scope.row.BoiRate).toFixed(2) }}
           </template>
         </el-table-column>
       </el-table>
@@ -199,22 +199,22 @@
         <el-descriptions-item label="转出数量">
           <span class="summary-value">{{
             simulateSummary.totalTransCount || 0
-          }}</span>
+            }}</span>
         </el-descriptions-item>
         <el-descriptions-item label="转出金额">
           <span class="summary-value amount">{{
             simulateSummary.totalTransAmount || 0
-          }}</span>
+            }}</span>
         </el-descriptions-item>
         <el-descriptions-item label="中奖金额">
           <span class="summary-value amount">{{
             simulateSummary.totalWinAmount || 0
-          }}</span>
+            }}</span>
         </el-descriptions-item>
         <el-descriptions-item label="转出佣金">
           <span class="summary-value amount">{{
             simulateSummary.totalWaterAmount || 0
-          }}</span>
+            }}</span>
         </el-descriptions-item>
       </el-descriptions>
 
@@ -225,7 +225,7 @@
           <template slot-scope="scope">
             <el-tag size="mini" type="primary">{{
               scope.row.game_category === 1 ? "福彩" : "体彩"
-            }}</el-tag>
+              }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="转出号码" prop="split_number" align="center">
