@@ -189,6 +189,11 @@
             -
             <el-input v-model="boiRateMax" placeholder="最大值" clearable style="width: 100px"></el-input>
           </el-form-item>
+          <el-form-item label="SS不超数">
+            <el-input v-model="ssbcsAmountMin" placeholder="最小值" clearable style="width: 100px"></el-input>
+            -
+            <el-input v-model="ssbcsAmountMax" placeholder="最大值" clearable style="width: 100px"></el-input>
+          </el-form-item>
           <el-form-item>
             <span style="margin-right: 10px">{{ filteredPreLossData.length }} / {{ preLossData.length }} 条数据</span>
             <el-button @click="clearPreLossFilters">重置</el-button>
@@ -219,6 +224,12 @@
         <el-table-column prop="BoiRate" label="博弈比例" align="center" sortable>
           <template slot-scope="scope">
             {{ parseFloat(scope.row.BoiRate).toFixed(2) }}
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="SSBCSAmount" label="SS不超数" align="center" sortable>
+          <template slot-scope="scope">
+            {{ parseFloat(scope.row.SSBCSAmount).toFixed(2) }}
           </template>
         </el-table-column>
       </el-table>
@@ -378,6 +389,11 @@ export default {
         if (this.boiRateMin !== "" && boiRate < parseFloat(this.boiRateMin)) return false;
         if (this.boiRateMax !== "" && boiRate > parseFloat(this.boiRateMax)) return false;
 
+        // SS不超数筛选
+        const ssbcsAmount = parseFloat(item.SSBCSAmount) || 0;
+        if (this.ssbcsAmountMin !== "" && ssbcsAmount < parseFloat(this.ssbcsAmountMin)) return false;
+        if (this.ssbcsAmountMax !== "" && ssbcsAmount > parseFloat(this.ssbcsAmountMax)) return false;
+
         return true;
       });
     },
@@ -475,6 +491,9 @@ export default {
       // 博弈比例
       boiRateMin: "",
       boiRateMax: "",
+      // SS不超数
+      ssbcsAmountMin: "",
+      ssbcsAmountMax: "",
       // 排序相关数据
       sortProp: "",
       sortOrder: null,
@@ -713,6 +732,8 @@ export default {
       this.zdksAmountMax = "";
       this.boiRateMin = "";
       this.boiRateMax = "";
+      this.ssbcsAmountMin = "";
+      this.ssbcsAmountMax = "";
     },
 
     // 生成内容按钮点击事件
