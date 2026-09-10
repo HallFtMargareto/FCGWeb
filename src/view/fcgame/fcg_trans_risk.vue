@@ -161,7 +161,42 @@
 
     <!-- 预亏损率弹窗 -->
     <el-dialog title="预亏损率数据" :visible.sync="showPreLossDialog" width="70%" :close-on-click-modal="false">
-      <el-table :data="preLossData" border stripe max-height="500">
+      <!-- 筛选区域 -->
+      <div style="margin-bottom: 15px; padding: 10px; background-color: #f5f7fa; border-radius: 4px;">
+        <el-form :inline="true" size="mini" label-position="right">
+          <el-form-item label="转出单量">
+            <el-input v-model="transCountMin" placeholder="最小值" clearable style="width: 100px"></el-input>
+            -
+            <el-input v-model="transCountMax" placeholder="最大值" clearable style="width: 100px"></el-input>
+          </el-form-item>
+          <el-form-item label="盈利概率">
+            <el-input v-model="ylRateMin" placeholder="最小值" clearable style="width: 100px"></el-input>
+            -
+            <el-input v-model="ylRateMax" placeholder="最大值" clearable style="width: 100px"></el-input>
+          </el-form-item>
+          <el-form-item label="盈利金额">
+            <el-input v-model="ylAmountMin" placeholder="最小值" clearable style="width: 100px"></el-input>
+            -
+            <el-input v-model="ylAmountMax" placeholder="最大值" clearable style="width: 100px"></el-input>
+          </el-form-item>
+          <el-form-item label="最大亏损">
+            <el-input v-model="zdksAmountMin" placeholder="最小值" clearable style="width: 100px"></el-input>
+            -
+            <el-input v-model="zdksAmountMax" placeholder="最大值" clearable style="width: 100px"></el-input>
+          </el-form-item>
+          <el-form-item label="博弈比例">
+            <el-input v-model="boiRateMin" placeholder="最小值" clearable style="width: 100px"></el-input>
+            -
+            <el-input v-model="boiRateMax" placeholder="最大值" clearable style="width: 100px"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <span style="margin-right: 10px">{{ filteredPreLossData.length }} / {{ preLossData.length }} 条数据</span>
+            <el-button @click="clearPreLossFilters">重置</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+
+      <el-table :data="filteredPreLossData" border stripe max-height="500">
         <el-table-column type="index" label="序号" width="60" align="center" :index="preLossIndexMethod">
         </el-table-column>
         <el-table-column prop="TransCount" label="转出单量" align="center" sortable>
@@ -310,72 +345,41 @@ export default {
         this.setBeta(value);
       },
     },
-    // 过滤后的预亏损数据
+    // 过滤后的预亏损数据（多条件AND逻辑筛选）
     filteredPreLossData() {
       if (!this.preLossData || this.preLossData.length === 0) {
         return [];
       }
 
-      let filteredData = this.preLossData.filter((item) => {
-        const preLossAmount = parseFloat(item.PreLossAmount) || 0;
-        const transferAmount = parseFloat(item.TransferAmount) || 0;
+      return this.preLossData.filter((item) => {
+        const transCount = parseFloat(item.TransCount) || 0;
+        const ylRate = parseFloat(item.YLRate) || 0;
+        const ylAmount = parseFloat(item.YLAmount) || 0;
+        const zdksAmount = parseFloat(item.ZDKSAmount) || 0;
+        const boiRate = parseFloat(item.BoiRate) || 0;
 
-        // 预亏损金额最小值筛选
-        if (this.preLossAmountMinFilter && this.preLossAmountMinFilter !== "") {
-          const minValue = parseFloat(this.preLossAmountMinFilter) || 0;
-          if (preLossAmount < minValue) {
-            return false;
-          }
-        }
+        // 转出单量筛选
+        if (this.transCountMin !== "" && transCount < parseFloat(this.transCountMin)) return false;
+        if (this.transCountMax !== "" && transCount > parseFloat(this.transCountMax)) return false;
 
-        // 预亏损金额最大值筛选
-        if (this.preLossAmountMaxFilter && this.preLossAmountMaxFilter !== "") {
-          const maxValue = parseFloat(this.preLossAmountMaxFilter) || 0;
-          if (preLossAmount > maxValue) {
-            return false;
-          }
-        }
+        // 盈利概率筛选
+        if (this.ylRateMin !== "" && ylRate < parseFloat(this.ylRateMin)) return false;
+        if (this.ylRateMax !== "" && ylRate > parseFloat(this.ylRateMax)) return false;
 
-        // 转出总金额筛选
-        if (this.transferAmountFilter && this.transferAmountFilter !== "") {
-          const filterValue = parseFloat(this.transferAmountFilter) || 0;
-          if (transferAmount > filterValue) {
-            return false;
-          }
-        }
+        // 盈利金额筛选
+        if (this.ylAmountMin !== "" && ylAmount < parseFloat(this.ylAmountMin)) return false;
+        if (this.ylAmountMax !== "" && ylAmount > parseFloat(this.ylAmountMax)) return false;
+
+        // 最大亏损筛选
+        if (this.zdksAmountMin !== "" && zdksAmount < parseFloat(this.zdksAmountMin)) return false;
+        if (this.zdksAmountMax !== "" && zdksAmount > parseFloat(this.zdksAmountMax)) return false;
+
+        // 博弈比例筛选
+        if (this.boiRateMin !== "" && boiRate < parseFloat(this.boiRateMin)) return false;
+        if (this.boiRateMax !== "" && boiRate > parseFloat(this.boiRateMax)) return false;
 
         return true;
       });
-
-      // 如果有排序条件，对过滤后的数据进行排序
-      if (this.preLossSortProp && this.preLossSortOrder) {
-        filteredData = [...filteredData].sort((a, b) => {
-          let valueA = a[this.preLossSortProp];
-          let valueB = b[this.preLossSortProp];
-
-          // 处理数字类型的排序
-          if (
-            this.preLossSortProp === "PreLossAmount" ||
-            this.preLossSortProp === "PreLossRate" ||
-            this.preLossSortProp === "TransferAmount" ||
-            this.preLossSortProp === "OrderCount" ||
-            this.preLossSortProp === "CalAmount" ||
-            this.preLossSortProp === "GameRatio" ||
-            this.preLossSortProp === "MaxLossAmount"
-          ) {
-            valueA = parseFloat(valueA) || 0;
-            valueB = parseFloat(valueB) || 0;
-          }
-
-          if (this.preLossSortOrder === "ascending") {
-            return valueA - valueB;
-          } else {
-            return valueB - valueA;
-          }
-        });
-      }
-
-      return filteredData;
     },
     // 根据风险比例和转出单量过滤后的订单数据（AND逻辑）
     filteredRickOrder() {
@@ -456,10 +460,21 @@ export default {
       // 预亏损弹窗相关数据
       showPreLossDialog: false,
       preLossData: [],
-      // 筛选相关数据
-      preLossAmountMinFilter: "",
-      preLossAmountMaxFilter: "",
-      transferAmountFilter: "",
+      // 筛选相关数据 - 转出单量
+      transCountMin: "",
+      transCountMax: "",
+      // 盈利概率
+      ylRateMin: "",
+      ylRateMax: "",
+      // 盈利金额
+      ylAmountMin: "",
+      ylAmountMax: "",
+      // 最大亏损
+      zdksAmountMin: "",
+      zdksAmountMax: "",
+      // 博弈比例
+      boiRateMin: "",
+      boiRateMax: "",
       // 排序相关数据
       sortProp: "",
       sortOrder: null,
@@ -688,16 +703,16 @@ export default {
 
     // 清除预亏损数据筛选
     clearPreLossFilters() {
-      this.preLossAmountMinFilter = "";
-      this.preLossAmountMaxFilter = "";
-      this.transferAmountFilter = "";
-      // 同时清除排序条件
-      this.preLossSortProp = "";
-      this.preLossSortOrder = null;
-      // 清空排序后的数据
-      this.sortedPreLossData = [];
-      // 强制更新视图
-      this.$forceUpdate();
+      this.transCountMin = "";
+      this.transCountMax = "";
+      this.ylRateMin = "";
+      this.ylRateMax = "";
+      this.ylAmountMin = "";
+      this.ylAmountMax = "";
+      this.zdksAmountMin = "";
+      this.zdksAmountMax = "";
+      this.boiRateMin = "";
+      this.boiRateMax = "";
     },
 
     // 生成内容按钮点击事件
@@ -1239,27 +1254,6 @@ export default {
     },
   },
   watch: {
-    // 监听排序条件变化，更新排序后的数据
-    preLossSortProp() {
-      this.updateSortedPreLossData();
-    },
-    preLossSortOrder() {
-      this.updateSortedPreLossData();
-    },
-    // 监听过滤条件变化，更新排序后的数据
-    preLossAmountMinFilter() {
-      this.updateSortedPreLossData();
-    },
-    preLossAmountMaxFilter() {
-      this.updateSortedPreLossData();
-    },
-    transferAmountFilter() {
-      this.updateSortedPreLossData();
-    },
-    // 监听原始数据变化，更新排序后的数据
-    preLossData() {
-      this.updateSortedPreLossData();
-    },
     // 监听弹窗关闭，清空AI分析内容
     showPreLossDialog(newVal) {
       if (!newVal) {
