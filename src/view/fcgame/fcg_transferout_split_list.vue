@@ -68,44 +68,44 @@
             <el-descriptions-item label="总交易笔数">
               <span class="summary-value">{{
                 summaryData.totalSummary.totalTransCount || 0
-              }}</span>
+                }}</span>
             </el-descriptions-item>
             <el-descriptions-item label="总交易金额">
               <span class="summary-value amount">{{
                 summaryData.totalSummary.totalTransAmount || 0
-              }}</span>
+                }}</span>
             </el-descriptions-item>
             <el-descriptions-item label="总中奖金额">
               <span class="summary-value amount">{{
                 summaryData.totalSummary.totalWinAmount || 0
-              }}</span>
+                }}</span>
             </el-descriptions-item>
             <el-descriptions-item label="总返水金额">
               <span class="summary-value amount">{{
                 summaryData.totalSummary.totalWaterAmount || 0
-              }}</span>
+                }}</span>
             </el-descriptions-item>
 
             <el-descriptions-item label="快速转出单量">
               <span class="summary-value amount">{{
                 summaryData.totalSummary.fastTransCount || 0
-              }}</span>
+                }}</span>
             </el-descriptions-item>
             <el-descriptions-item label="快速转出金额">
               <span class="summary-value amount">{{
                 summaryData.totalSummary.fastTransAmount || 0
-              }}</span>
+                }}</span>
             </el-descriptions-item>
 
             <el-descriptions-item label="复制转出单量">
               <span class="summary-value amount">{{
                 summaryData.totalSummary.normalTransCount || 0
-              }}</span>
+                }}</span>
             </el-descriptions-item>
             <el-descriptions-item label="复制转出金额">
               <span class="summary-value amount">{{
                 summaryData.totalSummary.normalTransAmount || 0
-              }}</span>
+                }}</span>
             </el-descriptions-item>
           </el-descriptions>
         </div>
@@ -118,7 +118,7 @@
               <template slot-scope="scope">
                 <el-tag size="mini" type="primary">{{
                   $utils.getGameCategoryName(scope.row.game_category)
-                }}</el-tag>
+                  }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column label="交易笔数" prop="transCount">
@@ -130,14 +130,14 @@
               <template slot-scope="scope">
                 <span class="summary-value amount">{{
                   scope.row.transAmount
-                }}</span>
+                  }}</span>
               </template>
             </el-table-column>
             <el-table-column label="中奖金额" prop="transAmount">
               <template slot-scope="scope">
                 <span class="summary-value amount">{{
                   scope.row.winAmount
-                }}</span>
+                  }}</span>
               </template>
             </el-table-column>
           </el-table>
@@ -154,7 +154,7 @@
         <template slot-scope="scope">
           <el-tag size="mini" type="primary">{{
             $utils.getGameCategoryName(scope.row.game_category)
-          }}</el-tag>
+            }}</el-tag>
         </template>
       </el-table-column>
 
@@ -239,21 +239,11 @@
       </el-table-column> -->
     </el-table>
 
-    <!-- class="pagination-container" -->
-    <div>
-      <!-- 数据合计,按需求启用 -->
-      <!-- <el-button v-if="userInfo.perm['system.summary']" @click="getSummaryList">合计</el-button> -->
-      <!-- <el-pagination
-        :current-page="page"
-        :page-size="pageSize"
-        :page-sizes="[10, 30, 50, 100]"
-        :style="{ float: 'right', padding: '20px' }"
-        :total="total"
-        @current-change="handleCurrentChange"
-        @size-change="handleSizeChange"
-        layout="total, sizes, prev, pager, next, jumper"
-        background
-      ></el-pagination> -->
+    <!-- 分页 -->
+    <div style="width: 100%;">
+      <el-pagination :current-page="page" :page-size="pageSize" :page-sizes="[10, 30, 50, 100]"
+        :style="{ float: 'right', padding: '20px' }" :total="total" @current-change="handleCurrentChange"
+        @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper" background></el-pagination>
     </div>
 
     <dialogform :visible.sync="openDialog" :dialogTitle="dialogTitle" :formDatas="formData" :formRule="formRules"
@@ -361,7 +351,7 @@ export default {
     // 重写getTableData方法来处理summary数据
     async getTableData(
       page = this.page,
-      pageSize = this.pageSize,
+      pageSize = 30,
       orderField = this.orderField,
       orderType = this.orderType
     ) {
@@ -759,15 +749,6 @@ export default {
 
 .tenant-id {
   color: #909399;
-}
-
-/* 分页样式 */
-.el-pagination {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  margin-top: 20px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
 /* 响应式设计 */
