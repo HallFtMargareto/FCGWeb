@@ -197,6 +197,7 @@
           <el-form-item>
             <span style="margin-right: 10px">{{ filteredPreLossData.length }} / {{ preLossData.length }} 条数据</span>
             <el-button @click="clearPreLossFilters">重置</el-button>
+            <el-button @click="copyPreLossFilters">复制</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -734,6 +735,46 @@ export default {
       this.boiRateMax = "";
       this.ssbcsAmountMin = "";
       this.ssbcsAmountMax = "";
+    },
+
+    // 复制当前筛选后的预亏损数据为markdown表格
+    async copyPreLossFilters() {
+      const data = this.filteredPreLossData;
+      if (!data || data.length === 0) {
+        this.$message.warning("没有可复制的数据");
+        return;
+      }
+
+      // 构建markdown表格
+      let md = "| 序号 | 转出单量 | 盈利概率 | 盈利金额 | 最大亏损 | 博弈比例 | SS不超数 |\n";
+      md += "|------|----------|----------|----------|----------|----------|----------|\n";
+
+      data.forEach((item, index) => {
+        md += `| ${index + 1} ` +
+          `| ${parseFloat(item.TransCount).toFixed(2)} ` +
+          `| ${parseFloat(item.YLRate).toFixed(2)} ` +
+          `| ${parseFloat(item.YLAmount).toFixed(2)} ` +
+          `| ${parseFloat(item.ZDKSAmount).toFixed(2)} ` +
+          `| ${parseFloat(item.BoiRate).toFixed(2)} ` +
+          `| ${parseFloat(item.SSBCSAmount).toFixed(2)} |\n`;
+      });
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(md);
+        } else {
+          const textarea = document.createElement("textarea");
+          textarea.value = md;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textarea);
+        }
+        this.$message.success("复制成功");
+      } catch (err) {
+        this.$message.error("复制失败");
+        console.error("复制失败:", err);
+      }
     },
 
     // 生成内容按钮点击事件
