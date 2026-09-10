@@ -1257,6 +1257,8 @@ export default {
     // 监听弹窗关闭，清空AI分析内容
     showPreLossDialog(newVal) {
       if (!newVal) {
+        // 关闭弹窗时清空筛选条件和AI分析内容
+        this.clearPreLossFilters();
         this.aiAnalysisContent = "";
         this.aiAnalysisCompleted = false;
       }
