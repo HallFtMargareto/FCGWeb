@@ -74,3 +74,12 @@ export const getFcgOrderFinanceSummary = (params) => {
         params
     })
 }
+
+// 分页获取FcgOrderFinance列表
+export const getFcgOrderSessionFinanceList = (params) => {
+    return service({
+        url: "/fcg_order_finance/getSessionList",
+        method: 'get',
+        params
+    })
+}

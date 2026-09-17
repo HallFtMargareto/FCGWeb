@@ -15,6 +15,12 @@
                     </el-form-item>
                 </template>
 
+                <el-form-item label="所属会话">
+                    <FcgContactSelect v-model="searchInfo.session_id" :tenant-id="searchInfo.tenant_id"
+                        :tenant-ids="searchInfo.tenant_id" cache-key-prefix="fcg_order_contact_list" />
+                </el-form-item>
+
+
                 <el-form-item label="开始时间">
                     <datepicker v-model="searchInfo.startTime" type="date" />
                 </el-form-item>
@@ -35,7 +41,9 @@
                         <!-- <el-table-column label="ID" prop="ID" sortable width="90" align="center" fixed="left"></el-table-column> -->
                         <el-table-column label="期号" prop="issue_no" width="120" align="center"
                             fixed="left"></el-table-column>
-                        <el-table-column label="组织" prop="tennat_name" width="200" align="center" fixed="left"
+                        <el-table-column label="会话" prop="session_name" width="200" align="center" fixed="left"
+                            show-overflow-tooltip></el-table-column>
+                        <el-table-column label="所属组织" prop="tennat_name" width="200" align="center" fixed="left"
                             show-overflow-tooltip></el-table-column>
 
                         <el-table-column label="总计" align="center" label-class-name="group-header-total">
@@ -47,7 +55,7 @@
                             <el-table-column label="佣金" prop="total_commission" min-width="120" align="center">
                                 <template slot-scope="scope">
                                     <span class="money-text commission-text">{{ formatMoney(scope.row.total_commission)
-                                    }}</span>
+                                        }}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column label="中奖" prop="total_win_amount" min-width="120" align="center">
@@ -55,27 +63,6 @@
                                     <span class="money-text"
                                         :style="{ color: getWinAmountColor(scope.row.total_win_amount, scope.row.total_bet_amount) }">
                                         {{ formatMoney(scope.row.total_win_amount) }}
-                                    </span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="转出" prop="total_trans_amount" min-width="120" align="center">
-                                <template slot-scope="scope">
-                                    <span class="money-text">{{ formatMoney(scope.row.total_trans_amount) }}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="转出佣金" prop="total_trans_water_amount" min-width="120"
-                                align="center">
-                                <template slot-scope="scope">
-                                    <span class="money-text commission-text">{{
-                                        formatMoney(scope.row.total_trans_water_amount)
-                                    }}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="转出中奖" prop="total_trans_win_amount" min-width="120" align="center">
-                                <template slot-scope="scope">
-                                    <span class="money-text"
-                                        :style="{ color: getWinAmountColor(scope.row.total_trans_win_amount, scope.row.total_trans_amount) }">
-                                        {{ formatMoney(scope.row.total_trans_win_amount) }}
                                     </span>
                                 </template>
                             </el-table-column>
@@ -98,7 +85,7 @@
                                 <template slot-scope="scope">
                                     <span class="money-text commission-text">{{
                                         formatMoney(scope.row.fc_total_commission)
-                                    }}</span>
+                                        }}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column label="中奖" prop="fc_total_win_amount" min-width="110" align="center">
@@ -106,26 +93,6 @@
                                     <span class="money-text"
                                         :style="{ color: getWinAmountColor(scope.row.fc_total_win_amount, scope.row.fc_total_bet_amount) }">
                                         {{ formatMoney(scope.row.fc_total_win_amount) }}
-                                    </span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="转出" prop="fc_total_trans_amount" min-width="110" align="center">
-                                <template slot-scope="scope">
-                                    <span class="money-text">{{ formatMoney(scope.row.fc_total_trans_amount) }}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="转出佣金" prop="fc_total_water_amount" min-width="110" align="center">
-                                <template slot-scope="scope">
-                                    <span class="money-text commission-text">{{
-                                        formatMoney(scope.row.fc_total_water_amount)
-                                    }}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="转出中奖" prop="fc_trans_win_amount" min-width="110" align="center">
-                                <template slot-scope="scope">
-                                    <span class="money-text"
-                                        :style="{ color: getWinAmountColor(scope.row.fc_trans_win_amount, scope.row.fc_total_trans_amount) }">
-                                        {{ formatMoney(scope.row.fc_trans_win_amount) }}
                                     </span>
                                 </template>
                             </el-table-column>
@@ -141,7 +108,7 @@
                                 <template slot-scope="scope">
                                     <span class="money-text commission-text">{{
                                         formatMoney(scope.row.tc_total_commission)
-                                    }}</span>
+                                        }}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column label="中奖" prop="tc_total_win_amount" min-width="110" align="center">
@@ -149,26 +116,6 @@
                                     <span class="money-text"
                                         :style="{ color: getWinAmountColor(scope.row.tc_total_win_amount, scope.row.tc_total_bet_amount) }">
                                         {{ formatMoney(scope.row.tc_total_win_amount) }}
-                                    </span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="转出" prop="tc_total_trans_amount" min-width="110" align="center">
-                                <template slot-scope="scope">
-                                    <span class="money-text">{{ formatMoney(scope.row.tc_total_trans_amount) }}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="转出佣金" prop="tc_total_water_amount" min-width="110" align="center">
-                                <template slot-scope="scope">
-                                    <span class="money-text commission-text">{{
-                                        formatMoney(scope.row.tc_total_water_amount)
-                                    }}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="转出中奖" prop="tc_trans_win_amount" min-width="110" align="center">
-                                <template slot-scope="scope">
-                                    <span class="money-text"
-                                        :style="{ color: getWinAmountColor(scope.row.tc_trans_win_amount, scope.row.tc_total_trans_amount) }">
-                                        {{ formatMoney(scope.row.tc_trans_win_amount) }}
                                     </span>
                                 </template>
                             </el-table-column>
@@ -208,21 +155,25 @@ import {
     deleteFcgOrderFinance,
     updateFcgOrderFinance,
     findFcgOrderFinance,
-    getFcgOrderFinanceList,
+    getFcgOrderSessionFinanceList,
     batchFcgOrderFinanceOperation,
 } from "@/api/fcgame/fcg_order_finance";
 import infoList from "@/mixins/infoList";
+import FcgContactSelect from "@/components/fcgContactSelect/index.vue";
 import { mapGetters } from "vuex";
 import * as echarts from "echarts";
 export default {
     name: "fcg_order_finance",
+    components: {
+        FcgContactSelect,
+    },
     mixins: [infoList],
     computed: {
         ...mapGetters("user", ["userInfo"]),
     },
     data() {
         return {
-            listApi: getFcgOrderFinanceList,
+            listApi: getFcgOrderSessionFinanceList,
             openDialog: false,
             dialogTitle: "",
             type: "",
@@ -410,8 +361,8 @@ export default {
         // host 账号可能看到多组织数据，用期号和组织共同作为横轴标签。
         getChartLabel(row) {
             const issueNo = row.issue_no || "未知期号";
-            if (this.userInfo.perm["host"] && row.tennat_name) {
-                return `${issueNo}-${row.tennat_name}`;
+            if (this.userInfo.perm["host"] && row.session_name) {
+                return `${issueNo}-${row.session_name}`;
             }
             return issueNo;
         },
@@ -831,7 +782,7 @@ export default {
         getSummaries(param) {
             const { columns, data } = param;
             const sums = [];
-            const nonSummaryProps = new Set(["issue_no", "tennat_name", "ID", "created_at"]);
+            const nonSummaryProps = new Set(["issue_no", "session_name", "ID", "created_at"]);
 
             columns.forEach((column, index) => {
                 if (index === 0) {
